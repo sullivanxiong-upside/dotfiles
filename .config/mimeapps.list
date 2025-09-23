@@ -1,0 +1,23 @@
+[Default Applications]
+x-scheme-handler/http=zen.desktop
+text/html=zen.desktop
+application/xhtml+xml=zen.desktop
+x-scheme-handler/https=zen.desktop
+x-scheme-handler/chrome=zen.desktop
+application/x-extension-htm=zen.desktop
+application/x-extension-html=zen.desktop
+application/x-extension-shtml=zen.desktop
+application/x-extension-xhtml=zen.desktop
+application/x-extension-xht=zen.desktop
+
+[Added Associations]
+x-scheme-handler/http=zen.desktop;app.zen_browser.zen.desktop;
+text/html=app.zen_browser.zen.desktop;zen.desktop;
+application/xhtml+xml=app.zen_browser.zen.desktop;zen.desktop;
+x-scheme-handler/https=zen.desktop;app.zen_browser.zen.desktop;
+x-scheme-handler/chrome=zen.desktop;
+application/x-extension-htm=zen.desktop;
+application/x-extension-html=zen.desktop;
+application/x-extension-shtml=zen.desktop;
+application/x-extension-xhtml=zen.desktop;
+application/x-extension-xht=zen.desktop;

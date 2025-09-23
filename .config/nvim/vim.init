@@ -1,0 +1,8 @@
+set expandtab
+set tabstop=3
+set shiftwidth=3
+set softtabstop=3
+autocmd FileType python setlocal expandtab shiftwidth=4 softtabstop=4
+autocmd FileType javascript setlocal expandtab shiftwidth=3 softtabstop=3
+autocmd FileType java setlocal expandtab shiftwidth=3 softtabstop=3
+autocmd FileType c setlocal expandtab shiftwidth=3 softtabstop=3

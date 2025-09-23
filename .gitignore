@@ -1,0 +1,56 @@
+# Sensitive authentication and credential files
+.config/protonvpn/login.conf
+.config/cursor/auth.json
+.config/cursor/prompt_history.json
+
+# Application data and history files
+.config/qalculate/qalculate.history
+.config/discord/
+.config/evolution/
+.config/nautilus/
+
+# System-specific files
+.config/monitors.xml
+.config/monitors.xml~
+.config/user-dirs.dirs
+.config/user-dirs.locale
+
+# Session and temporary files
+.config/session/
+.config/systemd/
+.config/procps/
+
+# Large application caches and data
+.config/go/
+.config/matplotlib/
+.config/nextjs-nodejs/
+
+# Electron app data
+.config/Electron/
+
+# GNOME Online Accounts
+.config/goa-1.0/
+
+# PulseAudio user data
+.config/pulse/
+
+# Trash configuration
+.config/trashrc
+
+# Yelp help system
+.config/yelp/
+
+# Backup files
+*~
+*.bak
+*.swp
+*.tmp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

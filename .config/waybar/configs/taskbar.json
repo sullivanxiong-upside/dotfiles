@@ -1,0 +1,47 @@
+/* ---- 💫 https://github.com/JaKooLit 💫 ---- */
+
+/* My Mostly Used waybar config incase you wonder :) */
+{
+"include": [
+  "$HOME/.config/waybar/modules.json",
+  "$HOME/.config/waybar/modules_workspaces.json",
+  "$HOME/.config/waybar/modules_custom.json",
+  "$HOME/.config/waybar/modules_groups.json",
+  ],
+"layer": "bottom",
+//"mode": "dock",
+"exclusive": true,
+"passthrough": false,
+"position": "top",
+"spacing": 3,
+"fixed-center": true,
+"ipc": true,
+"margin-top": 0,
+"margin-left": 0,
+"margin-right": 0,
+
+"modules-left": [
+	//"idle_inhibitor",
+	//"custom/separator#blank",
+	"tray",
+        "custom/separator#line",	
+        "custom/separator#blank",	
+        "hyprland/workspaces#alpha",
+	],
+
+"modules-center": [
+        "clock",
+	],
+
+"modules-right": [
+        //"mpris",
+        "group/notify",
+	"custom/separator#dot-line",   
+	"battery",
+	"custom/separator#blank",  
+	"group/audio",
+	"custom/separator#dot-line",
+	"custom/power",
+	],
+}
+
