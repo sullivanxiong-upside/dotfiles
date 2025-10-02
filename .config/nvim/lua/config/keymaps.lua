@@ -14,7 +14,7 @@
 vim.keymap.set("n", "<A-j>", "ddp", { desc = "Move line down" })
 vim.keymap.set("n", "<A-k>", "dd2kp", { desc = "Move line up" })
 vim.keymap.set("n", "<C-u>", "<C-r>", { desc = "Redo"})
-vim.keymap.set("n", "<C-j>", "<PageDown>", { desc = "Page down"})
+vim.keymap.set("n", "<C-j>", "<PageDown>", { desc = "Page down" })
 vim.keymap.set("n", "<C-k>", "<PageUp>", { desc = "Page up"})
 
 -- Tab control
@@ -31,7 +31,7 @@ vim.keymap.set("n", "<A-6>", "6gt", { desc = "Go to ... tab" })
 vim.keymap.set("n", "<A-7>", "7gt", { desc = "Go to ... tab" })
 vim.keymap.set("n", "<A-8>", "8gt", { desc = "Go to ... tab" })
 vim.keymap.set("n", "<A-9>", "9gt", { desc = "Go to ... tab" })
-vim.keymap.set("n", "<C-h>", ":w<CR>:tabclose<CR>", { desc = "Close current tab" })
+vim.keymap.set("n", "<C-BS>", ":w<CR>:tabclose<CR>", { desc = "Close current tab" })
 vim.keymap.set("n", "<C-n>", ":tabnew ./<CR>", { desc = "Open new tab" })
 vim.keymap.set("n", "<C-s>", ":w<CR>", { desc = "Save current tab" })
 vim.keymap.set("n", "<C-r>", ":source ~/.config/nvim/lua/config/lazy.lua<CR>:source ~/.config/nvim/lua/config/keymaps.lua<CR>", { desc = "Reload NeoVim environment" })
@@ -69,12 +69,22 @@ vim.keymap.set("n", "(", "lbi(<esc>ea)", { desc = "Wrap in paranthesis" })
 vim.keymap.set("v", "(", "<esc>`>a)<esc>`<i(", { desc = "Wrap in paranthesis" })
 vim.keymap.set("i", "(", "()<esc>i", { desc = "Wrap in paranthesis" })
 
-vim.keymap.set("n", "<C-_>", "gcc", { remap = false, desc = "Comment this" })
-vim.keymap.set("i", "<C-_>", "<esc>gcc", { remap = false, desc = "Comment this" })
-vim.keymap.set("v", "<C-_>", "gc", { remap = false, desc = "Comment this" })
 
-vim.keymap.set("n", "<C-[>", "<<", { remap = false, desc = "Un-indent" })
-vim.keymap.set("v", "<C-[>", "<", { remap = false, desc = "Un-indent" })
+-- Commenting
+vim.keymap.set("n", "<C-/>", function()
+    require("Comment.api").toggle.linewise.current()
+end, { desc = "Toggle comment for current line" })
+vim.keymap.set("v", "<C-/>", "<ESC><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>", { desc = "Toggle comment for selection" })
 
-vim.keymap.set("n", "<C-]>", ">>", { remap = false, desc = "Indent" })
-vim.keymap.set("v", "<C-]>", ">", { remap = false, desc = "Indent" })
+-- Alternative commenting keymaps (in case Ctrl+/ doesn't work)
+vim.keymap.set("n", "gcc", function()
+    require("Comment.api").toggle.linewise.current()
+end, { desc = "Toggle comment for current line" })
+vim.keymap.set("v", "gc", "<ESC><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>", { desc = "Toggle comment for selection" })
+
+-- Debug: Test what key is actually being received
+vim.keymap.set("n", "<C-_>", function()
+    print("Ctrl+_ received!")
+    require("Comment.api").toggle.linewise.current()
+end, { desc = "Toggle comment for current line (Ctrl+_)" })
+vim.keymap.set("v", "<C-_>", "<ESC><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>", { desc = "Toggle comment for selection (Ctrl+_)" })

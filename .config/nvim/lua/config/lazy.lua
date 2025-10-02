@@ -64,6 +64,13 @@ require("lazy").setup({
          })
       end,
    },
+   -- Comment plugin for commenting/uncommenting code
+   {
+      "numToStr/Comment.nvim",
+      config = function()
+         require("Comment").setup()
+      end,
+   },
 })
 
 -- Somewhere in your config:

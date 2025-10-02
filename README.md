@@ -208,23 +208,76 @@ This repository contains configuration files for various applications and tools 
 
 ## Installation
 
+### Quick Installation
+
 1. Clone this repository:
    ```bash
    git clone <repository-url> ~/dotfiles
    cd ~/dotfiles
    ```
 
-2. Create symbolic links to your home directory:
+2. Run the installation script:
    ```bash
-   # For .config directory
-   ln -sf ~/dotfiles/.config ~/.config
-   
-   # For individual .config directory
-   ln -sf ~/dotfiles/.config/[dir] ~/.config/[dir]
-   
-   # For .bashrc
-   ln -sf ~/dotfiles/.bashrc ~/.bashrc
+   ./install.sh
    ```
+
+The installation script will:
+- Create symbolic links for all dotfiles to your home directory
+- Backup any existing files before overwriting them
+- Provide colored output for easy monitoring
+- Support both installation and uninstallation
+
+### Manual Installation
+
+If you prefer to install manually:
+
+```bash
+# For .config directory
+ln -sf ~/dotfiles/.config ~/.config
+
+# For individual .config directory
+ln -sf ~/dotfiles/.config/[dir] ~/.config/[dir]
+
+# For .bashrc
+ln -sf ~/dotfiles/.bashrc ~/.bashrc
+
+# For .tmux.conf
+ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf
+```
+
+### Installation Script Usage
+
+```bash
+# Install dotfiles (default)
+./install.sh
+./install.sh install
+./install.sh -i
+
+# Uninstall dotfiles (remove symlinks)
+./install.sh uninstall
+./install.sh -u
+
+# Restore from backup
+./install.sh restore_backup ~/.dotfiles_backup_20251001_220428
+./install.sh -r ~/.dotfiles_backup_20251001_220428
+
+# Show help
+./install.sh help
+./install.sh -h
+```
+
+### Backup and Restore
+
+The installation script automatically creates timestamped backups before overwriting existing files. These backups are stored in `~/.dotfiles_backup_YYYYMMDD_HHMMSS/`.
+
+**To restore your original files:**
+```bash
+# Using the restore_backup command (recommended)
+./install.sh restore_backup ~/.dotfiles_backup_20251001_220428
+
+# Or manually copy files back
+cp -r ~/.dotfiles_backup_20251001_220428/* ~/
+```
 
 3. Install required packages (Arch Linux):
    ```bash
