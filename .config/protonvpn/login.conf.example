@@ -1,9 +1,0 @@
-# ProtonVPN Login Configuration
-# Copy this file to login.conf and fill in your actual credentials
-# DO NOT commit login.conf to version control
-
-# Your ProtonVPN username
-your_username_here
-
-# Your ProtonVPN password
-your_password_here

@@ -1,0 +1,8 @@
+# Monitor hotplug detection for Hyprland
+# This rule triggers when monitors are connected or disconnected
+
+# Detect DRM (Direct Rendering Manager) device changes
+SUBSYSTEM=="drm", ACTION=="change", ENV{DISPLAY}=":0", RUN+="/home/suxiong/.config/hypr/scripts/setup_monitors.sh"
+
+# Alternative: Detect graphics card changes (for some systems)
+SUBSYSTEM=="pci", ATTR{class}=="0x030000", ACTION=="add|remove", RUN+="/home/suxiong/.config/hypr/scripts/setup_monitors.sh"

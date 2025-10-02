@@ -45,7 +45,8 @@ end, { desc = "Copy line(s) to Clipboard" })
 vim.keymap.set({"n", "i"}, "<C-v>", "\"+p", { desc = "Paste from clipboard" })
 
 -- Diagnostics
-vim.keymap.set("n", "<C-e>", ":lua vim.diagnostic.open_float()<CR>", { desc = "Show current line Error" })
+vim.keymap.set("n", "<C-f>", ":lua vim.diagnostic.open_float()<CR>", { desc = "Show current line Error" })
+vim.keymap.set("n", "<C-e>", "<C-u>", { desc = "Page up (scroll up)" })
 
 -- Wrappers
 vim.keymap.set("n", "\"", "lbi\"<esc>ea\"", { desc = "Wrap in quotes" })
