@@ -1,0 +1,47 @@
+# Todolist Management Protocol
+
+## Mandatory Task Tracking
+
+### Always Use Todolist.md
+- **REQUIRED**: Every task must be added to `todolist.md` before starting work
+- **REQUIRED**: Mark tasks as completed in `todolist.md` when finished
+- Use the `todo_write` tool to manage tasks programmatically
+- Keep the todolist organized with clear, actionable task descriptions
+
+### Task Workflow Protocol
+1. **Before starting any work**:
+   - Add the task to `todolist.md` using `todo_write` tool
+   - Set status to "in_progress" for the current task
+   - Set status to "pending" for future tasks
+
+2. **During work**:
+   - Only work on one task at a time (one "in_progress" task maximum)
+   - Update task status as needed using `todo_write`
+
+3. **After completing work**:
+   - Mark the task as "completed" using `todo_write` tool
+   - Update `todolist.md` file to reflect completion
+
+### Task Naming Convention
+- Use clear, descriptive task names
+- Include context about what file/feature is being modified
+- Examples:
+  - "Add nvim keybind Alt+Enter for go to definition"
+  - "Update tmux configuration for better window management"
+  - "Fix starship prompt configuration for git branch display"
+
+### Repository Context
+This is a dotfiles repository containing:
+- Neovim configuration (`.config/nvim/`)
+- Shell configurations (`.bashrc`, `.zshrc`)
+- Terminal configurations (`.tmux.conf`, starship)
+- Other development tool configurations
+
+### Key Principles
+- Maintain consistency across different OS (macOS/Linux adaptive keybinds)
+- Document changes clearly
+- Keep configurations portable and well-organized
+- Always update the todolist to track progress
+
+### Emergency Override
+If a task is urgent and requires immediate attention without todolist management, explain why in the response and add it to the todolist afterward.
