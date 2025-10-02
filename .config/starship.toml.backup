@@ -21,7 +21,6 @@ $haskell\
 $python\
 [](fg:green bg:sapphire)\
 $conda\
-$kubernetes\
 [](fg:sapphire bg:lavender)\
 $time\
 [ ](fg:lavender)\
