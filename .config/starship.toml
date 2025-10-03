@@ -143,12 +143,12 @@ ignore_base = false
 
 [kubernetes]
 disabled = false
-format = '\([$symbol$context( : $namespace)]($style) \)'
-symbol = "☸ "
-style = "bold blue"
+style = "fg:crust bg:sapphire"
+format = '[[ $symbol( $context) ](fg:crust bg:sapphire)]($style)'
+symbol = "☸"
 contexts = [
-  { context_pattern = ".*prod.*", style = "bold red", context_alias = "⚠️PROD⚠️" },
-  { context_pattern = ".*stage.*", style = "bold blue", context_alias = "stage"}
+  { context_pattern = ".*prod.*", style = "bg:red", context_alias = "⚠️PROD⚠️" },
+  { context_pattern = ".*stage.*", style = "bg:sapphire", context_alias = "stage"}
 ]
 
 [nix_shell]
