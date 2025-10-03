@@ -62,26 +62,100 @@ vim.keymap.set({"n", "i"}, "<C-v>", "\"+p", { desc = "Paste from clipboard" })
 vim.keymap.set("n", "<C-f>", ":lua vim.diagnostic.open_float()<CR>", { desc = "Show current line Error" })
 vim.keymap.set("n", "<C-e>", "<C-u>", { desc = "Page up (scroll up)" })
 
--- Wrappers
-vim.keymap.set("n", "\"", "lbi\"<esc>ea\"", { desc = "Wrap in quotes" })
-vim.keymap.set("v", "\"", "<esc>`>a\"<esc>`<i\"", { desc = "Wrap in quotes" })
-vim.keymap.set("i", "\"", "\"\"<esc>i", { desc = "Wrap in quotes" })
+-- Filetype-specific wrapper functions
+local function setup_wrappers_for_filetype(filetypes)
+   local function wrap_quotes_normal()
+      vim.cmd("lbi\"<esc>ea\"")
+   end
+   local function wrap_quotes_visual()
+      vim.cmd("<esc>`>a\"<esc>`<i\"")
+   end
+   local function wrap_quotes_insert()
+      vim.cmd("\"\"<esc>i")
+   end
 
-vim.keymap.set("n", "'", "lbi'<esc>ea'", { desc = "Wrap in single quotes" })
-vim.keymap.set("v", "'", "<esc>`>a'<esc>`<i'", { desc = "Wrap in single quotes" })
-vim.keymap.set("i", "'", "''<esc>i", { desc = "Wrap in single quotes" })
+   local function wrap_single_quotes_normal()
+      vim.cmd("lbi'<esc>ea'")
+   end
+   local function wrap_single_quotes_visual()
+      vim.cmd("<esc>`>a'<esc>`<i'")
+   end
+   local function wrap_single_quotes_insert()
+      vim.cmd("''<esc>i")
+   end
 
-vim.keymap.set("n", "{", "lbi{<esc>ea}", { desc = "Wrap in curly braces" })
-vim.keymap.set("v", "{", "<esc>`>a}<esc>`<i{", { desc = "Wrap in curly braces" })
-vim.keymap.set("i", "{", "{}<esc>i", { desc = "Wrap in curly braces" })
+   local function wrap_braces_normal()
+      vim.cmd("lbi{<esc>ea}")
+   end
+   local function wrap_braces_visual()
+      vim.cmd("<esc>`>a}<esc>`<i{")
+   end
+   local function wrap_braces_insert()
+      vim.cmd("{}<esc>i")
+   end
 
-vim.keymap.set("n", "[", "lbi[<esc>ea]", { desc = "Wrap in square brackets" })
-vim.keymap.set("v", "[", "<esc>`>a]<esc>`<i[", { desc = "Wrap in square brackets" })
-vim.keymap.set("i", "[", "[]<esc>i", { desc = "Wrap in square brackets" })
+   local function wrap_brackets_normal()
+      vim.cmd("lbi[<esc>ea]")
+   end
+   local function wrap_brackets_visual()
+      vim.cmd("<esc>`>a]<esc>`<i[")
+   end
+   local function wrap_brackets_insert()
+      vim.cmd("[]<esc>i")
+   end
 
-vim.keymap.set("n", "(", "lbi(<esc>ea)", { desc = "Wrap in paranthesis" })
-vim.keymap.set("v", "(", "<esc>`>a)<esc>`<i(", { desc = "Wrap in paranthesis" })
-vim.keymap.set("i", "(", "()<esc>i", { desc = "Wrap in paranthesis" })
+   local function wrap_parens_normal()
+      vim.cmd("lbi(<esc>ea)")
+   end
+   local function wrap_parens_visual()
+      vim.cmd("<esc>`>a)<esc>`<i(")
+   end
+   local function wrap_parens_insert()
+      vim.cmd("()<esc>i")
+   end
+
+   -- Set up keymaps for each filetype
+   for _, ft in ipairs(filetypes) do
+      vim.api.nvim_create_autocmd("FileType", {
+         pattern = ft,
+         callback = function()
+            -- Double quotes
+            vim.keymap.set("n", "\"", wrap_quotes_normal, { desc = "Wrap in quotes", buffer = true })
+            vim.keymap.set("v", "\"", wrap_quotes_visual, { desc = "Wrap in quotes", buffer = true })
+            vim.keymap.set("i", "\"", wrap_quotes_insert, { desc = "Wrap in quotes", buffer = true })
+
+            -- Single quotes
+            vim.keymap.set("n", "'", wrap_single_quotes_normal, { desc = "Wrap in single quotes", buffer = true })
+            vim.keymap.set("v", "'", wrap_single_quotes_visual, { desc = "Wrap in single quotes", buffer = true })
+            vim.keymap.set("i", "'", wrap_single_quotes_insert, { desc = "Wrap in single quotes", buffer = true })
+
+            -- Curly braces
+            vim.keymap.set("n", "{", wrap_braces_normal, { desc = "Wrap in curly braces", buffer = true })
+            vim.keymap.set("v", "{", wrap_braces_visual, { desc = "Wrap in curly braces", buffer = true })
+            vim.keymap.set("i", "{", wrap_braces_insert, { desc = "Wrap in curly braces", buffer = true })
+
+            -- Square brackets
+            vim.keymap.set("n", "[", wrap_brackets_normal, { desc = "Wrap in square brackets", buffer = true })
+            vim.keymap.set("v", "[", wrap_brackets_visual, { desc = "Wrap in square brackets", buffer = true })
+            vim.keymap.set("i", "[", wrap_brackets_insert, { desc = "Wrap in square brackets", buffer = true })
+
+            -- Parentheses
+            vim.keymap.set("n", "(", wrap_parens_normal, { desc = "Wrap in parentheses", buffer = true })
+            vim.keymap.set("v", "(", wrap_parens_visual, { desc = "Wrap in parentheses", buffer = true })
+            vim.keymap.set("i", "(", wrap_parens_insert, { desc = "Wrap in parentheses", buffer = true })
+         end,
+      })
+   end
+end
+
+-- Apply wrappers only to code filetypes
+local code_filetypes = {
+   "lua", "python", "javascript", "typescript", "java", "c", "cpp", "rust", 
+   "go", "html", "css", "json", "yaml", "toml", "vim", "sh", "bash", "zsh",
+   "php", "ruby", "swift", "kotlin", "scala", "r", "matlab", "sql"
+}
+
+setup_wrappers_for_filetype(code_filetypes)
 
 
 -- Commenting
