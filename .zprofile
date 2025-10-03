@@ -52,7 +52,6 @@ printf '\e]11;?\a' 2>/dev/null | cat > /dev/null
 TMUX_MAIN="main"
 if ! tmux has-session -t $TMUX_MAIN 2>/dev/null; then
 	tmux new-session -d -s $TMUX_MAIN -n "editor"
-	tmux clock-mode -t time
  
 	tmux new-window -t $TMUX_MAIN -n "cli"
 	tmux new-window -t $TMUX_MAIN -n "xtra"
