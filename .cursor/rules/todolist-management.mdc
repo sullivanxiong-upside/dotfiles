@@ -1,47 +1,132 @@
-# Todolist Management Protocol
+---
+description: Mandatory task tracking and workflow management for dotfiles repository
+globs: ["**/*"]
+related_docs: ["todolist.md"]
+alwaysApply: true
+---
 
-## Mandatory Task Tracking
+# Todolist Management Guidelines
 
-### Always Use Todolist.md
-- **REQUIRED**: Every task must be added to `todolist.md` before starting work
-- **REQUIRED**: Mark tasks as completed in `todolist.md` when finished
-- Use the `todo_write` tool to manage tasks programmatically
-- Keep the todolist organized with clear, actionable task descriptions
+@context {
+    "type": "workflow_management",
+    "purpose": "task_tracking",
+    "version": "1.0.0",
+    "repository_type": "dotfiles",
+    "always_apply": true
+}
 
-### Task Workflow Protocol
-1. **Before starting any work**:
-   - Add the task to `todolist.md` using `todo_write` tool
-   - Set status to "in_progress" for the current task
-   - Set status to "pending" for future tasks
+## Core Requirements
 
-2. **During work**:
-   - Only work on one task at a time (one "in_progress" task maximum)
-   - Update task status as needed using `todo_write`
+@rules [
+    {
+        "id": "mandatory_todolist_usage",
+        "severity": "error",
+        "description": "Every task must be added to todolist.md before starting work"
+    },
+    {
+        "id": "mandatory_completion_tracking",
+        "severity": "error", 
+        "description": "Tasks must be marked as completed in todolist.md when finished"
+    },
+    {
+        "id": "programmatic_management",
+        "severity": "warning",
+        "description": "Use todo_write tool to manage tasks programmatically"
+    },
+    {
+        "id": "clear_task_descriptions",
+        "severity": "warning",
+        "description": "Keep todolist organized with clear, actionable task descriptions"
+    }
+]
 
-3. **After completing work**:
-   - Mark the task as "completed" using `todo_write` tool
-   - Update `todolist.md` file to reflect completion
+## Workflow Protocol
 
-### Task Naming Convention
-- Use clear, descriptive task names
-- Include context about what file/feature is being modified
-- Examples:
-  - "Add nvim keybind Alt+Enter for go to definition"
-  - "Update tmux configuration for better window management"
-  - "Fix starship prompt configuration for git branch display"
+@workflow {
+    "phases": [
+        {
+            "name": "pre_work",
+            "steps": [
+                "Add task to todolist.md using todo_write tool",
+                "Set status to 'in_progress' for current task",
+                "Set status to 'pending' for future tasks"
+            ]
+        },
+        {
+            "name": "during_work",
+            "steps": [
+                "Only work on one task at a time (one 'in_progress' task maximum)",
+                "Update task status as needed using todo_write"
+            ]
+        },
+        {
+            "name": "post_work",
+            "steps": [
+                "Mark task as 'completed' using todo_write tool",
+                "Update todolist.md file to reflect completion"
+            ]
+        }
+    ]
+}
 
-### Repository Context
-This is a dotfiles repository containing:
-- Neovim configuration (`.config/nvim/`)
-- Shell configurations (`.bashrc`, `.zshrc`)
-- Terminal configurations (`.tmux.conf`, starship)
-- Other development tool configurations
+## Task Naming Standards
 
-### Key Principles
-- Maintain consistency across different OS (macOS/Linux adaptive keybinds)
-- Document changes clearly
-- Keep configurations portable and well-organized
-- Always update the todolist to track progress
+@naming_convention {
+    "requirements": [
+        "Use clear, descriptive task names",
+        "Include context about what file/feature is being modified"
+    ],
+    "examples": [
+        "Add nvim keybind Alt+Enter for go to definition",
+        "Update tmux configuration for better window management", 
+        "Fix starship prompt configuration for git branch display"
+    ]
+}
 
-### Emergency Override
-If a task is urgent and requires immediate attention without todolist management, explain why in the response and add it to the todolist afterward.
+## Repository Context
+
+@repository_context {
+    "type": "dotfiles",
+    "contents": [
+        "Neovim configuration (.config/nvim/)",
+        "Shell configurations (.bashrc, .zshrc)",
+        "Terminal configurations (.tmux.conf, starship)",
+        "Other development tool configurations"
+    ],
+    "principles": [
+        "Maintain consistency across different OS (macOS/Linux adaptive keybinds)",
+        "Document changes clearly",
+        "Keep configurations portable and well-organized",
+        "Always update the todolist to track progress"
+    ]
+}
+
+## Emergency Procedures
+
+@emergency_override {
+    "condition": "Task is urgent and requires immediate attention without todolist management",
+    "procedure": [
+        "Explain why in the response",
+        "Add task to todolist afterward"
+    ]
+}
+
+## Implementation Examples
+
+@examples {
+    "task_creation": {
+        "description": "Creating a new task",
+        "implementation": "Use todo_write tool with merge=false to add new tasks"
+    },
+    "task_update": {
+        "description": "Updating task status",
+        "implementation": "Use todo_write tool with merge=true to update existing tasks"
+    },
+    "task_completion": {
+        "description": "Marking task as complete",
+        "implementation": "Set status to 'completed' using todo_write tool"
+    }
+}
+
+@version "1.0.0"
+@last_updated "2024-12-19"
