@@ -81,9 +81,14 @@ style = "bg:yellow"
 format = '[[ $symbol $branch ](fg:crust bg:yellow)]($style)'
 
 [git_status]
-disabled = true
+disabled = false
 style = "bg:yellow"
-format = '[[($all_status$ahead_behind )](fg:crust bg:yellow)]($style)'
+format = '[[(| $ahead_behind ~> $all_status )](fg:crust bg:yellow)]($style)'
+conflicted = "🏳"
+up_to_date = "up_to_date"
+untracked = "?"
+modified = ""
+staged = "+"
 
 [nodejs]
 symbol = ""
@@ -147,7 +152,7 @@ style = "fg:crust bg:sapphire"
 format = '[[ $symbol( $context) ](fg:crust bg:sapphire)]($style)'
 symbol = "☸"
 contexts = [
-  { context_pattern = ".*prod.*", style = "bg:red", context_alias = "⚠️PROD⚠️" },
+  { context_pattern = ".*prod.*", style = "bg:red", context_alias = "!!! PROD !!!" },
   { context_pattern = ".*stage.*", style = "bg:sapphire", context_alias = "stage"}
 ]
 

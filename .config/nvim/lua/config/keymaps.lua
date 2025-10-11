@@ -48,7 +48,7 @@ vim.keymap.set("n", alt_key("<A-9>"), "9gt", { desc = "Go to ... tab" })
 vim.keymap.set("n", "<C-BS>", ":w<CR>:tabclose<CR>", { desc = "Close current tab" })
 vim.keymap.set("n", "<C-n>", ":tabnew ./<CR>", { desc = "Open new tab" })
 vim.keymap.set("n", "<C-s>", ":w<CR>", { desc = "Save current tab" })
-vim.keymap.set("n", "<C-r>", ":source ~/.config/nvim/lua/config/lazy.lua<CR>:source ~/.config/nvim/lua/config/keymaps.lua<CR>", { desc = "Reload NeoVim environment" })
+vim.keymap.set("n", "<C-r>", ":source ~/.config/nvim/lua/config/lazy.lua<CR>:source ~/.config/nvim/lua/config/keymaps.lua<CR>:source ~/.config/nvim/lua/config/options.lua<CR>", { desc = "Reload NeoVim environment" })
 
 -- Copy-Paste
 vim.keymap.set("v", "<C-c>", '"+y', { desc = "Copy selection to Clipboard" })
