@@ -27,6 +27,11 @@
     - what is xargs? Why is is useful? Is it worth trying to understand and write my own for learning purposes?
 - presentation (line-by-line) plugin for neovim (vim?)
 
+- Need to fix mainmod to alt because I'm so used to mac now.
+- Waybar fix
+- rofi fix
+- wofi fix
+
 ## Completed
 
 - [x] Create todolist.md file
