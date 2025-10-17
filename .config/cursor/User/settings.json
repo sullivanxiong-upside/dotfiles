@@ -1,0 +1,260 @@
+{
+  "window.commandCenter": true,
+  "extensions.allowed": "*",
+  "python.venvPath": "/Users/sullivanxiong/repos/data-pipelines/.devenv/state/venv/",
+  "workbench.colorTheme": "Atom One Dark",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.autoSave": "afterDelay",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "[dockercompose]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced",
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  // Movement keybindings
+  "vim.normalModeKeyBindingsNonRecursive": [
+    // Movement
+    {
+      "before": ["<A-j>"],
+      "after": ["d", "d", "p"],
+      "description": "Move line down"
+    },
+    {
+      "before": ["<A-k>"],
+      "after": ["d", "d", "2", "k", "p"],
+      "description": "Move line up"
+    },
+    { "before": ["<C-u>"], "after": ["<C-r>"], "description": "Redo" },
+    {
+      "before": ["<C-j>"],
+      "commands": ["cursorPageDown"],
+      "description": "Page down"
+    },
+    {
+      "before": ["<C-k>"],
+      "commands": ["cursorPageUp"],
+      "description": "Page up"
+    },
+
+    // Tab control (Note: Cursor uses its own tab system, these map to editor tabs)
+    { "before": ["<A-Right>"], "commands": ["workbench.action.nextEditor"] },
+    { "before": ["<A-l>"], "commands": ["workbench.action.nextEditor"] },
+    { "before": ["<A-Left>"], "commands": ["workbench.action.previousEditor"] },
+    { "before": ["<A-h>"], "commands": ["workbench.action.previousEditor"] },
+    {
+      "before": ["<A-1>"],
+      "commands": ["workbench.action.openEditorAtIndex1"]
+    },
+    {
+      "before": ["<A-2>"],
+      "commands": ["workbench.action.openEditorAtIndex2"]
+    },
+    {
+      "before": ["<A-3>"],
+      "commands": ["workbench.action.openEditorAtIndex3"]
+    },
+    {
+      "before": ["<A-4>"],
+      "commands": ["workbench.action.openEditorAtIndex4"]
+    },
+    {
+      "before": ["<A-5>"],
+      "commands": ["workbench.action.openEditorAtIndex5"]
+    },
+    {
+      "before": ["<A-6>"],
+      "commands": ["workbench.action.openEditorAtIndex6"]
+    },
+    {
+      "before": ["<A-7>"],
+      "commands": ["workbench.action.openEditorAtIndex7"]
+    },
+    {
+      "before": ["<A-8>"],
+      "commands": ["workbench.action.openEditorAtIndex8"]
+    },
+    {
+      "before": ["<A-9>"],
+      "commands": ["workbench.action.openEditorAtIndex9"]
+    },
+
+    // File operations
+    {
+      "before": ["<C-h>"],
+      "commands": [":w", "workbench.action.closeActiveEditor"]
+    },
+    {
+      "before": ["<C-n>"],
+      "commands": ["workbench.action.files.newUntitledFile"]
+    },
+    { "before": ["<C-s>"], "commands": [":w"] },
+
+    // Copy line(s) to clipboard
+    { "before": ["<C-c>"], "after": ["\"", "+", "y", "y"] },
+
+    // Paste from clipboard
+    { "before": ["<C-v>"], "after": ["\"", "+", "p"] },
+
+    // Diagnostics
+    { "before": ["<C-e>"], "commands": ["editor.action.showHover"] },
+
+    // Comment toggle
+    { "before": ["<C-/>"], "commands": ["editor.action.commentLine"] },
+
+    // Indentation
+    { "before": ["<C-[>"], "after": ["<", "<"] },
+    { "before": ["<C-]>"], "after": [">", ">"] },
+
+    // Wrapping shortcuts (quotes)
+    {
+      "before": ["\""],
+      "after": ["l", "b", "i", "\"", "<Esc>", "e", "a", "\""]
+    },
+    { "before": ["'"], "after": ["l", "b", "i", "'", "<Esc>", "e", "a", "'"] },
+    { "before": ["{"], "after": ["l", "b", "i", "{", "<Esc>", "e", "a", "}"] },
+    { "before": ["["], "after": ["l", "b", "i", "[", "<Esc>", "e", "a", "]"] },
+    { "before": ["("], "after": ["l", "b", "i", "(", "<Esc>", "e", "a", ")"] }
+  ],
+
+  // Visual mode keybindings
+  "vim.visualModeKeyBindingsNonRecursive": [
+    // Copy to clipboard
+    { "before": ["<C-c>"], "after": ["\"", "+", "y"] },
+
+    // Comment toggle
+    { "before": ["<C-/>"], "commands": ["editor.action.commentLine"] },
+
+    // Indentation
+    { "before": ["<C-[>"], "after": ["<"] },
+    { "before": ["<C-]>"], "after": [">"] },
+
+    // Wrapping in visual mode
+    {
+      "before": ["\""],
+      "after": ["<Esc>", "`", ">", "a", "\"", "<Esc>", "`", "<", "i", "\""]
+    },
+    {
+      "before": ["'"],
+      "after": ["<Esc>", "`", ">", "a", "'", "<Esc>", "`", "<", "i", "'"]
+    },
+    {
+      "before": ["{"],
+      "after": ["<Esc>", "`", ">", "a", "}", "<Esc>", "`", "<", "i", "{"]
+    },
+    {
+      "before": ["["],
+      "after": ["<Esc>", "`", ">", "a", "]", "<Esc>", "`", "<", "i", "["]
+    },
+    {
+      "before": ["("],
+      "after": ["<Esc>", "`", ">", "a", ")", "<Esc>", "`", "<", "i", "("]
+    }
+  ],
+
+  // Insert mode keybindings
+  "vim.insertModeKeyBindingsNonRecursive": [
+    // Paste from clipboard
+    { "before": ["<C-v>"], "after": ["<C-r>", "+"] },
+
+    // Comment toggle
+    { "before": ["<C-/>"], "after": ["<Esc>", "g", "c", "c", "a"] }
+  ],
+
+  // Additional Vim settings
+  "vim.useSystemClipboard": true,
+  "vim.hlsearch": true,
+  "vim.incsearch": true,
+  "vim.useCtrlKeys": true,
+  "editor.lineNumbers": "relative",
+  "vim.handleKeys": {
+    "<C-a>": false, // Let Cursor handle select all
+    "<C-f>": false, // Let Cursor handle find
+    "<C-w>": false // Let Cursor handle window management
+  },
+  "terminal.integrated.defaultProfile.osx": "zsh",
+
+  // Terminal configuration to match macOS terminal
+  "terminal.integrated.env.osx": {
+    "UPSIDE_ZSH_TOOLS": "/Users/sullivanxiong/repos/zsh-tools",
+    "COMMON_DEVENV_PATH": "/Users/sullivanxiong/repos/zsh-tools/devenv/",
+    "GOPATH": "/Users/sullivanxiong/go",
+    "GOBIN": "/Users/sullivanxiong/go/bin",
+    "GOPRIVATE": "github.com/UpsideLabs",
+    "LANG": "C.UTF-8",
+    "TERM": "xterm-256color"
+  },
+
+  // Shell configuration
+  "terminal.integrated.profiles.osx": {
+    "zsh": {
+      "path": "/Users/sullivanxiong/.nix-profile/bin/zsh",
+      "args": ["-l"],
+      "env": {
+        "SHELL": "/Users/sullivanxiong/.nix-profile/bin/zsh",
+        "ZDOTDIR": "/Users/sullivanxiong"
+      }
+    },
+    "system-zsh": {
+      "path": "/bin/zsh",
+      "args": ["-l"]
+    }
+  },
+
+  // Terminal appearance and behavior
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.cursorStyle": "block",
+  "terminal.integrated.cursorStyleInactive": "outline",
+  "terminal.integrated.scrollback": 10000,
+  "terminal.integrated.gpuAcceleration": "on",
+  "terminal.integrated.shellIntegration.enabled": true,
+  "terminal.integrated.shellIntegration.decorationsEnabled": "both",
+
+  // Enable persistent sessions
+  "terminal.integrated.enablePersistentSessions": true,
+  "terminal.integrated.persistentSessionReviveProcess": "onExit",
+
+  // Terminal colors (optional - adjust to match your Terminal.app theme)
+  "workbench.colorCustomizations": {
+    "terminal.background": "#1e1e2e",
+    "terminal.foreground": "#d4d4d4",
+    "terminalCursor.background": "#d4d4d4",
+    "terminalCursor.foreground": "#d4d4d4",
+    "terminal.ansiBlack": "#000000",
+    "terminal.ansiRed": "#cd3131",
+    "terminal.ansiGreen": "#0dbc79",
+    "terminal.ansiYellow": "#e5e510",
+    "terminal.ansiBlue": "#2472c8",
+    "terminal.ansiMagenta": "#bc3fbc",
+    "terminal.ansiCyan": "#11a8cd",
+    "terminal.ansiWhite": "#e5e5e5",
+    "terminal.ansiBrightBlack": "#666666",
+    "terminal.ansiBrightRed": "#f14c4c",
+    "terminal.ansiBrightGreen": "#23d18b",
+    "terminal.ansiBrightYellow": "#f5f543",
+    "terminal.ansiBrightBlue": "#3b8eea",
+    "terminal.ansiBrightMagenta": "#d670d6",
+    "terminal.ansiBrightCyan": "#29b8db",
+    "terminal.ansiBrightWhite": "#e5e5e5"
+  },
+
+  // Ensure terminal inherits environment
+  "terminal.integrated.inheritEnv": true,
+
+  // macOS specific settings
+  "terminal.integrated.macOptionIsMeta": true,
+  "terminal.integrated.macOptionClickForcesSelection": false,
+  "extensions.ignoreRecommendations": true,
+  "explorer.confirmDelete": false,
+  "githubPullRequests.pullBranch": "never",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
+}
