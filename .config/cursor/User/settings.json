@@ -17,165 +17,17 @@
   "[github-actions-workflow]": {
     "editor.defaultFormatter": "redhat.vscode-yaml"
   },
-  // Movement keybindings
-  "vim.normalModeKeyBindingsNonRecursive": [
-    // Movement
-    {
-      "before": ["<A-j>"],
-      "after": ["d", "d", "p"],
-      "description": "Move line down"
-    },
-    {
-      "before": ["<A-k>"],
-      "after": ["d", "d", "2", "k", "p"],
-      "description": "Move line up"
-    },
-    { "before": ["<C-u>"], "after": ["<C-r>"], "description": "Redo" },
-    {
-      "before": ["<C-j>"],
-      "commands": ["cursorPageDown"],
-      "description": "Page down"
-    },
-    {
-      "before": ["<C-k>"],
-      "commands": ["cursorPageUp"],
-      "description": "Page up"
-    },
 
-    // Tab control (Note: Cursor uses its own tab system, these map to editor tabs)
-    { "before": ["<A-Right>"], "commands": ["workbench.action.nextEditor"] },
-    { "before": ["<A-l>"], "commands": ["workbench.action.nextEditor"] },
-    { "before": ["<A-Left>"], "commands": ["workbench.action.previousEditor"] },
-    { "before": ["<A-h>"], "commands": ["workbench.action.previousEditor"] },
-    {
-      "before": ["<A-1>"],
-      "commands": ["workbench.action.openEditorAtIndex1"]
-    },
-    {
-      "before": ["<A-2>"],
-      "commands": ["workbench.action.openEditorAtIndex2"]
-    },
-    {
-      "before": ["<A-3>"],
-      "commands": ["workbench.action.openEditorAtIndex3"]
-    },
-    {
-      "before": ["<A-4>"],
-      "commands": ["workbench.action.openEditorAtIndex4"]
-    },
-    {
-      "before": ["<A-5>"],
-      "commands": ["workbench.action.openEditorAtIndex5"]
-    },
-    {
-      "before": ["<A-6>"],
-      "commands": ["workbench.action.openEditorAtIndex6"]
-    },
-    {
-      "before": ["<A-7>"],
-      "commands": ["workbench.action.openEditorAtIndex7"]
-    },
-    {
-      "before": ["<A-8>"],
-      "commands": ["workbench.action.openEditorAtIndex8"]
-    },
-    {
-      "before": ["<A-9>"],
-      "commands": ["workbench.action.openEditorAtIndex9"]
-    },
+  // VSCode Neovim extension configuration
+  "vscode-neovim.neovimExecutablePaths.darwin": "/Users/sullivanxiong/.nix-profile/bin/nvim",
+  "vscode-neovim.neovimInitVimPaths.darwin": "/Users/sullivanxiong/.config/nvim/init.lua",
+  "vscode-neovim.useCtrlKeysForInsertMode": true,
+  "vscode-neovim.useCtrlKeysForNormalMode": true,
 
-    // File operations
-    {
-      "before": ["<C-h>"],
-      "commands": [":w", "workbench.action.closeActiveEditor"]
-    },
-    {
-      "before": ["<C-n>"],
-      "commands": ["workbench.action.files.newUntitledFile"]
-    },
-    { "before": ["<C-s>"], "commands": [":w"] },
-
-    // Copy line(s) to clipboard
-    { "before": ["<C-c>"], "after": ["\"", "+", "y", "y"] },
-
-    // Paste from clipboard
-    { "before": ["<C-v>"], "after": ["\"", "+", "p"] },
-
-    // Diagnostics
-    { "before": ["<C-e>"], "commands": ["editor.action.showHover"] },
-
-    // Comment toggle
-    { "before": ["<C-/>"], "commands": ["editor.action.commentLine"] },
-
-    // Indentation
-    { "before": ["<C-[>"], "after": ["<", "<"] },
-    { "before": ["<C-]>"], "after": [">", ">"] },
-
-    // Wrapping shortcuts (quotes)
-    {
-      "before": ["\""],
-      "after": ["l", "b", "i", "\"", "<Esc>", "e", "a", "\""]
-    },
-    { "before": ["'"], "after": ["l", "b", "i", "'", "<Esc>", "e", "a", "'"] },
-    { "before": ["{"], "after": ["l", "b", "i", "{", "<Esc>", "e", "a", "}"] },
-    { "before": ["["], "after": ["l", "b", "i", "[", "<Esc>", "e", "a", "]"] },
-    { "before": ["("], "after": ["l", "b", "i", "(", "<Esc>", "e", "a", ")"] }
-  ],
-
-  // Visual mode keybindings
-  "vim.visualModeKeyBindingsNonRecursive": [
-    // Copy to clipboard
-    { "before": ["<C-c>"], "after": ["\"", "+", "y"] },
-
-    // Comment toggle
-    { "before": ["<C-/>"], "commands": ["editor.action.commentLine"] },
-
-    // Indentation
-    { "before": ["<C-[>"], "after": ["<"] },
-    { "before": ["<C-]>"], "after": [">"] },
-
-    // Wrapping in visual mode
-    {
-      "before": ["\""],
-      "after": ["<Esc>", "`", ">", "a", "\"", "<Esc>", "`", "<", "i", "\""]
-    },
-    {
-      "before": ["'"],
-      "after": ["<Esc>", "`", ">", "a", "'", "<Esc>", "`", "<", "i", "'"]
-    },
-    {
-      "before": ["{"],
-      "after": ["<Esc>", "`", ">", "a", "}", "<Esc>", "`", "<", "i", "{"]
-    },
-    {
-      "before": ["["],
-      "after": ["<Esc>", "`", ">", "a", "]", "<Esc>", "`", "<", "i", "["]
-    },
-    {
-      "before": ["("],
-      "after": ["<Esc>", "`", ">", "a", ")", "<Esc>", "`", "<", "i", "("]
-    }
-  ],
-
-  // Insert mode keybindings
-  "vim.insertModeKeyBindingsNonRecursive": [
-    // Paste from clipboard
-    { "before": ["<C-v>"], "after": ["<C-r>", "+"] },
-
-    // Comment toggle
-    { "before": ["<C-/>"], "after": ["<Esc>", "g", "c", "c", "a"] }
-  ],
-
-  // Additional Vim settings
-  "vim.useSystemClipboard": true,
-  "vim.hlsearch": true,
-  "vim.incsearch": true,
-  "vim.useCtrlKeys": true,
+  // Keep these general settings
   "editor.lineNumbers": "relative",
-  "vim.handleKeys": {
-    "<C-a>": false, // Let Cursor handle select all
-    "<C-f>": false, // Let Cursor handle find
-    "<C-w>": false // Let Cursor handle window management
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
   },
   "terminal.integrated.defaultProfile.osx": "zsh",
 

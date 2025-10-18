@@ -1,15 +1,6 @@
--- OS Detection for adaptive keybinds
-local function is_mac()
-    return vim.fn.has("mac") == 1
-end
-
--- Helper function to adapt Alt keybinds for macOS
-local function alt_key(key)
-    if is_mac() then
-        return key:gsub("<A%-", "<D-")
-    else
-        return key
-    end
+-- Simple keymap helper for consistent key notation
+local function keymap(mode, lhs, rhs, opts)
+    vim.keymap.set(mode, lhs, rhs, vim.tbl_extend("force", opts or {}, { noremap = true, silent = true }))
 end
 
 -- vim.keymap.set({modes}, {lhs}, {rhs}, {opts})
@@ -25,30 +16,38 @@ end
 --						normal, Ctrl + Backspace, :tabclose<CarriageReturn>, { description }
 
 -- Movement
-vim.keymap.set("n", alt_key("<A-j>"), "ddp", { desc = "Move line down" })
-vim.keymap.set("n", alt_key("<A-k>"), "dd2kp", { desc = "Move line up" })
+keymap("n", "<A-j>", "ddp", { desc = "Move line down" })
+keymap("n", "<A-k>", "dd2kp", { desc = "Move line up" })
 vim.keymap.set("n", "<C-u>", "<C-r>", { desc = "Redo"})
 vim.keymap.set("n", "<C-j>", "<PageDown>", { desc = "Page down" })
 vim.keymap.set("n", "<C-k>", "<PageUp>", { desc = "Page up"})
 
--- Tab control
-vim.keymap.set("n", alt_key("<A-Right>"), ":tabnext<CR>", { desc = "Next Tab" })
-vim.keymap.set("n", alt_key("<A-l>"), ":tabnext<CR>", { desc = "Next Tab" })
-vim.keymap.set("n", alt_key("<A-Left>"), ":tabprev<CR>", { desc = "Previous Tab" })
-vim.keymap.set("n", alt_key("<A-h>"), ":tabprev<CR>", { desc = "Previous Tab" })
-vim.keymap.set("n", alt_key("<A-1>"), "1gt", { desc = "Go to first tab" })
-vim.keymap.set("n", alt_key("<A-2>"), "2gt", { desc = "Go to second tab" })
-vim.keymap.set("n", alt_key("<A-3>"), "3gt", { desc = "Go to ... tab" })
-vim.keymap.set("n", alt_key("<A-4>"), "4gt", { desc = "Go to ... tab" })
-vim.keymap.set("n", alt_key("<A-5>"), "5gt", { desc = "Go to ... tab" })
-vim.keymap.set("n", alt_key("<A-6>"), "6gt", { desc = "Go to ... tab" })
-vim.keymap.set("n", alt_key("<A-7>"), "7gt", { desc = "Go to ... tab" })
-vim.keymap.set("n", alt_key("<A-8>"), "8gt", { desc = "Go to ... tab" })
-vim.keymap.set("n", alt_key("<A-9>"), "9gt", { desc = "Go to ... tab" })
-vim.keymap.set("n", "<C-BS>", ":w<CR>:tabclose<CR>", { desc = "Close current tab" })
-vim.keymap.set("n", "<C-n>", ":tabnew ./<CR>", { desc = "Open new tab" })
-vim.keymap.set("n", "<C-s>", ":w<CR>", { desc = "Save current tab" })
-vim.keymap.set("n", "<C-r>", ":source ~/.config/nvim/lua/config/lazy.lua<CR>:source ~/.config/nvim/lua/config/keymaps.lua<CR>:source ~/.config/nvim/lua/config/options.lua<CR>", { desc = "Reload NeoVim environment" })
+-- Enhanced Tab Navigation (optimized for tab-based workflow)
+-- Tab cycling (most common operations)
+keymap("n", "<A-Right>", ":tabnext<CR>", { desc = "Next Tab" })
+keymap("n", "<A-Left>", ":tabprev<CR>", { desc = "Previous Tab" })
+keymap("n", "<A-l>", ":tabnext<CR>", { desc = "Next Tab" })
+keymap("n", "<A-h>", ":tabprev<CR>", { desc = "Previous Tab" })
+
+-- Quick tab jumping (1-9)
+keymap("n", "<A-1>", "1gt", { desc = "Go to tab 1" })
+keymap("n", "<A-2>", "2gt", { desc = "Go to tab 2" })
+keymap("n", "<A-3>", "3gt", { desc = "Go to tab 3" })
+keymap("n", "<A-4>", "4gt", { desc = "Go to tab 4" })
+keymap("n", "<A-5>", "5gt", { desc = "Go to tab 5" })
+keymap("n", "<A-6>", "6gt", { desc = "Go to tab 6" })
+keymap("n", "<A-7>", "7gt", { desc = "Go to tab 7" })
+keymap("n", "<A-8>", "8gt", { desc = "Go to tab 8" })
+keymap("n", "<A-9>", "9gt", { desc = "Go to tab 9" })
+
+-- Tab management
+keymap("n", "<C-n>", ":tabnew<CR>", { desc = "New Tab" })
+keymap("n", "<C-w>", ":tabclose<CR>", { desc = "Close Tab" })
+keymap("n", "<C-s>", ":w<CR>", { desc = "Save" })
+
+-- Tab cycling with Ctrl (alternative)
+keymap("n", "<C-Tab>", ":tabnext<CR>", { desc = "Next Tab (Ctrl+Tab)" })
+keymap("n", "<C-S-Tab>", ":tabprev<CR>", { desc = "Previous Tab (Ctrl+Shift+Tab)" })
 
 -- Copy-Paste
 vim.keymap.set("v", "<C-c>", '"+y', { desc = "Copy selection to Clipboard" })
@@ -62,100 +61,11 @@ vim.keymap.set({"n", "i"}, "<C-v>", "\"+p", { desc = "Paste from clipboard" })
 vim.keymap.set("n", "<C-f>", ":lua vim.diagnostic.open_float()<CR>", { desc = "Show current line Error" })
 vim.keymap.set("n", "<C-e>", "<C-u>", { desc = "Page up (scroll up)" })
 
--- Filetype-specific wrapper functions
-local function setup_wrappers_for_filetype(filetypes)
-   local function wrap_quotes_normal()
-      vim.cmd("lbi\"<esc>ea\"")
-   end
-   local function wrap_quotes_visual()
-      vim.cmd("<esc>`>a\"<esc>`<i\"")
-   end
-   local function wrap_quotes_insert()
-      vim.cmd("\"\"<esc>i")
-   end
+-- nvim-surround will handle all text wrapping functionality
+-- Much simpler and more powerful than custom functions
 
-   local function wrap_single_quotes_normal()
-      vim.cmd("lbi'<esc>ea'")
-   end
-   local function wrap_single_quotes_visual()
-      vim.cmd("<esc>`>a'<esc>`<i'")
-   end
-   local function wrap_single_quotes_insert()
-      vim.cmd("''<esc>i")
-   end
-
-   local function wrap_braces_normal()
-      vim.cmd("lbi{<esc>ea}")
-   end
-   local function wrap_braces_visual()
-      vim.cmd("<esc>`>a}<esc>`<i{")
-   end
-   local function wrap_braces_insert()
-      vim.cmd("{}<esc>i")
-   end
-
-   local function wrap_brackets_normal()
-      vim.cmd("lbi[<esc>ea]")
-   end
-   local function wrap_brackets_visual()
-      vim.cmd("<esc>`>a]<esc>`<i[")
-   end
-   local function wrap_brackets_insert()
-      vim.cmd("[]<esc>i")
-   end
-
-   local function wrap_parens_normal()
-      vim.cmd("lbi(<esc>ea)")
-   end
-   local function wrap_parens_visual()
-      vim.cmd("<esc>`>a)<esc>`<i(")
-   end
-   local function wrap_parens_insert()
-      vim.cmd("()<esc>i")
-   end
-
-   -- Set up keymaps for each filetype
-   for _, ft in ipairs(filetypes) do
-      vim.api.nvim_create_autocmd("FileType", {
-         pattern = ft,
-         callback = function()
-            -- Double quotes
-            vim.keymap.set("n", "\"", wrap_quotes_normal, { desc = "Wrap in quotes", buffer = true })
-            vim.keymap.set("v", "\"", wrap_quotes_visual, { desc = "Wrap in quotes", buffer = true })
-            vim.keymap.set("i", "\"", wrap_quotes_insert, { desc = "Wrap in quotes", buffer = true })
-
-            -- Single quotes
-            vim.keymap.set("n", "'", wrap_single_quotes_normal, { desc = "Wrap in single quotes", buffer = true })
-            vim.keymap.set("v", "'", wrap_single_quotes_visual, { desc = "Wrap in single quotes", buffer = true })
-            vim.keymap.set("i", "'", wrap_single_quotes_insert, { desc = "Wrap in single quotes", buffer = true })
-
-            -- Curly braces
-            vim.keymap.set("n", "{", wrap_braces_normal, { desc = "Wrap in curly braces", buffer = true })
-            vim.keymap.set("v", "{", wrap_braces_visual, { desc = "Wrap in curly braces", buffer = true })
-            vim.keymap.set("i", "{", wrap_braces_insert, { desc = "Wrap in curly braces", buffer = true })
-
-            -- Square brackets
-            vim.keymap.set("n", "[", wrap_brackets_normal, { desc = "Wrap in square brackets", buffer = true })
-            vim.keymap.set("v", "[", wrap_brackets_visual, { desc = "Wrap in square brackets", buffer = true })
-            vim.keymap.set("i", "[", wrap_brackets_insert, { desc = "Wrap in square brackets", buffer = true })
-
-            -- Parentheses
-            vim.keymap.set("n", "(", wrap_parens_normal, { desc = "Wrap in parentheses", buffer = true })
-            vim.keymap.set("v", "(", wrap_parens_visual, { desc = "Wrap in parentheses", buffer = true })
-            vim.keymap.set("i", "(", wrap_parens_insert, { desc = "Wrap in parentheses", buffer = true })
-         end,
-      })
-   end
-end
-
--- Apply wrappers only to code filetypes
-local code_filetypes = {
-   "lua", "python", "javascript", "typescript", "java", "c", "cpp", "rust", 
-   "go", "html", "css", "json", "yaml", "toml", "vim", "sh", "bash", "zsh",
-   "php", "ruby", "swift", "kotlin", "scala", "r", "matlab", "sql"
-}
-
-setup_wrappers_for_filetype(code_filetypes)
+-- nvim-surround handles all text wrapping automatically
+-- No need for complex filetype-specific setup
 
 
 -- Commenting
@@ -164,18 +74,7 @@ vim.keymap.set("n", "<C-/>", function()
 end, { desc = "Toggle comment for current line" })
 vim.keymap.set("v", "<C-/>", "<ESC><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>", { desc = "Toggle comment for selection" })
 
--- Alternative commenting keymaps (in case Ctrl+/ doesn't work)
-vim.keymap.set("n", "gcc", function()
-    require("Comment.api").toggle.linewise.current()
-end, { desc = "Toggle comment for current line" })
-vim.keymap.set("v", "gc", "<ESC><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>", { desc = "Toggle comment for selection" })
-
--- Debug: Test what key is actually being received
-vim.keymap.set("n", "<C-_>", function()
-    print("Ctrl+_ received!")
-    require("Comment.api").toggle.linewise.current()
-end, { desc = "Toggle comment for current line (Ctrl+_)" })
-vim.keymap.set("v", "<C-_>", "<ESC><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>", { desc = "Toggle comment for selection (Ctrl+_)" })
+-- Comment.nvim provides gcc/gc by default, so no need to redefine
 
 -- Copy file path
 vim.keymap.set("n", "yY", function()
@@ -185,6 +84,17 @@ vim.keymap.set("n", "yY", function()
 end, { desc = "Copy entire file path to clipboard" })
 
 -- LSP keymaps
-vim.keymap.set("n", alt_key("<A-CR>"), function()
+keymap("n", "<A-CR>", function()
     vim.lsp.buf.definition()
 end, { desc = "Go to definition (like VSCode F12)" })
+
+-- LSP keymaps (VSCode-style, compatible with Cursor)
+-- Note: <D-> notation doesn't work reliably in Neovim, using alternative keybinds
+-- These conflict with LazyVim defaults, so using Alt+Enter instead
+vim.keymap.set("n", "<A-CR>", function() vim.lsp.buf.definition() end, { desc = "Go to definition (Alt+Enter)", noremap = true, silent = true })
+vim.keymap.set("n", "<A-S-CR>", function() vim.lsp.buf.declaration() end, { desc = "Go to declaration (Alt+Shift+Enter)", noremap = true, silent = true })
+
+-- Reload configuration with Lazy
+vim.keymap.set("n", "<leader>r", function()
+    vim.cmd("Lazy sync")
+end, { desc = "Reload with Lazy (leader+r)", noremap = true, silent = true })
