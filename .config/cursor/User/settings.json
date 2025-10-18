@@ -1,0 +1,112 @@
+{
+  "window.commandCenter": true,
+  "extensions.allowed": "*",
+  "python.venvPath": "/Users/sullivanxiong/repos/data-pipelines/.devenv/state/venv/",
+  "workbench.colorTheme": "Atom One Dark",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.autoSave": "afterDelay",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "[dockercompose]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced",
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+
+  // VSCode Neovim extension configuration
+  "vscode-neovim.neovimExecutablePaths.darwin": "/Users/sullivanxiong/.nix-profile/bin/nvim",
+  "vscode-neovim.neovimInitVimPaths.darwin": "/Users/sullivanxiong/.config/nvim/init.lua",
+  "vscode-neovim.useCtrlKeysForInsertMode": true,
+  "vscode-neovim.useCtrlKeysForNormalMode": true,
+
+  // Keep these general settings
+  "editor.lineNumbers": "relative",
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
+  },
+  "terminal.integrated.defaultProfile.osx": "zsh",
+
+  // Terminal configuration to match macOS terminal
+  "terminal.integrated.env.osx": {
+    "UPSIDE_ZSH_TOOLS": "/Users/sullivanxiong/repos/zsh-tools",
+    "COMMON_DEVENV_PATH": "/Users/sullivanxiong/repos/zsh-tools/devenv/",
+    "GOPATH": "/Users/sullivanxiong/go",
+    "GOBIN": "/Users/sullivanxiong/go/bin",
+    "GOPRIVATE": "github.com/UpsideLabs",
+    "LANG": "C.UTF-8",
+    "TERM": "xterm-256color"
+  },
+
+  // Shell configuration
+  "terminal.integrated.profiles.osx": {
+    "zsh": {
+      "path": "/Users/sullivanxiong/.nix-profile/bin/zsh",
+      "args": ["-l"],
+      "env": {
+        "SHELL": "/Users/sullivanxiong/.nix-profile/bin/zsh",
+        "ZDOTDIR": "/Users/sullivanxiong"
+      }
+    },
+    "system-zsh": {
+      "path": "/bin/zsh",
+      "args": ["-l"]
+    }
+  },
+
+  // Terminal appearance and behavior
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.cursorStyle": "block",
+  "terminal.integrated.cursorStyleInactive": "outline",
+  "terminal.integrated.scrollback": 10000,
+  "terminal.integrated.gpuAcceleration": "on",
+  "terminal.integrated.shellIntegration.enabled": true,
+  "terminal.integrated.shellIntegration.decorationsEnabled": "both",
+
+  // Enable persistent sessions
+  "terminal.integrated.enablePersistentSessions": true,
+  "terminal.integrated.persistentSessionReviveProcess": "onExit",
+
+  // Terminal colors (optional - adjust to match your Terminal.app theme)
+  "workbench.colorCustomizations": {
+    "terminal.background": "#1e1e2e",
+    "terminal.foreground": "#d4d4d4",
+    "terminalCursor.background": "#d4d4d4",
+    "terminalCursor.foreground": "#d4d4d4",
+    "terminal.ansiBlack": "#000000",
+    "terminal.ansiRed": "#cd3131",
+    "terminal.ansiGreen": "#0dbc79",
+    "terminal.ansiYellow": "#e5e510",
+    "terminal.ansiBlue": "#2472c8",
+    "terminal.ansiMagenta": "#bc3fbc",
+    "terminal.ansiCyan": "#11a8cd",
+    "terminal.ansiWhite": "#e5e5e5",
+    "terminal.ansiBrightBlack": "#666666",
+    "terminal.ansiBrightRed": "#f14c4c",
+    "terminal.ansiBrightGreen": "#23d18b",
+    "terminal.ansiBrightYellow": "#f5f543",
+    "terminal.ansiBrightBlue": "#3b8eea",
+    "terminal.ansiBrightMagenta": "#d670d6",
+    "terminal.ansiBrightCyan": "#29b8db",
+    "terminal.ansiBrightWhite": "#e5e5e5"
+  },
+
+  // Ensure terminal inherits environment
+  "terminal.integrated.inheritEnv": true,
+
+  // macOS specific settings
+  "terminal.integrated.macOptionIsMeta": true,
+  "terminal.integrated.macOptionClickForcesSelection": false,
+  "extensions.ignoreRecommendations": true,
+  "explorer.confirmDelete": false,
+  "githubPullRequests.pullBranch": "never",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
+}

@@ -92,6 +92,7 @@ install_dotfiles() {
         ".bashrc"
         ".tmux.conf"
         ".config"
+        "scripts"
     )
     
     # Link each file/directory
@@ -125,6 +126,7 @@ uninstall_dotfiles() {
         ".bashrc"
         ".tmux.conf"
         ".config"
+        "scripts"
     )
     
     # Remove symlinks
@@ -174,6 +176,7 @@ restore_backup() {
         ".bashrc"
         ".tmux.conf"
         ".config"
+        "scripts"
     )
     
     # Restore each file/directory

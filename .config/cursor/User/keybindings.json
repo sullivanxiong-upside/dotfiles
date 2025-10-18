@@ -1,0 +1,50 @@
+// Place your key bindings in this file to override the defaults
+[
+  {
+    "key": "cmd+i",
+    "command": "composerMode.agent"
+  },
+  {
+    "key": "cmd+k",
+    "command": "-cursorai.action.generateInTerminal",
+    "when": "terminalFocus && terminalHasBeenCreated || terminalFocus && terminalProcessSupported"
+  },
+  {
+    "key": "cmd+k",
+    "command": "composer.startComposerPrompt",
+    "when": "composerIsEnabled && !terminalFocus"
+  },
+  {
+    "key": "cmd+k",
+    "command": "-composer.startComposerPrompt",
+    "when": "composerIsEnabled"
+  },
+  {
+    "key": "cmd+e",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "!editorFocus"
+  },
+  {
+    "key": "cmd+e",
+    "command": "workbench.action.terminal.focus",
+    "when": "editorFocus"
+  },
+  {
+    "key": "cmd+enter",
+    "command": "editor.action.revealDefinition",
+    "when": "editorHasDefinitionProvider && editorTextFocus && !isInEmbeddedEditor"
+  },
+  {
+    "key": "cmd+shift+enter",
+    "command": "editor.action.revealDeclaration",
+    "when": "editorHasDeclarationProvider && editorTextFocus && !isInEmbeddedEditor"
+  },
+  {
+    "key": "cmd+shift+h",
+    "command": "workbench.action.previousEditor"
+  },
+  {
+    "key": "cmd+shift+l",
+    "command": "workbench.action.nextEditor"
+  }
+]
