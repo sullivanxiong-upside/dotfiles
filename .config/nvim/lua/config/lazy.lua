@@ -21,3 +21,4 @@ require("lazy").setup({
    -- This follows LazyVim conventions
    { import = "plugins" },
 })
+

@@ -38,3 +38,4 @@ function grep-recursive() {
           --header 'ENTER: open in Cursor | CTRL-O: open without closing | CTRL-Y: copy | ESC: exit'
   fi
 }
+
