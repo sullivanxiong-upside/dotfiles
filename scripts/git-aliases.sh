@@ -6,6 +6,7 @@
 # User Git aliases
 alias git-branch-commits-diff="git fetch origin && git rev-list --left-right --count origin/main...HEAD"
 alias git-rebase="git pull --rebase origin main && git push --force-with-lease"
+alias git-ac="git add . && git commit -m"
 alias git-a="git add ."
 alias git-c="git commit -m"
 alias git-co="git checkout -b"
