@@ -1,7 +1,7 @@
 {
   "window.commandCenter": true,
   "extensions.allowed": "*",
-  "python.venvPath": "/Users/sullivanxiong/repos/data-pipelines/.devenv/state/venv/",
+  "python.venvPath": "$HOME/repos/data-pipelines/.devenv/state/venv/",
   "workbench.colorTheme": "Atom One Dark",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "files.autoSave": "afterDelay",
@@ -19,8 +19,8 @@
   },
 
   // VSCode Neovim extension configuration
-  "vscode-neovim.neovimExecutablePaths.darwin": "/Users/sullivanxiong/.nix-profile/bin/nvim",
-  "vscode-neovim.neovimInitVimPaths.darwin": "/Users/sullivanxiong/.config/nvim/init.lua",
+  "vscode-neovim.neovimExecutablePaths.darwin": "$HOME/.nix-profile/bin/nvim",
+  "vscode-neovim.neovimInitVimPaths.darwin": "$HOME/.config/nvim/init.lua",
   "vscode-neovim.useCtrlKeysForInsertMode": true,
   "vscode-neovim.useCtrlKeysForNormalMode": true,
 
@@ -33,10 +33,10 @@
 
   // Terminal configuration to match macOS terminal
   "terminal.integrated.env.osx": {
-    "UPSIDE_ZSH_TOOLS": "/Users/sullivanxiong/repos/zsh-tools",
-    "COMMON_DEVENV_PATH": "/Users/sullivanxiong/repos/zsh-tools/devenv/",
-    "GOPATH": "/Users/sullivanxiong/go",
-    "GOBIN": "/Users/sullivanxiong/go/bin",
+    "UPSIDE_ZSH_TOOLS": "$HOME/repos/zsh-tools",
+    "COMMON_DEVENV_PATH": "$HOME/repos/zsh-tools/devenv/",
+    "GOPATH": "$HOME/go",
+    "GOBIN": "$HOME/go/bin",
     "GOPRIVATE": "github.com/UpsideLabs",
     "LANG": "C.UTF-8",
     "TERM": "xterm-256color"
@@ -45,11 +45,11 @@
   // Shell configuration
   "terminal.integrated.profiles.osx": {
     "zsh": {
-      "path": "/Users/sullivanxiong/.nix-profile/bin/zsh",
+      "path": "$HOME/.nix-profile/bin/zsh",
       "args": ["-l"],
       "env": {
-        "SHELL": "/Users/sullivanxiong/.nix-profile/bin/zsh",
-        "ZDOTDIR": "/Users/sullivanxiong"
+        "SHELL": "$HOME/.nix-profile/bin/zsh",
+        "ZDOTDIR": "$HOME"
       }
     },
     "system-zsh": {

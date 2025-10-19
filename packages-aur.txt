@@ -1,14 +1,9 @@
-clipboard-debug=0.10.0-1
-librespot-debug=0.6.0-3
+sdl2-compat=2.32.56-2
 matugen-bin=2.4.1-1
-matugen-bin-debug=2.4.1-1
 openvpn-update-systemd-resolved=2.0.0-3
 steamcmd=latest-5
 steamcmd-debug=latest-5
 wlogout=1.2.2-0
-wlogout-debug=1.2.2-0
 xwaylandvideobridge=0.4.0-2
-xwaylandvideobridge-debug=0.4.0-2
 yay=12.5.2-2
-yay-debug=12.5.2-2
 zen-browser-bin=1.16.2b-1

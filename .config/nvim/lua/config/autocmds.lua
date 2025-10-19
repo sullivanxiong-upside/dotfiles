@@ -33,3 +33,25 @@ vim.api.nvim_create_autocmd("FocusLost", {
    desc = "Auto-save on focus lost",
 })
 
+-- Format on save using LSP as fallback when conform isn't available
+vim.api.nvim_create_autocmd("BufWritePre", {
+   callback = function()
+      -- Only format if conform isn't handling this file type
+      local conform = require("conform")
+      local formatters = conform.get_formatters()
+      local filetype = vim.bo.filetype
+      
+      if not formatters[filetype] or #formatters[filetype] == 0 then
+         -- Use LSP formatting as fallback
+         local clients = vim.lsp.get_active_clients({ bufnr = 0 })
+         for _, client in ipairs(clients) do
+            if client.supports_method("textDocument/formatting") then
+               vim.lsp.buf.format({ async = false })
+               break
+            end
+         end
+      end
+   end,
+   desc = "Format on save with LSP fallback",
+})
+

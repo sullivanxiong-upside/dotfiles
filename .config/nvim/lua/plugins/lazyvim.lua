@@ -62,8 +62,11 @@ return {
                end),
                line.spacer(),
                line.wins_in_tab(line.api.get_current_tab()).foreach(function(win)
-                  return line.sep('', theme.win, theme.fill)
-                     .. win.buf_name()
+                  return {
+                     line.sep('', theme.win, theme.fill),
+                     win.buf_name(),
+                     hl = theme.win,
+                  }
                end),
                {
                   line.sep('', theme.tail, theme.fill),
@@ -88,6 +91,41 @@ return {
             mode = "",
             desc = "Format buffer",
          },
+         {
+            "<leader>cF",
+            function()
+               require("conform").format({ async = false, lsp_fallback = true })
+            end,
+            mode = "",
+            desc = "Format buffer (sync)",
+         },
+         {
+            "<leader>ct",
+            function()
+               local conform = require("conform")
+               local current_value = conform.formatters_by_ft[vim.bo.filetype]
+               if current_value then
+                  conform.formatters_by_ft[vim.bo.filetype] = nil
+                  vim.notify("Format on save disabled for " .. vim.bo.filetype, vim.log.levels.INFO)
+               else
+                  -- Re-enable with default formatters
+                  local default_formatters = {
+                     lua = { "stylua" },
+                     python = { "isort", "black" },
+                     javascript = { "prettier" },
+                     typescript = { "prettier" },
+                     json = { "prettier" },
+                     html = { "prettier" },
+                     css = { "prettier" },
+                     markdown = { "prettier" },
+                  }
+                  conform.formatters_by_ft[vim.bo.filetype] = default_formatters[vim.bo.filetype]
+                  vim.notify("Format on save enabled for " .. vim.bo.filetype, vim.log.levels.INFO)
+               end
+            end,
+            mode = "",
+            desc = "Toggle format on save",
+         },
       },
       opts = {
          formatters_by_ft = {
@@ -99,9 +137,22 @@ return {
             html = { "prettier" },
             css = { "prettier" },
             markdown = { "prettier" },
+            yaml = { "prettier" },
+            yml = { "prettier" },
+            xml = { "prettier" },
+            sql = { "sqlfluff" },
+            sh = { "shfmt" },
+            bash = { "shfmt" },
+            zsh = { "shfmt" },
+            fish = { "fish_indent" },
+            rust = { "rustfmt" },
+            go = { "gofmt", "goimports" },
+            c = { "clang_format" },
+            cpp = { "clang_format" },
+            java = { "google_java_format" },
          },
          format_on_save = {
-            timeout_ms = 500,
+            timeout_ms = 1000,
             lsp_fallback = true,
          },
       },
@@ -175,6 +226,10 @@ return {
                "--with-filename",
                "--line-number",
                "--column",
+               "--max-depth=10", -- Limit search depth for performance
+               "--exclude-dir=.git",
+               "--exclude-dir=node_modules",
+               "--exclude-dir=.cache",
             },
             pattern = [[\b(KEYWORDS):]],
          },
@@ -243,7 +298,61 @@ return {
             prompt_prefix = " ",
             selection_caret = " ",
             path_display = { "truncate" },
-            file_ignore_patterns = { ".git/", "node_modules/" },
+            file_ignore_patterns = { 
+               ".git/", 
+               "node_modules/", 
+               ".cache/",
+               ".vscode/",
+               ".idea/",
+               "build/",
+               "dist/",
+               "target/",
+               "*.pyc",
+               "*.pyo",
+               "*.pyd",
+               "__pycache__/",
+               ".pytest_cache/",
+               ".coverage",
+               "*.so",
+               "*.dylib",
+               "*.dll",
+               "*.exe",
+               "*.o",
+               "*.obj",
+               "*.a",
+               "*.lib",
+               "*.dll",
+               "*.so",
+               "*.dylib",
+               "*.exe",
+               "*.o",
+               "*.obj",
+               "*.a",
+               "*.lib",
+            },
+            vimgrep_arguments = {
+               "rg",
+               "--color=never",
+               "--no-heading",
+               "--with-filename",
+               "--line-number",
+               "--column",
+               "--smart-case",
+               "--hidden",
+               "--glob=!.git/",
+               "--glob=!node_modules/",
+               "--glob=!.cache/",
+               "--glob=!.vscode/",
+               "--glob=!.idea/",
+               "--glob=!build/",
+               "--glob=!dist/",
+               "--glob=!target/",
+            },
+         },
+         pickers = {
+            find_files = {
+               find_command = { "rg", "--files", "--hidden", "--glob=!.git/", "--glob=!node_modules/" },
+            },
          },
       },
    },

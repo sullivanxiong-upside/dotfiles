@@ -54,15 +54,31 @@ return {
       build = ":TSUpdate",
       config = function()
          require("nvim-treesitter.configs").setup({
-            ensure_installed = { "lua", "python", "vim" },
+            -- Only install essential parsers to reduce startup time
+            ensure_installed = { "lua", "vim" },
+            auto_install = false, -- Disable auto-install for better performance
+            highlight = {
+               enable = true,
+               disable = {}, -- Don't disable any languages
+            },
             indent = { enable = true },
+            incremental_selection = {
+               enable = true,
+               keymaps = {
+                  init_selection = "<C-space>",
+                  node_incremental = "<C-space>",
+                  scope_incremental = "<C-s>",
+                  node_decremental = "<C-backspace>",
+               },
+            },
          })
       end,
    },
 
-   -- Comment plugin
+   -- Comment plugin (lazy loaded)
    {
       "numToStr/Comment.nvim",
+      event = "VeryLazy", -- Load only when needed
       config = function()
          require("Comment").setup()
       end,

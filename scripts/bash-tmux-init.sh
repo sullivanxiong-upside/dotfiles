@@ -8,7 +8,7 @@ TMUX_MAIN="main"
 TMUX_TIME="time"
 tmux has-session -t $TMUX_MAIN 2>/dev/null
 if [ $? != 0 ]; then
-	tmux new-session -d -s $TMUX_MAIN -n "editor"
+	tmux new-session -d -s $TMUX_MAIN -n "bash"
 	tmux new-session -d -s $TMUX_TIME -n "time"
 	tmux clock-mode -t time
 

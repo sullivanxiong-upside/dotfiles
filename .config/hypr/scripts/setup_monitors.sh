@@ -5,7 +5,7 @@
 # symbolic links to the appropriate monitor configuration file
 
 # Configuration paths
-CONFIGS_DIR="/home/suxiong/.config/hypr/configs"
+CONFIGS_DIR="$HOME/.config/hypr/configs"
 MONITORS_CONF="$CONFIGS_DIR/monitors.conf"
 SINGLE_MONITORS="$CONFIGS_DIR/single_monitors.conf"
 DUAL_MONITORS="$CONFIGS_DIR/dual_monitors.conf"

@@ -4,44 +4,42 @@ return {
    {
       "neovim/nvim-lspconfig",
       config = function()
-         require("mason").setup()
+         require("mason").setup({
+            ui = {
+               border = "none",
+               icons = {
+                  package_installed = "✓",
+                  package_pending = "➜",
+                  package_uninstalled = "✗"
+               }
+            }
+         })
          require("mason-lspconfig").setup({
-            ensure_installed = { 
-               "lua_ls",          -- Lua
-               "pyright",         -- Python
-               "clangd",          -- C/C++
-               "ts_ls",           -- JavaScript/TypeScript
-               "rust_analyzer",   -- Rust
-               "gopls",           -- Go
-               "html",            -- HTML
-               "cssls",           -- CSS
-               "jsonls",          -- JSON
-               "jdtls"            -- Java
-            },
+            -- Remove ensure_installed to prevent auto-installation on startup
+            -- Install LSP servers manually with :Mason when needed
+            automatic_installation = false,
             handlers = {
                function(server_name)
                   require("lspconfig")[server_name].setup({
                      on_attach = function(client, bufnr)
-                        -- Enable LSP formatting/indentation capabilities
-                        if client.server_capabilities.documentFormattingProvider then
-                           -- Debounced auto-indent on character change in insert mode
-                           local debounce_timer = nil
-                           local debounce_delay = 300  -- ms; adjust as needed
-
-                           vim.api.nvim_buf_set_keymap(bufnr, "i", "", "", {
-                              callback = function()
-                                 if debounce_timer then
-                                    vim.fn.timer_stop(debounce_timer)
-                                 end
-                                 debounce_timer = vim.fn.timer_start(debounce_delay, function()
-                                    vim.lsp.buf.format({ async = false })  -- Re-indent/format current line/block
-                                 end)
-                              end,
-                              expr = true,
-                              noremap = true,
-                              silent = true,
-                           })
-                        end
+                        -- Basic LSP keybindings without auto-formatting
+                        local opts = { noremap = true, silent = true, buffer = bufnr }
+                        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+                        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+                        vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+                        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+                        vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+                        vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
+                        vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
+                        vim.keymap.set('n', '<leader>wl', function()
+                           print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+                        end, opts)
+                        vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
+                        vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
+                        vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
+                        vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+                        vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format { async = true } end, opts)
+                        vim.keymap.set('n', '<leader>F', function() vim.lsp.buf.format { async = false } end, opts)
                      end,
                   })
                end,
@@ -50,9 +48,10 @@ return {
       end,
    },
 
-   -- Completion setup
+   -- Completion setup (lazy loaded)
    {
       "hrsh7th/nvim-cmp",
+      event = "InsertEnter",
       config = function()
          local cmp = require("cmp")
          cmp.setup({

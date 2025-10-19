@@ -13,7 +13,7 @@
 
 The following has been configured automatically:
 
-- ✅ **Neovim Path**: `/Users/sullivanxiong/.nix-profile/bin/nvim`
+- ✅ **Neovim Path**: `$HOME/.nix-profile/bin/nvim`
 - ✅ **Config Path**: `~/.config/nvim/init.lua`
 - ✅ **VSCode Detection**: Automatically disables UI plugins in Cursor
 - ✅ **Keybinds**: All your custom keybinds work in Cursor
