@@ -32,6 +32,6 @@ printf '\e]10;?\a' 2>/dev/null | cat > /dev/null
 printf '\e]11;?\a' 2>/dev/null | cat > /dev/null
 
 # Source TMUX initialization
-if [[ -f ~/scripts/tmux-init.sh ]]; then
-    source ~/scripts/tmux-init.sh
+if [[ -f ~/scripts/work/tmux-init.sh ]]; then
+    source ~/scripts/work/tmux-init.sh
 fi
