@@ -23,6 +23,11 @@ if [[ -f ~/scripts/grep-recursive.sh ]]; then
     source ~/scripts/grep-recursive.sh
 fi
 
+# Source python-utility
+if [[ -f ~/scripts/python-utility.sh ]]; then
+    source ~/scripts/python-utility.sh
+fi
+
 # Path
 export PATH="$HOME/.local/bin:$PATH"
 export WORDCHARS="${WORDCHARS//\//}"

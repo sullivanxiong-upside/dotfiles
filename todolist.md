@@ -43,3 +43,20 @@
 - [x] Add cursor-agent function with .cursor/rules/*.mdc detection to .bashrc
 - [x] True color for mac terminal tmux apparently
     - This was a Makefile issue where echo needed the -e flag to properly interprety the macOSX escape sequence.
+- [x] Standardized nvim keymaps to use Alt keybinds for tab management (Alt+n/w/s instead of Ctrl)
+- [x] Fixed nvim formatting on save to use Conform with LSP fallback
+- [x] Improved nvim code formatting consistency (indentation, spacing)
+- [x] Added OS-specific clipboard integration for tmux vi copy mode (pbcopy on macOS, xclip on Linux)
+- [x] Removed git plugin from tmux status bar
+- [x] Added tmux keybind for work-specific workbench script (prefix+W)
+- [x] Added Kitty terminal background opacity (0.8)
+- [x] Created python-utility.sh with `py` function (wrapper for `uv run`)
+- [x] Sourced python-utility.sh in both .bashrc and .zprofile
+- [x] Created osx_cmds.sh for SwiftBar setup on macOS
+- [x] Expanded git aliases with worktree management functions:
+    - git-wt-review: Create review worktrees from existing branches
+    - git-wt-feature: Create feature worktrees with new branches
+    - git-wt-cleanup: Quick worktree removal by pattern
+    - git-wt-list, git-wt-remove, git-wt-prune: Basic worktree operations
+- [x] Reorganized git aliases for better clarity
+- [x] Cleaned up nvim vscode.lua config (removed debug print statements)

@@ -31,7 +31,12 @@ fi
 if [[ -f ~/repos/dotfiles/scripts/grep-recursive.sh ]]; then
     source ~/repos/dotfiles/scripts/grep-recursive.sh
 fi
+
 if [[ -f ~/repos/dotfiles/scripts/cursor-agent.sh ]]; then
     source ~/repos/dotfiles/scripts/cursor-agent.sh
+fi
+
+if [[ -f ~/repos/dotfiles/scripts/python-utility.sh ]]; then
+    source ~/repos/dotfiles/scripts/python-utility.sh
 fi
 
