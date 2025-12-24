@@ -1,0 +1,139 @@
+We added/modified files in this PR for this branch. Help me review every file thoroughly and provide specific, actionable feedback that I can share with my peers.
+
+## Review Objectives
+
+For each file:
+1. Give an overall rating out of 5 stars
+2. Identify specific issues with exact line numbers
+3. Explain the changes and their purpose (treat as if reader is seeing files for first time)
+4. Provide actionable recommendations
+5. **DO NOT make any changes** - only review and provide feedback
+
+## Comprehensive Review Criteria
+
+Evaluate each file against these best practices:
+
+{{CODE_QUALITY_FUNDAMENTALS}}
+
+{{RUNTIME_SAFETY}}
+
+{{SECURITY_CHECKS}}
+
+{{PERFORMANCE_DATABASE}}
+
+{{TESTING_DOCUMENTATION}}
+
+{{DESIGN_PATTERNS}}
+
+{{EXTRACT_REUSABLE_CODE}}
+
+## Additional Review Rules
+
+- There shouldn't be any inline imports unless absolutely necessary
+- Check for proper use of language/framework idioms
+- Verify adherence to project conventions
+
+{{CUSTOM_RULES}}
+
+{{API_PROTO_CHECK}}
+
+{{REVIEW_AND_UPDATE_DOCS}}
+
+## Output Format Requirements
+
+Provide your review in the following markdown format:
+
+```markdown
+# Code Review Summary
+
+**Overall Assessment**: [Brief summary of the PR's quality and major themes]
+
+**Overall Rating**: ⭐⭐⭐⭐☆ (X/5 stars)
+
+---
+
+## File: `path/to/file1.py`
+
+**Rating**: ⭐⭐⭐⭐☆ (4/5)
+
+**Summary**: [Brief overview of changes and their purpose]
+
+**What Changed**: [Explain what changed and why, as if reader is seeing this for the first time]
+
+### Issues & Recommendations
+
+#### 🔒 Security
+- **Line 45-48**: [Specific issue description]
+  - **Issue**: [What's wrong]
+  - **Recommendation**: [How to fix it]
+  - **Severity**: Critical/Major/Minor
+
+#### ⚡ Performance
+- **Line 123**: [Specific issue description]
+  - **Issue**: [What's wrong]
+  - **Recommendation**: [How to fix it]
+  - **Severity**: Critical/Major/Minor
+
+#### ✨ Code Quality
+- **Line 67-89**: [Specific issue description]
+  - **Issue**: [What's wrong]
+  - **Recommendation**: [How to fix it]
+  - **Severity**: Critical/Major/Minor
+
+#### 🧪 Testing
+- **Missing Tests**: [What needs testing]
+  - **Recommendation**: [What tests to add]
+
+#### 📝 Documentation
+- **Line 100**: [Documentation improvements needed]
+  - **Recommendation**: [What to document]
+
+#### 🗄️ Database
+- **Line 200**: [Database-related issues]
+  - **Recommendation**: [How to optimize]
+
+#### 🛡️ Runtime Safety
+- **Line 150**: [Resource management or error handling issues]
+  - **Recommendation**: [How to improve]
+
+#### 💡 Suggestions
+- **Line 100**: [Optional improvements]
+
+---
+
+## File: `path/to/file2.ts`
+
+[Same structure as above]
+
+---
+
+## Summary of Critical Issues
+
+1. [List all Critical severity issues across all files with file:line references]
+2. ...
+
+## Summary of Major Issues
+
+1. [List all Major severity issues across all files with file:line references]
+2. ...
+
+## Positive Highlights
+
+- [Things done well in this PR]
+- [Good patterns to continue]
+
+## Next Steps
+
+1. [Prioritized action items to address feedback]
+2. ...
+```
+
+## Important Notes
+
+- Always reference specific line numbers (e.g., "Line 45-48" or "Line 123")
+- Categorize issues by type (Security, Performance, Code Quality, Testing, Documentation, Database, Runtime Safety)
+- Assign severity: Critical, Major, Minor
+- Make feedback actionable - explain not just what's wrong, but how to fix it
+- Balance criticism with positive feedback on what's done well
+- Consider the context - not every issue needs to be fixed immediately
+- Focus on issues that impact functionality, security, performance, or maintainability

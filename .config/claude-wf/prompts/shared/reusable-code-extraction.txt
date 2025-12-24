@@ -1,0 +1,92 @@
+Code Reusability
+
+## When to Extract
+- Extract functions when 2+ similar code blocks exist
+- Look for repeated patterns before implementing
+- Check if standard library or existing utility covers the need
+- Consider extracting when function exceeds ~50 lines
+
+<DoNotChange>
+## Utility File Structure
+
+When extracting reusable utilities, follow this file structure:
+
+```
+.../utils/[util-category]/[util-feature].[lang]
+```
+
+**Example Structure:**
+```
+utils/
+├── __init__.py                    # Top-level entry point
+├── string-helpers/
+│   ├── __init__.py                # Category entry point
+│   ├── slug-generator.ts
+│   ├── sanitize-html.ts
+│   └── truncate-text.ts
+├── date-helpers/
+│   ├── __init__.py                # Category entry point
+│   ├── format-timestamp.py
+│   └── parse-duration.py
+└── validation/
+    ├── __init__.py                # Category entry point
+    ├── email-validator.js
+    └── phone-validator.js
+```
+
+**Entry Point Pattern (Python example):**
+```python
+# utils/string-helpers/__init__.py
+from .slug_generator import generate_slug
+from .sanitize_html import sanitize_html
+from .truncate_text import truncate_text
+
+__all__ = ['generate_slug', 'sanitize_html', 'truncate_text']
+
+# utils/__init__.py
+from .string_helpers import generate_slug, sanitize_html, truncate_text
+from .date_helpers import format_timestamp, parse_duration
+from .validation import validate_email, validate_phone
+
+__all__ = [
+    'generate_slug', 'sanitize_html', 'truncate_text',
+    'format_timestamp', 'parse_duration',
+    'validate_email', 'validate_phone'
+]
+```
+
+**This enables clean imports:**
+```python
+# Instead of:
+from utils.string_helpers.slug_generator import generate_slug
+
+# You can do:
+from utils import generate_slug
+```
+
+**Guidelines:**
+- `[util-category]`: Broad category (string-helpers, date-helpers, validation, etc.)
+- `[util-feature]`: Specific functionality in kebab-case
+- One utility per file for clarity and testability
+- Include tests alongside: `[util-feature].test.[lang]`
+- Add __init__ files to create clean import paths
+</DoNotChange>
+
+## Where to Extract To
+- Same file: Helper functions for file-specific logic
+- Utils/helpers module: Cross-cutting concerns (see structure above)
+- Shared library: Multi-project utilities
+- Class methods: Related operations on same data
+
+## What Makes Good Reusable Code
+- Single, clear purpose
+- Well-named (describes what, not how)
+- Type-safe with clear interfaces
+- Documented parameters and behavior
+- Testable in isolation
+
+## Don't Over-Abstract
+- Prefer some duplication over wrong abstraction
+- Don't extract just to reduce line count
+- Keep related code together when it aids understanding
+- Wait for 3+ uses before creating shared utility across projects

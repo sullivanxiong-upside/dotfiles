@@ -9,13 +9,16 @@ alias git-a="git add ."
 alias git-branch-commits-diff="git fetch origin && git rev-list --left-right --count origin/main...HEAD"
 alias git-c="git commit -m"
 alias git-co="git checkout -b"
+alias git-commit-hash="git rev-parse HEAD"
+alias git-commit-hash-short="git rev-parse --short HEAD"
 alias git-d='git diff main HEAD'
-alias git-d-name='git diff --name-only main HEAD'
 alias git-d-name='git diff --name-only main HEAD'
 alias git-fm="git fetch origin main"
 alias git-push='git push --set-upstream origin $(git branch --show-current)'
 alias git-push-fwl='git push --force-with-lease'
+alias gpfwl='git push --force-with-lease'
 alias git-rebase="git pull --rebase origin main"
+alias gr="git pull --rebase origin main"
 alias git-revert-file-to-main="git checkout main -- "
 alias git-s="git status"
 

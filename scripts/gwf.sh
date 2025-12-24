@@ -1,0 +1,1152 @@
+#!/usr/bin/env bash
+
+# gwf: Git Workflow CLI
+# A wrapper around git commands with organized categories and intelligent worktree management
+# Usage: gwf <category> <subcommand> [args...]
+
+set -euo pipefail
+
+# Configuration paths
+CONFIG_DIR="${HOME}/.config/gwf"
+CONFIG_FILE="${CONFIG_DIR}/repos.conf"
+LEGACY_CONFIG="${HOME}/.gwf-config"
+
+# Main repository paths (loaded from config)
+MAIN_CDS="${MAIN_CDS:-}"
+MAIN_DP="${MAIN_DP:-}"
+
+# Load configuration files
+if [ -f "$CONFIG_FILE" ]; then
+  source "$CONFIG_FILE"
+elif [ -f "$LEGACY_CONFIG" ]; then
+  source "$LEGACY_CONFIG"
+fi
+
+# ============================================================================
+# Helper Functions
+# ============================================================================
+
+# Check if gh CLI is available
+function require_gh() {
+  if ! command -v gh &> /dev/null; then
+    echo "Error: gh CLI not found. Install from https://cli.github.com/"
+    return 1
+  fi
+  return 0
+}
+
+# Check if a branch exists (local or remote)
+function branch_exists() {
+  local ref="$1"
+  git show-ref --verify --quiet "$ref" && echo "yes" || echo "no"
+}
+
+# Sanitize branch name for directory usage
+function sanitize_branch_name() {
+  echo "$1" | sed 's/[^a-zA-Z0-9-]/-/g'
+}
+
+# Copy a single config file if it exists
+function copy_config_file() {
+  local src="$1"
+  local dst="$2"
+  local label="$3"
+
+  if [ -f "$src" ]; then
+    mkdir -p "$(dirname "$dst")"
+    if cp "$src" "$dst" 2>/dev/null; then
+      echo "  ✓ Copied $label"
+      return 0
+    else
+      echo "  ⚠ Failed to copy $label" >&2
+      return 1
+    fi
+  fi
+  return 0
+}
+
+# Show usage information
+function show_usage() {
+  cat <<EOF
+Usage: gwf <category> <subcommand> [args...]
+
+Categories and Subcommands:
+
+  local (l)
+    add [files]              Stage files (gwf l a)
+    commit <msg>             Create commit (gwf l c "message")
+    status                   Show status (gwf l s)
+    diff [target]            Show diff (gwf l d)
+
+  remote (r)
+    push [opts]              Push to remote (gwf r ps)
+    rebase [branch]          Pull and rebase (gwf r r)
+    pull [branch]            Pull from remote (gwf r pl)
+
+  worktree (wt)
+    review <branch> [--from=base]     Create review worktree
+    feature <branch> [--from=base]    Create feature worktree
+    cleanup <name>                    Remove worktree
+    list                              List all worktrees
+
+  pr
+    create [title]           Create PR with gh (gwf pr c)
+    checkout <num>           Checkout PR (gwf pr co 123)
+    list [opts]              List PRs (gwf pr ls)
+    diff [base]              Preview PR diff (gwf pr d)
+    push [title]             Push + create/update PR (gwf pr p)
+
+  inspect (i)
+    diff [target]            Show diff (gwf i d)
+    log [opts]               Show log (gwf i log)
+    show [commit]            Show commit (gwf i show)
+    blame <file>             Show blame (gwf i blame)
+
+  completion
+    bash                     Output bash completion script
+    zsh                      Output zsh completion script
+    install [config-file]    Install completion to shell config (auto-detects shell)
+
+Examples:
+  gwf l a                     # Stage all changes
+  gwf l c "Fix bug"           # Commit with message
+  gwf wt review feat/auth     # Create review worktree
+  gwf pr co 123               # Checkout PR for review
+  gwf r ps                    # Push current branch
+  gwf r r                     # Pull and rebase
+
+EOF
+}
+
+# Auto-detect base branch (main, master, develop, or HEAD)
+function detect_base_branch() {
+  if git show-ref --verify --quiet refs/heads/main; then
+    echo "main"
+  elif git show-ref --verify --quiet refs/heads/master; then
+    echo "master"
+  elif git show-ref --verify --quiet refs/heads/develop; then
+    echo "develop"
+  else
+    echo "HEAD"
+  fi
+}
+
+# Get main repository path (works from worktree or main repo)
+function get_main_repo_path() {
+  local common_dir=$(git rev-parse --git-common-dir 2>/dev/null || echo "")
+
+  if [ -z "$common_dir" ]; then
+    echo "Error: Not in a git repository" >&2
+    return 1
+  fi
+
+  # The common dir points to the main repo's .git directory
+  if [[ "$common_dir" = /* ]]; then
+    # Absolute path - in a worktree
+    echo "${common_dir%/.git}"
+  else
+    # Relative path - in main repo
+    git rev-parse --show-toplevel
+  fi
+}
+
+# Get repository name
+function get_repo_name() {
+  basename "$(get_main_repo_path)"
+}
+
+# Parse --from=<branch> flag
+function parse_from_flag() {
+  local args="$*"
+  local from_branch=""
+  local remaining_args=""
+
+  for arg in $args; do
+    if [[ "$arg" =~ ^--from=(.+)$ ]]; then
+      from_branch="${BASH_REMATCH[1]}"
+    else
+      remaining_args="$remaining_args $arg"
+    fi
+  done
+
+  # Default to detected base if not specified
+  if [ -z "$from_branch" ]; then
+    from_branch=$(detect_base_branch)
+  fi
+
+  echo "$from_branch|$remaining_args"
+}
+
+# Expand category shorthand
+function expand_category() {
+  case "$1" in
+    l) echo "local" ;;
+    r) echo "remote" ;;
+    wt) echo "worktree" ;;
+    i) echo "inspect" ;;
+    *) echo "$1" ;;
+  esac
+}
+
+# Expand subcommand shorthand
+function expand_subcommand() {
+  local category="$1"
+  local subcommand="$2"
+
+  case "$category" in
+    local)
+      case "$subcommand" in
+        a) echo "add" ;;
+        c) echo "commit" ;;
+        s) echo "status" ;;
+        d) echo "diff" ;;
+        *) echo "$subcommand" ;;
+      esac
+      ;;
+    remote)
+      case "$subcommand" in
+        ps) echo "push" ;;
+        r) echo "rebase" ;;
+        pl) echo "pull" ;;
+        *) echo "$subcommand" ;;
+      esac
+      ;;
+    pr)
+      case "$subcommand" in
+        c) echo "create" ;;
+        co) echo "checkout" ;;
+        ls) echo "list" ;;
+        d) echo "diff" ;;
+        p) echo "push" ;;
+        *) echo "$subcommand" ;;
+      esac
+      ;;
+    inspect)
+      case "$subcommand" in
+        d) echo "diff" ;;
+        *) echo "$subcommand" ;;
+      esac
+      ;;
+    *)
+      echo "$subcommand"
+      ;;
+  esac
+}
+
+# ============================================================================
+# Setup and Config Functions
+# ============================================================================
+
+# One-time setup for main repository paths
+function setup_main_repos() {
+  local config_file="$LEGACY_CONFIG"
+
+  # Skip if already configured
+  if [ -n "$MAIN_CDS" ] && [ -n "$MAIN_DP" ]; then
+    return 0
+  fi
+
+  # Skip if config file exists
+  if [ -f "$config_file" ] || [ -f "$CONFIG_FILE" ]; then
+    return 0
+  fi
+
+  # Only prompt for repos we're actually working with
+  local repo_name=$(get_repo_name 2>/dev/null || echo "")
+
+  # If we can detect the repo and it's not one we need config for, skip
+  if [ -n "$repo_name" ] && [ "$repo_name" != "data-pipelines" ] && [ "$repo_name" != "customer-dashboard" ]; then
+    return 0
+  fi
+
+  # Prompt for setup
+  echo ""
+  echo "===== First-time gwf setup ====="
+  echo ""
+  echo "To auto-copy config files to worktrees, please provide paths to your main repos."
+  echo "Leave empty to skip (you can set MAIN_CDS/MAIN_DP environment variables later)."
+  echo ""
+
+  local input_cds=""
+  local input_dp=""
+
+  read -e -p "Path to main customer-dashboard repo: " input_cds
+  read -e -p "Path to main data-pipelines repo: " input_dp
+
+  # Expand ~ if present
+  input_cds="${input_cds/#\~/$HOME}"
+  input_dp="${input_dp/#\~/$HOME}"
+
+  # Only save if at least one path was provided
+  if [ -n "$input_cds" ] || [ -n "$input_dp" ]; then
+    {
+      echo "# gwf configuration"
+      echo "# Generated on $(date)"
+      echo ""
+      [ -n "$input_cds" ] && echo "export MAIN_CDS=\"$input_cds\""
+      [ -n "$input_dp" ] && echo "export MAIN_DP=\"$input_dp\""
+    } > "$config_file"
+
+    echo ""
+    echo "✓ Configuration saved to $config_file"
+
+    # Load the config
+    source "$config_file"
+  fi
+
+  echo ""
+}
+
+# Load configs from configuration file
+function load_repo_configs() {
+  local repo_name="$1"
+  local repo_name_upper=$(echo "$repo_name" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+
+  # Try to get configs array from configuration
+  local configs_var="CONFIGS_${repo_name_upper}[@]"
+  if [ -n "${!configs_var:-}" ]; then
+    echo "${!configs_var}"
+  else
+    echo ""
+  fi
+}
+
+# Copy config files after worktree creation
+function copy_worktree_configs() {
+  local worktree_path="$1"
+  local repo_name="$2"
+
+  case "$repo_name" in
+    data-pipelines)
+      if [ -z "$MAIN_DP" ]; then
+        echo ""
+        echo "Tip: Set MAIN_DP=/path/to/data-pipelines to auto-copy config files"
+        return 0
+      fi
+
+      if [ ! -d "$MAIN_DP" ]; then
+        echo "Warning: MAIN_DP points to non-existent directory: $MAIN_DP"
+        return 0
+      fi
+
+      echo ""
+      echo "Copying data-pipelines configs from $MAIN_DP..."
+
+      # Load configs from configuration file or use defaults
+      local configs=$(load_repo_configs "$repo_name")
+      if [ -z "$configs" ]; then
+        # Fallback to hardcoded defaults for backward compatibility
+        configs=(
+          "src/jobs/datahub_llm_analysis_service/local-config.sullivanxiong.yaml"
+          "src/jobs/datahub_llm_job_processor/local-config.sullivanxiong.yaml"
+        )
+      fi
+
+      for config in "${configs[@]:-}"; do
+        [ -n "$config" ] || continue
+        local label=$(basename "$config")
+        copy_config_file "$MAIN_DP/$config" "$worktree_path/$config" "$label"
+      done
+      ;;
+
+    customer-dashboard)
+      if [ -z "$MAIN_CDS" ]; then
+        echo ""
+        echo "Tip: Set MAIN_CDS=/path/to/customer-dashboard to auto-copy config files"
+        return 0
+      fi
+
+      if [ ! -d "$MAIN_CDS" ]; then
+        echo "Warning: MAIN_CDS points to non-existent directory: $MAIN_CDS"
+        return 0
+      fi
+
+      echo ""
+      echo "Copying customer-dashboard configs from $MAIN_CDS..."
+
+      # Load configs from configuration file or use defaults
+      local configs=$(load_repo_configs "$repo_name")
+      if [ -z "$configs" ]; then
+        # Fallback to hardcoded defaults
+        configs=(".env.local")
+      fi
+
+      for config in "${configs[@]:-}"; do
+        [ -n "$config" ] || continue
+        local label=$(basename "$config")
+        copy_config_file "$MAIN_CDS/$config" "$worktree_path/$config" "$label"
+      done
+
+      # Legacy files (for backward compatibility)
+      copy_config_file "$MAIN_CDS/.unicorn.env" "$worktree_path/.unicorn.env" ".unicorn.env"
+      copy_config_file "$MAIN_CDS/server/.env" "$worktree_path/server/.env" "server/.env"
+      ;;
+  esac
+}
+
+# ============================================================================
+# Worktree Commands - Refactored
+# ============================================================================
+
+# Unified worktree creation function
+function create_worktree() {
+  local type="$1"  # "review" or "feature"
+  local branch="$2"
+  shift 2
+
+  if [ -z "$branch" ]; then
+    echo "Usage: gwf wt $type <branch> [--from=<base>]"
+    echo "Example: gwf wt $type feature/auth"
+    echo "Example: gwf wt $type claude/issue-123 --from=develop"
+    return 1
+  fi
+
+  # Parse --from flag
+  local parse_result=$(parse_from_flag "$@")
+  local from_branch=$(echo "$parse_result" | cut -d'|' -f1)
+
+  # Sanitize branch name for directory
+  local dir_suffix=$(sanitize_branch_name "$branch")
+
+  # Get repo name and construct worktree path
+  local repo_name=$(get_repo_name) || return 1
+  local main_repo_path=$(get_main_repo_path) || return 1
+  local main_repo_dir=$(dirname "$main_repo_path")
+  local worktree_path="${main_repo_dir}/${repo_name}-${type}-${dir_suffix}"
+
+  # Fetch latest remote refs
+  echo "Fetching latest remote branches..."
+  git fetch --quiet 2>/dev/null || true
+
+  # Check if branch exists locally or remotely
+  local local_branch_exists=$(branch_exists "refs/heads/$branch")
+  local remote_branch_exists=$(branch_exists "refs/remotes/origin/$branch")
+
+  echo "Creating $type worktree..."
+  echo "  Branch: $branch"
+
+  # Determine source and create worktree
+  if [ "$remote_branch_exists" = "yes" ]; then
+    echo "  Source: origin/$branch (existing remote branch)"
+    echo "  Path: $worktree_path"
+
+    if [ "$local_branch_exists" = "yes" ]; then
+      # Both local and remote exist - checkout existing local branch
+      git worktree add "$worktree_path" "$branch"
+    else
+      # Remote exists but not local - create local tracking branch
+      git worktree add "$worktree_path" -b "$branch" --track origin/"$branch"
+    fi
+  elif [ "$local_branch_exists" = "yes" ]; then
+    echo "  Source: $branch (existing local branch)"
+    echo "  Path: $worktree_path"
+    # Local exists but not remote - checkout existing local branch
+    git worktree add "$worktree_path" "$branch"
+  else
+    echo "  Source: $from_branch (new branch)"
+    echo "  Path: $worktree_path"
+    # Neither exists - create new branch from base
+    git worktree add "$worktree_path" -b "$branch" "$from_branch"
+  fi
+
+  if [ $? -eq 0 ]; then
+    echo ""
+    echo "✓ Worktree created successfully!"
+    copy_worktree_configs "$worktree_path" "$repo_name"
+    echo "Navigate with: cd $worktree_path"
+  else
+    echo "Error: Failed to create worktree" >&2
+    return 1
+  fi
+}
+
+function cmd_worktree_review() {
+  create_worktree "review" "$@"
+}
+
+function cmd_worktree_feature() {
+  create_worktree "feature" "$@"
+}
+
+function cmd_worktree_cleanup() {
+  if [ $# -eq 0 ]; then
+    echo "Usage: gwf wt cleanup <branch>"
+    echo "Example: gwf wt cleanup claude/issue-1578-20251211-0457"
+    echo "Example: gwf wt cleanup my-feature-branch"
+    echo ""
+    echo "Current worktrees:"
+    git worktree list
+    return 1
+  fi
+
+  local branch_name="$1"
+  local repo_name=$(get_repo_name) || return 1
+  local main_repo_path=$(get_main_repo_path) || return 1
+  local main_repo_dir=$(dirname "$main_repo_path")
+
+  # Sanitize branch name for directory
+  local dir_suffix=$(sanitize_branch_name "$branch_name")
+
+  # Try both review and feature patterns
+  local review_path="${main_repo_dir}/${repo_name}-review-${dir_suffix}"
+  local feature_path="${main_repo_dir}/${repo_name}-feature-${dir_suffix}"
+  local worktree_path=""
+
+  if [ -d "$review_path" ]; then
+    worktree_path="$review_path"
+  elif [ -d "$feature_path" ]; then
+    worktree_path="$feature_path"
+  else
+    echo "Worktree not found for branch: $branch_name"
+    echo "Tried:"
+    echo "  $review_path"
+    echo "  $feature_path"
+    echo ""
+    echo "Current worktrees:"
+    git worktree list
+    return 1
+  fi
+
+  # Check if we're currently in the worktree being deleted
+  local current_dir=$(pwd)
+  if [[ "$current_dir" == "$worktree_path"* ]]; then
+    echo "Currently in worktree being deleted. Changing to main repo..."
+    cd "$main_repo_path" || {
+      echo "Error: Failed to change to main repo directory" >&2
+      return 1
+    }
+  fi
+
+  echo "Removing worktree: $worktree_path"
+  git worktree remove --force "$worktree_path"
+
+  if [ $? -eq 0 ]; then
+    echo "✓ Worktree removed successfully!"
+  else
+    echo "Error: Failed to remove worktree" >&2
+    return 1
+  fi
+}
+
+function cmd_worktree_list() {
+  git worktree list
+}
+
+# ============================================================================
+# Local Commands
+# ============================================================================
+
+function cmd_local_add() {
+  if [ $# -eq 0 ]; then
+    git add .
+  else
+    git add "$@"
+  fi
+}
+
+function cmd_local_commit() {
+  if [ $# -eq 0 ]; then
+    git commit
+  else
+    git commit -m "$*"
+  fi
+}
+
+function cmd_local_status() {
+  git status
+}
+
+function cmd_local_diff() {
+  local target="${1:-$(detect_base_branch)}"
+  git diff "$target" HEAD
+}
+
+# ============================================================================
+# Remote Commands
+# ============================================================================
+
+function cmd_remote_push() {
+  local current_branch=$(git branch --show-current)
+  git push --set-upstream origin "$current_branch" "$@"
+}
+
+function cmd_remote_rebase() {
+  local branch="${1:-$(detect_base_branch)}"
+  git pull --rebase origin "$branch"
+}
+
+function cmd_remote_pull() {
+  local branch="${1:-$(detect_base_branch)}"
+  git pull origin "$branch"
+}
+
+# ============================================================================
+# PR Commands
+# ============================================================================
+
+function cmd_pr_create() {
+  require_gh || return 1
+
+  if [ $# -eq 0 ]; then
+    gh pr create
+  else
+    gh pr create --title "$*"
+  fi
+}
+
+function cmd_pr_checkout() {
+  require_gh || return 1
+
+  if [ $# -eq 0 ]; then
+    echo "Usage: gwf pr co <pr-number>"
+    echo "Example: gwf pr co 123"
+    return 1
+  fi
+
+  local pr_number="$1"
+
+  # Validate PR number is numeric
+  if ! [[ "$pr_number" =~ ^[0-9]+$ ]]; then
+    echo "Error: PR number must be numeric"
+    return 1
+  fi
+
+  # Fetch the PR branch name first
+  echo "Fetching PR #$pr_number..."
+  local pr_branch=$(gh pr view "$pr_number" --json headRefName -q .headRefName 2>/dev/null)
+
+  if [ -z "$pr_branch" ]; then
+    echo "Error: Could not find PR #$pr_number"
+    return 1
+  fi
+
+  # Checkout the PR
+  gh pr checkout "$pr_number" || {
+    echo "Error: Failed to checkout PR #$pr_number" >&2
+    return 1
+  }
+
+  # Create a review worktree
+  echo ""
+  echo "Creating review worktree for PR #$pr_number..."
+
+  local repo_name=$(get_repo_name) || return 1
+  local main_repo_path=$(get_main_repo_path) || return 1
+  local main_repo_dir=$(dirname "$main_repo_path")
+  local worktree_path="${main_repo_dir}/${repo_name}-review-pr-${pr_number}"
+
+  git worktree add "$worktree_path" "$pr_branch" || {
+    echo "Error: Failed to create worktree for PR #$pr_number" >&2
+    return 1
+  }
+
+  echo ""
+  echo "✓ PR worktree created!"
+  copy_worktree_configs "$worktree_path" "$repo_name"
+  echo "Navigate with: cd $worktree_path"
+}
+
+function cmd_pr_list() {
+  require_gh || return 1
+  gh pr list "$@"
+}
+
+function cmd_pr_diff() {
+  local base="${1:-$(detect_base_branch)}"
+  git diff "$base" HEAD
+}
+
+function cmd_pr_push() {
+  local current_branch=$(git branch --show-current)
+
+  echo "Pushing branch: $current_branch"
+  git push --set-upstream origin "$current_branch" || {
+    echo "Error: Failed to push branch" >&2
+    return 1
+  }
+
+  require_gh || return 0  # Just push if gh not available
+
+  # Check if PR already exists
+  local existing_pr=$(gh pr list --head "$current_branch" --json number -q '.[0].number' 2>/dev/null)
+
+  if [ -n "$existing_pr" ]; then
+    echo ""
+    echo "✓ PR already exists: #$existing_pr"
+    gh pr view "$existing_pr"
+  else
+    echo ""
+    echo "Creating PR..."
+    if [ $# -eq 0 ]; then
+      gh pr create
+    else
+      gh pr create --title "$*"
+    fi
+  fi
+}
+
+# ============================================================================
+# Inspect Commands
+# ============================================================================
+
+function cmd_inspect_diff() {
+  local target="${1:-$(detect_base_branch)}"
+  shift
+  git diff "$target" HEAD "$@"
+}
+
+function cmd_inspect_log() {
+  git log "$@"
+}
+
+function cmd_inspect_show() {
+  if [ $# -eq 0 ]; then
+    git show HEAD
+  else
+    git show "$@"
+  fi
+}
+
+function cmd_inspect_blame() {
+  if [ $# -eq 0 ]; then
+    echo "Usage: gwf i blame <file>"
+    return 1
+  fi
+  git blame "$@"
+}
+
+# ============================================================================
+# Completion Commands
+# ============================================================================
+
+function cmd_completion_bash() {
+  cat <<'EOF'
+#!/usr/bin/env bash
+# Bash completion for gwf (Git Workflow CLI)
+
+_gwf_completion() {
+  local cur prev words cword
+
+  # Manual completion setup (works in both bash and zsh with bashcompinit)
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  cword=$COMP_CWORD
+
+  # Build words array
+  local i
+  for ((i=0; i < ${#COMP_WORDS[@]}; i++)); do
+    words[$i]="${COMP_WORDS[$i]}"
+  done
+
+  # Get the command components
+  local category="${words[1]:-}"
+  local subcommand="${words[2]:-}"
+
+  # Complete categories (first argument)
+  if [ $cword -eq 1 ]; then
+    COMPREPLY=($(compgen -W "local l remote r worktree wt pr inspect i completion help" -- "$cur"))
+    return 0
+  fi
+
+  # Expand category shortcuts
+  case "$category" in
+    l) category="local" ;;
+    r) category="remote" ;;
+    wt) category="worktree" ;;
+    i) category="inspect" ;;
+  esac
+
+  # Complete subcommands (second argument)
+  if [ $cword -eq 2 ]; then
+    case "$category" in
+      local)
+        COMPREPLY=($(compgen -W "add a commit c status s diff d" -- "$cur"))
+        ;;
+      remote)
+        COMPREPLY=($(compgen -W "push ps rebase r pull pl" -- "$cur"))
+        ;;
+      worktree)
+        COMPREPLY=($(compgen -W "review feature cleanup list" -- "$cur"))
+        ;;
+      pr)
+        COMPREPLY=($(compgen -W "create c checkout co list ls diff d push p" -- "$cur"))
+        ;;
+      inspect)
+        COMPREPLY=($(compgen -W "diff d log show blame" -- "$cur"))
+        ;;
+      completion)
+        COMPREPLY=($(compgen -W "bash zsh install" -- "$cur"))
+        ;;
+    esac
+    return 0
+  fi
+
+  # Complete arguments for specific subcommands (third argument and beyond)
+  if [ $cword -ge 3 ]; then
+    # Expand subcommand shortcuts
+    case "$subcommand" in
+      a) subcommand="add" ;;
+      c) subcommand="commit" ;;
+      s) subcommand="status" ;;
+      d) subcommand="diff" ;;
+      ps) subcommand="push" ;;
+      r) subcommand="rebase" ;;
+      pl) subcommand="pull" ;;
+      co) subcommand="checkout" ;;
+      ls) subcommand="list" ;;
+      p) subcommand="push" ;;
+    esac
+
+    case "$category:$subcommand" in
+      worktree:cleanup)
+        # Complete with branch names from existing worktrees
+        local branches=$(git worktree list --porcelain 2>/dev/null | awk '/^branch / {sub(/^branch refs\/heads\//, ""); print}')
+        COMPREPLY=($(compgen -W "$branches" -- "$cur"))
+        ;;
+      worktree:review|worktree:feature)
+        # Complete with all branch names (local and remote)
+        local branches=$(git for-each-ref --format='%(refname:short)' refs/heads/ refs/remotes/origin/ 2>/dev/null | sed 's|^origin/||' | sort -u)
+        COMPREPLY=($(compgen -W "$branches" -- "$cur"))
+        ;;
+      local:add)
+        # Complete with modified/untracked files
+        _filedir
+        ;;
+      inspect:blame)
+        # Complete with files in repo
+        _filedir
+        ;;
+    esac
+    return 0
+  fi
+}
+
+# Register completion
+complete -F _gwf_completion gwf
+EOF
+}
+
+function cmd_completion_zsh() {
+  cat <<'EOF'
+#compdef gwf
+
+_gwf() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+
+  local -a categories subcommands
+
+  # Define categories
+  categories=(
+    'local:Local git operations'
+    'l:Local git operations'
+    'remote:Remote operations'
+    'r:Remote operations'
+    'worktree:Worktree management'
+    'wt:Worktree management'
+    'pr:Pull request operations'
+    'inspect:Inspect repository'
+    'i:Inspect repository'
+    'completion:Shell completion'
+    'help:Show help'
+  )
+
+  if (( CURRENT == 2 )); then
+    _describe -t categories 'category' categories
+    return 0
+  fi
+
+  local category=$words[2]
+
+  # Expand shortcuts
+  case $category in
+    l) category="local" ;;
+    r) category="remote" ;;
+    wt) category="worktree" ;;
+    i) category="inspect" ;;
+  esac
+
+  if (( CURRENT == 3 )); then
+    case $category in
+      local)
+        subcommands=('add:Stage files' 'a:Stage files' 'commit:Create commit' 'c:Create commit' 'status:Show status' 's:Show status' 'diff:Show diff' 'd:Show diff')
+        _describe -t subcommands 'subcommand' subcommands
+        return 0
+        ;;
+      remote)
+        subcommands=('push:Push to remote' 'ps:Push to remote' 'rebase:Pull and rebase' 'r:Pull and rebase' 'pull:Pull from remote' 'pl:Pull from remote')
+        _describe -t subcommands 'subcommand' subcommands
+        return 0
+        ;;
+      worktree)
+        subcommands=('review:Create review worktree' 'feature:Create feature worktree' 'cleanup:Remove worktree' 'list:List worktrees')
+        _describe -t subcommands 'subcommand' subcommands
+        return 0
+        ;;
+      pr)
+        subcommands=('create:Create PR' 'c:Create PR' 'checkout:Checkout PR' 'co:Checkout PR' 'list:List PRs' 'ls:List PRs' 'diff:Preview PR diff' 'd:Preview PR diff' 'push:Push and create PR' 'p:Push and create PR')
+        _describe -t subcommands 'subcommand' subcommands
+        return 0
+        ;;
+      inspect)
+        subcommands=('diff:Show diff' 'd:Show diff' 'log:Show log' 'show:Show commit' 'blame:Show blame')
+        _describe -t subcommands 'subcommand' subcommands
+        return 0
+        ;;
+      completion)
+        subcommands=('bash:Output bash completion' 'zsh:Output zsh completion' 'install:Install completion')
+        _describe -t subcommands 'subcommand' subcommands
+        return 0
+        ;;
+    esac
+    return 0
+  fi
+
+  if (( CURRENT >= 4 )); then
+    local subcommand=$words[3]
+
+    # Expand shortcuts
+    case $subcommand in
+      a) subcommand="add" ;;
+      c) subcommand="commit" ;;
+      s) subcommand="status" ;;
+      d) subcommand="diff" ;;
+      ps) subcommand="push" ;;
+      r) subcommand="rebase" ;;
+      pl) subcommand="pull" ;;
+      co) subcommand="checkout" ;;
+      ls) subcommand="list" ;;
+      p) subcommand="push" ;;
+    esac
+
+    case "$category:$subcommand" in
+      worktree:cleanup)
+        local -a branches
+        branches=(${(f)"$(git worktree list --porcelain 2>/dev/null | awk '/^branch / {sub(/^branch refs\/heads\//, ""); print}')"})
+        _describe -t branches 'branch' branches
+        return 0
+        ;;
+      worktree:review|worktree:feature)
+        local -a branches
+        branches=(${(f)"$(git for-each-ref --format='%(refname:short)' refs/heads/ refs/remotes/origin/ 2>/dev/null | sed 's|^origin/||' | sort -u)"})
+        _describe -t branches 'branch' branches
+        return 0
+        ;;
+      local:add|inspect:blame)
+        _files
+        return 0
+        ;;
+    esac
+
+    # No completion for other cases
+    return 0
+  fi
+}
+
+# Register for both the command and common alias
+compdef _gwf gwf
+compdef _gwf gwf.sh
+EOF
+}
+
+function cmd_completion_install() {
+  local shell_config="${1:-}"
+
+  # If no config specified, detect it
+  if [ -z "$shell_config" ]; then
+    if [ -n "${ZSH_VERSION:-}" ]; then
+      shell_config="$HOME/.zshrc"
+    elif [ -n "${BASH_VERSION:-}" ]; then
+      shell_config="$HOME/.bashrc"
+    else
+      echo "Error: Unknown shell. Please specify config file:"
+      echo "  gwf completion install ~/.zshrc"
+      echo "  gwf completion install ~/.bashrc"
+      echo ""
+      echo "Or manually add:"
+      echo "  source <(gwf completion bash)"
+      return 1
+    fi
+  fi
+
+  # Expand ~ if present
+  shell_config="${shell_config/#\~/$HOME}"
+
+  # Check if file exists and is writable
+  if [ ! -f "$shell_config" ]; then
+    echo "Error: Config file does not exist: $shell_config"
+    echo "Create it first or specify a different file"
+    return 1
+  fi
+
+  if [ ! -w "$shell_config" ]; then
+    echo "Error: Cannot write to $shell_config (permission denied)"
+    echo "Try: chmod u+w $shell_config"
+    return 1
+  fi
+
+  # Check if already installed
+  if grep -q "gwf completion" "$shell_config" 2>/dev/null; then
+    echo "✓ gwf completion already installed in $shell_config"
+    return 0
+  fi
+
+  # Detect if it's a zsh or bash config
+  local is_zsh=0
+  if [[ "$shell_config" == *".zsh"* ]] || [[ "$shell_config" == *"zprofile"* ]]; then
+    is_zsh=1
+  fi
+
+  # Add completion to config with proper guards
+  {
+    echo ""
+    echo "# gwf completion"
+    if [ $is_zsh -eq 1 ]; then
+      echo "if command -v gwf &>/dev/null; then"
+      echo "  # Ensure compinit is loaded"
+      echo "  autoload -Uz compinit 2>/dev/null || true"
+      echo "  compinit -C 2>/dev/null || true"
+      echo "  source <(gwf completion zsh)"
+      echo "fi"
+    else
+      echo "if command -v gwf &>/dev/null; then"
+      echo "  source <(gwf completion bash)"
+      echo "fi"
+    fi
+  } >> "$shell_config"
+
+  echo "✓ gwf completion installed to $shell_config"
+  echo ""
+  echo "Reload your shell to activate:"
+  echo "  source $shell_config"
+}
+
+# ============================================================================
+# Main Command Router
+# ============================================================================
+
+function main() {
+  # Check for help
+  if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]; then
+    show_usage
+    return 0
+  fi
+
+  local category="$1"
+  shift
+
+  # Expand category shorthand
+  category=$(expand_category "$category")
+
+  # Check for subcommand
+  if [ $# -lt 1 ]; then
+    echo "Error: Missing subcommand for category '$category'"
+    echo ""
+    show_usage
+    return 1
+  fi
+
+  local subcommand="$1"
+  shift
+
+  # Expand subcommand shorthand
+  subcommand=$(expand_subcommand "$category" "$subcommand")
+
+  # Route to appropriate command
+  case "$category" in
+    local)
+      case "$subcommand" in
+        add) cmd_local_add "$@" ;;
+        commit) cmd_local_commit "$@" ;;
+        status) cmd_local_status "$@" ;;
+        diff) cmd_local_diff "$@" ;;
+        *)
+          echo "Error: Unknown local subcommand '$subcommand'"
+          echo "Valid subcommands: add, commit, status, diff"
+          return 1
+          ;;
+      esac
+      ;;
+
+    remote)
+      case "$subcommand" in
+        push) cmd_remote_push "$@" ;;
+        rebase) cmd_remote_rebase "$@" ;;
+        pull) cmd_remote_pull "$@" ;;
+        *)
+          echo "Error: Unknown remote subcommand '$subcommand'"
+          echo "Valid subcommands: push, rebase, pull"
+          return 1
+          ;;
+      esac
+      ;;
+
+    worktree)
+      case "$subcommand" in
+        review) cmd_worktree_review "$@" ;;
+        feature) cmd_worktree_feature "$@" ;;
+        cleanup) cmd_worktree_cleanup "$@" ;;
+        list) cmd_worktree_list "$@" ;;
+        *)
+          echo "Error: Unknown worktree subcommand '$subcommand'"
+          echo "Valid subcommands: review, feature, cleanup, list"
+          return 1
+          ;;
+      esac
+      ;;
+
+    pr)
+      case "$subcommand" in
+        create) cmd_pr_create "$@" ;;
+        checkout) cmd_pr_checkout "$@" ;;
+        list) cmd_pr_list "$@" ;;
+        diff) cmd_pr_diff "$@" ;;
+        push) cmd_pr_push "$@" ;;
+        *)
+          echo "Error: Unknown pr subcommand '$subcommand'"
+          echo "Valid subcommands: create, checkout, list, diff, push"
+          return 1
+          ;;
+      esac
+      ;;
+
+    inspect)
+      case "$subcommand" in
+        diff) cmd_inspect_diff "$@" ;;
+        log) cmd_inspect_log "$@" ;;
+        show) cmd_inspect_show "$@" ;;
+        blame) cmd_inspect_blame "$@" ;;
+        *)
+          echo "Error: Unknown inspect subcommand '$subcommand'"
+          echo "Valid subcommands: diff, log, show, blame"
+          return 1
+          ;;
+      esac
+      ;;
+
+    completion)
+      case "$subcommand" in
+        bash) cmd_completion_bash "$@" ;;
+        zsh) cmd_completion_zsh "$@" ;;
+        install) cmd_completion_install "$@" ;;
+        *)
+          echo "Error: Unknown completion subcommand '$subcommand'"
+          echo "Valid subcommands: bash, zsh, install"
+          return 1
+          ;;
+      esac
+      ;;
+
+    *)
+      echo "Error: Unknown category '$category'"
+      echo "Valid categories: local, remote, worktree, pr, inspect, completion"
+      echo ""
+      show_usage
+      return 1
+      ;;
+  esac
+}
+
+# Run main function
+main "$@"

@@ -1,0 +1,43 @@
+Security Best Practices
+
+## Input Validation
+- Validate and sanitize all user inputs
+- Use parameterized queries for SQL (never string interpolation)
+- Escape output when rendering user content (XSS prevention)
+- Validate file uploads (type, size, content)
+- Check permission before allowing operations
+
+## Authentication & Authorization
+- Check authentication on every protected endpoint
+- Verify user has permission for requested resource/operation
+- Don't trust client-sent user IDs - use session/token data
+- Use secure session management (HTTPOnly, Secure cookies)
+- Implement rate limiting on auth endpoints
+
+## Data Protection
+- Encrypt sensitive data at rest and in transit
+- Use HTTPS for all production traffic
+- Hash passwords with bcrypt/argon2 (never store plaintext)
+- Don't log sensitive data (passwords, tokens, PII)
+- Use environment variables for secrets, not hardcoded values
+
+## Common Vulnerabilities to Prevent
+- SQL injection: Use parameterized queries
+- XSS: Escape user content, use CSP headers
+- CSRF: Use CSRF tokens on state-changing operations
+- Path traversal: Validate and sanitize file paths
+- Mass assignment: Explicitly allow fields for updates
+
+## API Security
+- Require authentication for non-public endpoints
+- Validate request sizes and rate limit
+- Return appropriate error codes (avoid info leakage)
+- Use API keys/tokens securely
+- Implement proper CORS policies
+
+## Security Review Checklist
+- User input is validated before use
+- Database queries use parameters, not concatenation
+- Authentication is checked on protected routes
+- User has permission for requested operation
+- Sensitive data is not logged or exposed in errors

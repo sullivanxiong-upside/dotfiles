@@ -1,0 +1,1 @@
+IMPORTANT: If this feature involves API changes (endpoints, request/response formats, data contracts), also check the proto/ directory to see if protobuf definitions need to be updated or created.

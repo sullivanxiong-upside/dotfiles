@@ -1,0 +1,33 @@
+We are now onboarding a new client.
+
+## Important Notes
+
+If this is actually "sum of opp" this may be a rollup field we need to write the SQL for manually.
+
+## Team Names Reference
+- Marketing
+- SDR
+- AE (mid-market, enterprise AE)
+- Partnerships
+
+## Setup Tasks
+
+Help me set up their Airflow, customer_configs, and customer_orgs.yaml configuration.
+@scripts/regenerate_customer_sfdc_queries @scripts/regenerate_customer_sfdc_queries/smoke_test @config/customer_configs/ @airflow/dags/configs/prod/main.yaml.template
+
+## Required Information
+
+Ask me what we should set their default airflow configs to for sizing that way you have clarification.
+Ask me what this client's organization name is.
+
+Required fields to collect:
+- Assembled Org Id:
+- Domain:
+- Email:
+- Amount field:
+
+Ask me what their org_id, domain name, email domain, and amount fields are.
+
+{{PLANNING_GUIDELINES}}
+
+{{FILE_READING_REMINDER}}

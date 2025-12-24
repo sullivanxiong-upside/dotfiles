@@ -1,0 +1,310 @@
+You are helping me analyze and improve ALL rules and shared fragments in the claude-wf CLI system.
+
+## Context
+
+There are two types of content files that need optimization:
+
+**1. Category-Specific Rule Files:**
+- `~/.claude-review-rules` - Rules for review category commands
+- `~/.claude-customer-mgmt-rules` - Rules for customer-mgmt category commands
+- `~/.claude-feature-rules` - Rules for feature category commands
+- `~/.claude-prepare-release-rules` - Rules for prepare-release commands
+- Automatically included in command prompts via the {{CATEGORY_RULES}} template variable
+
+**2. Shared Fragment Files:**
+- `~/.config/claude-wf/prompts/shared/*.txt` - Reusable prompt fragments
+- Included via template variables like {{DOCS_INSTRUCTIONS}}, {{CODE_QUALITY_FUNDAMENTALS}}, etc.
+- Used across multiple commands to avoid duplication
+
+Both types contribute to context window usage and should be optimized for clarity, conciseness, and effectiveness.
+
+## Your Task
+
+Help me analyze and improve all rule files AND shared fragments. Follow this 5-phase process:
+
+### Phase 1: Understanding Phase
+
+First, ask me:
+1. What specific aspects am I most concerned about?
+   - Clarity and actionability
+   - Duplication (within/across files)
+   - Organization and structure
+   - Context window optimization (reducing bloat while preserving value)
+   - All of the above
+2. Are there any files I want to keep exactly as-is?
+3. Do I have a preferred style or format?
+   - Imperative commands (e.g., "Update documentation")
+   - Guidelines (e.g., "You should update documentation")
+   - Bullet points vs prose
+4. Should we preserve section headers and comments, or optimize them too?
+
+### Phase 2: Analysis Phase
+
+**Step 2.1: Discovery and Reading**
+
+For category-specific rules:
+- Find all existing rule files in `~/` matching pattern `.claude-*-rules`
+- Read the contents of each rule file
+- Count lines, characters, and identify structure
+
+For shared fragments:
+- List all files in `~/.config/claude-wf/prompts/shared/`
+- Read contents of each `.txt` file
+- Measure file sizes and analyze content density
+
+**Step 2.2: Cross-File Analysis**
+
+Identify issues across ALL files:
+- **Exact Duplicates**: Content that appears verbatim in multiple files
+- **Semantic Duplicates**: Same concepts expressed differently
+- **Contradictions**: Rules/guidelines that conflict
+- **Vague Content**: Too abstract or not actionable
+- **Bloat**: Overly verbose content with low information density
+- **Missing Organization**: Content that should be grouped but isn't
+- **Unused Fragments**: Shared fragments that are never referenced
+
+**Step 2.3: File-Specific Analysis**
+
+For each file, evaluate:
+- **Clarity**: How actionable and clear is the content?
+- **Redundancy**: How much internal duplication exists?
+- **Organization**: Is content logically structured?
+- **Information Density**: Signal-to-noise ratio - how much valuable guidance per character?
+- **Necessity**: Is this content essential or could it be inferred?
+
+**Step 2.4: Template Variable Usage Analysis**
+
+Check which shared fragments are actually used:
+- Read `~/scripts/claude-wf.sh` to find all template variable replacements
+- Identify which fragments are loaded via `load_fragment_if_needed`
+- Check which prompt files actually use each {{TEMPLATE_VARIABLE}}
+- Flag unused or rarely-used fragments for potential removal
+
+**Step 2.5: Present Analysis Summary**
+
+Show me a comprehensive summary with:
+- Files discovered and their statistics (lines, characters, KB)
+- Key findings organized by type
+- Specific examples with file names and line numbers
+- Overall statistics and estimated context window savings potential
+- Usage analysis (which fragments are actually used where)
+- Assessment of each file's information density
+
+Example format:
+```markdown
+# Rules & Fragments Analysis Summary
+
+## Category-Specific Rule Files
+1. ~/.claude-review-rules (6 lines, 1.6KB) - Good density
+2. ~/.claude-feature-rules (16 lines, 767B) - Excellent density
+
+## Shared Fragment Files
+1. code-quality-fundamentals.txt (20KB) ⚠️ Low density - verbose examples
+2. testing-documentation.txt (13KB) ⚠️ Low density - repetitive patterns
+3. docs-instructions.txt (150B) ✓ High density - concise
+[...]
+
+## Key Findings
+
+### Information Density Issues
+[For each bloated file, explain what could be condensed and how]
+
+### Cross-File Duplicates
+[List duplicated content]
+
+### Clarity Issues
+[List vague or non-actionable content]
+
+### Unused Fragments
+[List fragments that are never loaded]
+
+## Overall Statistics
+- Total context: XKB
+- Potential savings: YKB (Z%)
+- Files with density issues: X
+- Unused fragments: Y
+```
+
+### Phase 3: Planning Phase
+
+**Step 3.1: Propose Improvements**
+
+For each file, show:
+- Current size and structure
+- Proposed improved version
+- Detailed changes with before/after comparisons
+- Rationale for each change (why this improves clarity or reduces bloat)
+- Size impact (character counts and % savings)
+
+**Step 3.2: Apply Improvement Principles**
+
+Use intelligent judgment to optimize each file:
+
+1. **Maximize Information Density**
+   - Cut redundant examples when patterns are clear
+   - Remove filler words and unnecessary explanations
+   - Consolidate related points
+   - Keep examples only when they clarify non-obvious concepts
+
+2. **Preserve Essential Content**
+   - Keep critical rules that prevent common mistakes
+   - Retain examples that illustrate subtle distinctions
+   - Maintain actionable thresholds and conditions
+   - Preserve context that would otherwise be lost
+
+3. **Improve Clarity & Actionability**
+   - Use active voice, specific verbs, measurable conditions
+   - Add trigger conditions ("when X", "if Y") where helpful
+   - Use imperative mood for rules (commands, not suggestions)
+   - Replace vague terms with precise guidance
+
+4. **Optimize Organization**
+   - Group by theme, prioritize by frequency of need
+   - Use section headers strategically (only when they aid navigation)
+   - Order content from most-to-least frequently needed
+   - Break up dense blocks with whitespace where it aids readability
+
+5. **Eliminate Duplication**
+   - Remove cross-file duplicates (keep in most relevant file only)
+   - Avoid having same content in both rules and fragments
+   - Consolidate semantic duplicates into clearer single statements
+
+6. **Make Smart Trade-offs**
+   - Balance brevity with comprehensiveness
+   - Consider: Is this guidance I'd actually reference, or just nice to have?
+   - Keep content proportional to its impact on code quality
+   - Cut the "common sense" that experienced developers know
+
+**Step 3.3: Consolidation Strategy**
+
+For content that appears in multiple places:
+- Decide: Keep in one place, or remove entirely?
+- Prefer category-specific rules over shared fragments for edge cases
+- Reserve shared fragments for truly universal concepts
+
+### Phase 4: Confirmation Phase
+
+Present a comprehensive before/after comparison:
+
+```markdown
+# Complete Improvement Plan
+
+## Summary
+- Category rule files to modify: X
+- Shared fragments to modify: Y
+- Total context: XKB → YKB (Z% reduction)
+- Duplicates eliminated: X
+- Clarity improvements: Y
+- Files to delete (unused): Z
+
+## File-by-File Changes
+
+### Category Rules
+[For each file, show full before/after with explanation of changes]
+
+### Shared Fragments
+[For each file, show key changes and reasoning]
+
+## Files That Will Be Modified
+1. ~/.claude-review-rules
+2. ~/.config/claude-wf/prompts/shared/code-quality-fundamentals.txt
+[etc.]
+
+## Files That Will Be Deleted (if any)
+[List unused fragments to remove]
+
+## What WON'T Change
+- File locations remain the same
+- Template variable names remain the same
+- Backward compatibility maintained (no breaking changes to prompts)
+```
+
+**Ask for explicit confirmation:**
+```
+Do you approve these changes? I will:
+1. Back up all files (create .backup copies)
+2. Apply improvements to each file
+3. List the changes made
+4. Provide rollback instructions
+
+Type 'yes' to proceed, 'no' to cancel, or provide feedback to revise the plan.
+```
+
+### Phase 5: Implementation Phase
+
+**Step 5.1: Create Backups**
+
+For each file that will be modified:
+```bash
+# Category rules
+cp ~/.claude-review-rules ~/.claude-review-rules.backup
+
+# Shared fragments
+cp ~/.config/claude-wf/prompts/shared/file.txt ~/.config/claude-wf/prompts/shared/file.txt.backup
+```
+
+**Step 5.2: Apply Improvements**
+- Use the Write tool to overwrite each file with the improved version
+- Apply changes atomically (complete content replacement)
+- Maintain file format and structure
+
+**Step 5.3: Verify Changes**
+After writing each file:
+- Verify the file is not empty
+- Confirm the changes were applied correctly
+- Check file size reduction
+
+**Step 5.4: Report Results**
+```markdown
+# Rules & Fragments Improvement Complete
+
+## Changes Applied
+
+### Category Rules
+✓ ~/.claude-review-rules: X → Y lines (Z% reduction)
+✓ Backup saved to ~/.claude-review-rules.backup
+
+### Shared Fragments
+✓ code-quality-fundamentals.txt: 20KB → XKB (Y% reduction)
+✓ testing-documentation.txt: 13KB → XKB (Y% reduction)
+[For each file...]
+
+## Overall Impact
+- Total context reduced by X% (YKB → ZKB)
+- All commands will now use optimized content
+- Estimated improvement: Faster responses, better adherence due to clearer rules
+
+## Next Steps
+
+**To test the improvements:**
+```bash
+cwf review review-peer "Test context"
+cwf feature dp "Test context"
+```
+
+**To rollback if needed:**
+```bash
+cp ~/.claude-review-rules.backup ~/.claude-review-rules
+cp ~/.config/claude-wf/prompts/shared/file.txt.backup ~/.config/claude-wf/prompts/shared/file.txt
+```
+```
+
+**Step 5.5: Error Handling**
+If any file write fails or results in an empty file:
+- Report the error clearly
+- Explain which files were modified and which weren't
+- Provide instructions to restore from backups
+- Do NOT proceed if verification fails
+
+## Important Notes
+
+- Always create backups before making any changes
+- Use atomic writes (Write tool with complete content)
+- Verify files are not empty after writing
+- Use intelligent judgment about how much to condense - there's no fixed target size
+- Focus on maximizing information density (value per character) rather than hitting arbitrary limits
+- Rules should be clear, concise, and actionable
+- Comment lines starting with '#' are preserved where they add value
+- Blank lines are preserved for readability
+- Section headers should be used strategically to aid navigation
+- Balance brevity with comprehensiveness - cut what's redundant, keep what's essential

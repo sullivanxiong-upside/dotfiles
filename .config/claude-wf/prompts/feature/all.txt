@@ -1,0 +1,24 @@
+@~/repos/data-pipelines @~/repos/customer-dashboard @~/repos/sql-core-migrations
+
+This is a feature that spans multiple repositories: data-pipelines, customer-dashboard, and sql-core-migrations.
+
+For each repository involved:
+{{DOCS_INSTRUCTIONS}}
+
+{{DESIGN_PATTERNS}}
+
+{{API_PROTO_CHECK}}
+
+{{REVIEW_AND_UPDATE_DOCS}}
+
+{{WORKFLOW_COMMANDS}}
+
+Coordinate changes across all repositories and ensure consistency in:
+- API contracts (check proto/ directories)
+- Data models and schemas
+- Configuration files
+- Documentation
+
+{{PLANNING_GUIDELINES}}
+
+Work on the cross-repository feature requested below.

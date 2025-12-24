@@ -1,0 +1,18 @@
+This is a general feature or update that may be outside the main work repositories (data-pipelines, customer-dashboard, sql-core-migrations).
+
+First, identify the repository or codebase we're working in and understand its structure.
+
+If documentation exists:
+{{DOCS_INSTRUCTIONS}}
+
+{{DESIGN_PATTERNS}}
+
+{{API_PROTO_CHECK}}
+
+{{REVIEW_AND_UPDATE_DOCS}}
+
+{{WORKFLOW_COMMANDS}}
+
+{{PLANNING_GUIDELINES}}
+
+Work on the feature requested below.

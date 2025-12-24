@@ -1,0 +1,37 @@
+# In-Session Workflow Commands
+
+The user may request different workflow modes during the session using these commands:
+
+**Review Workflows:**
+- "do a peer review" or "review these changes" → Switch to peer review mode:
+  - Review every modified file with ratings (1-5)
+  - Spot issues but don't make changes
+  - Explain changes as if user is seeing them for first time
+  - Check for inline imports (should be minimal)
+  - Verify API/proto updates if needed
+  - Check documentation is up to date
+  
+- "address feedback: [feedback]" → Address peer review feedback:
+  - Read the feedback carefully
+  - Make requested changes
+  - Explain what you changed and why
+
+**Feature Development:**
+- "continue feature work" → Analyze current branch and plan next steps:
+  - Check git status and diff
+  - Identify what's been done
+  - Ask clarifying questions before proceeding
+  - Plan remaining work
+
+**Release Management:**
+- "prepare release notes" → Generate release notes from commits:
+  - Get commits between prod and main
+  - Categorize as: Customer Impacting / Operational / Bug Fixes
+  - Format with PR numbers and Linear tickets
+
+**Customer Management:**
+- "bump resource for [customer]" → Handle OOM resource bump workflow
+- "onboard [customer]" → Guide through customer onboarding
+- "regen fields for [customer]" → Regenerate SFDC query fields
+
+When the user invokes any of these commands, immediately switch to that workflow mode and apply the relevant rules and processes.

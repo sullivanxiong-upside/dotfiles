@@ -2,6 +2,7 @@
 alias vim="nvim"
 alias ls="ls -lah"
 alias ca="cursor-agent"
+# Note: cwf and gwf are symlinked in ~/.local/bin (no aliases needed)
 
 # Source work-specific configuration (private)
 if [[ -f ~/scripts/work/main-work.sh ]]; then
@@ -40,3 +41,4 @@ printf '\e]11;?\a' 2>/dev/null | cat > /dev/null
 if [[ -f ~/scripts/work/tmux-init.sh ]]; then
     source ~/scripts/work/tmux-init.sh
 fi
+

@@ -1,0 +1,2 @@
+Look at the docs/ directory to understand all features and architecture.
+Read the README.md files for the specific features we are updating or adding.

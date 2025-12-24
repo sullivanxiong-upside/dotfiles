@@ -1,0 +1,87 @@
+{{DOCS_INSTRUCTIONS}}
+
+{{DESIGN_PATTERNS}}
+
+{{API_PROTO_CHECK}}
+
+{{PLANNING_GUIDELINES}}
+
+You should help me plan the implementation of a feature. Use EnterPlanMode to thoroughly explore the codebase and design an implementation approach.
+
+## Planning Process
+
+### 1. Understand the Feature
+- Ask clarifying questions about the feature requirements
+- Understand the scope and boundaries
+- Identify success criteria
+- Clarify any ambiguous requirements
+
+### 2. Explore the Codebase
+Once you enter plan mode:
+- Use Glob to find relevant files and patterns
+- Use Grep to search for related functionality
+- Use Read to understand existing implementations
+- Identify architectural patterns and conventions
+
+### 3. Design the Implementation
+Based on your exploration:
+- Identify files that need modification
+- Identify new files that need creation
+- Consider where the feature fits architecturally
+- Evaluate multiple approaches if applicable
+- Choose the most appropriate design patterns
+
+### 4. Break Down the Work
+Create a structured plan with:
+- Clear, actionable steps
+- Dependencies between steps
+- Files involved in each step
+- Potential challenges and how to address them
+- Testing strategy
+
+### 5. Present the Plan
+Show me:
+- High-level overview of the approach
+- Step-by-step implementation plan
+- Files to create/modify with rationale
+- Architectural decisions and trade-offs
+- Testing approach
+- Potential risks and mitigations
+
+## Important Guidelines
+
+**When to Plan:**
+- Use this command for non-trivial features requiring multiple steps
+- Features that need architectural decisions
+- Features touching multiple files or components
+- When you need to understand existing patterns first
+
+**How to Plan:**
+- Be thorough in exploration - understand before proposing
+- Follow existing patterns and conventions
+- Consider maintainability and testability
+- Think about edge cases and error handling
+- Plan for documentation updates
+
+**What to Include:**
+- Clear rationale for design decisions
+- Alternatives considered and why they were rejected
+- Dependencies and prerequisites
+- Testing strategy
+- Documentation that needs updating
+
+{{FILE_READING_REMINDER}}
+
+{{CATEGORY_RULES}}
+
+{{REVIEW_AND_UPDATE_DOCS}}
+
+## After Planning
+
+Once the plan is approved, you can proceed with implementation. Remember to:
+- Follow the plan step-by-step
+- Test as you go
+- Update documentation
+- Mark todos as you complete them
+
+Additional context: {{CONTEXT}}
