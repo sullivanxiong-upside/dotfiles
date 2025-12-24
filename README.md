@@ -1,314 +1,387 @@
 # Dotfiles
 
-My personal dotfiles configuration for a Linux desktop environment with Hyprland window manager.
+Personal dotfiles for cross-platform development environments (Linux & macOS).
 
 ## Overview
 
-This repository contains configuration files for various applications and tools used in my Linux desktop setup. The configurations are organized in the `.config` directory following the XDG Base Directory specification.
+This repository contains configuration files and scripts for productive development workflows across platforms. The configurations emphasize modularity, automation, and consistency.
 
-## Package List and Configuration Directories
+## Key Features
 
-### Window Manager & Desktop Environment
-- **Hyprland** - Wayland compositor
-  - Configuration: `.config/hypr/`
-  - Main config: `hyprland.conf`
-  - Sub-configs: `configs/` directory with modular configuration files
+### 🔧 Core Shell Configuration (Linux & macOS)
+- **Bash & Zsh** configurations with modular script sourcing
+- **TMUX** with Dracula theme, OS-specific clipboard integration, and persistent sessions
+- **Git aliases** and workflow utilities
 
-### Status Bar & System Information
-- **Waybar** - Wayland status bar
-  - Configuration: `.config/waybar/`
-  - Main config: `config`
-  - Modules: `modules.json`, `modules_workspaces.json`, `modules_custom.json`, `modules_groups.json`
-  - Styles: `style.css`
+### 🚀 CLI Workflow Tools (Linux & macOS)
+- **cwf** (Claude Workflow CLI): Organize Claude-powered workflows with categories and templates
+- **gwf** (Git Workflow CLI): Git operations with intelligent worktree management and PR support
+- **Comprehensive shell completion** for both tools (Bash & Zsh)
 
-- **Fastfetch** - System information tool
-  - Configuration: `.config/fastfetch/`
-  - Main config: `config.jsonc`
-  - Small config: `small_config.jsonc`
+### ✏️ Development Environment (Linux & macOS)
+- **Neovim** with Lazy.nvim plugin manager
+  - LSP support with mason.nvim
+  - Format-on-save with conform.nvim
+  - Telescope fuzzy finder
+  - Todo-comments highlighting
+  - Enhanced tab management
 
-### Terminal & Shell
-- **Kitty** - Terminal emulator
-  - Configuration: `.config/kitty/`
-  - Main config: `kitty.conf`
+### 🖥️ Linux Desktop Environment (Linux Only)
+- **Hyprland** Wayland compositor with modular configuration
+- **Waybar** status bar with custom modules
+- **Rofi** application launcher
+- **SwayNC** notification daemon
+- **CAVA** audio visualizer
+- **Material You** theming with matugen
+- **Catppuccin** color scheme throughout
 
-- **Bash** - Shell configuration
-  - Configuration: `.bashrc` (root directory)
-  - Features: tmux integration, aliases, starship prompt
+## Quick Start
 
-- **Starship** - Cross-shell prompt
-  - Configuration: `.config/starship.toml`
-  - Theme: Catppuccin Mocha palette
+### 1. Clone the Repository
 
-- **TMUX** - Terminal multiplexer
-  - Auto-started sessions: `main` and `time`
-  - Integrated with bash configuration
+```bash
+mkdir -p ~/repos
+git clone <your-repo-url> ~/repos/dotfiles
+cd ~/repos/dotfiles
+```
 
-### Application Launcher & Menus
-- **Rofi** - Application launcher
-  - Configuration: `.config/rofi/`
-  - Main config: `config.rasi`
-  - Colors: `colors.rasi`
-  - Features: emoji picker, calculator
+### 2. Install Components
 
-### Notifications & System Control
-- **SwayNC** - Notification daemon
-  - Configuration: `.config/swaync/`
-  - Main config: `config.json`
-  - Styles: `style.css`, `themes/` directory
-  - Control center with power management
+See **[INSTALLATION.md](INSTALLATION.md)** for detailed installation instructions.
 
-- **Wlogout** - Logout menu
-  - Configuration: `.config/wlogout/`
-  - Layout: `layout`
-  - Styles: `style.css`
+**For shell configuration only (quick start):**
+```bash
+# Bash
+ln -sf ~/repos/dotfiles/.bashrc ~/.bashrc
+source ~/.bashrc
 
-### Audio & Visual
-- **CAVA** - Audio visualizer
-  - Configuration: `.config/cava/`
-  - Main config: `config`
-  - Shaders: `shaders/` directory (GLSL shaders)
+# Zsh
+ln -sf ~/repos/dotfiles/.zprofile ~/.zprofile
+source ~/.zprofile
+```
 
-- **Picom** - Compositor
-  - Configuration: `.config/picom/`
-  - Main config: `picom.conf`
-  - Features: transparency, shadows
+**For CLI tools (cwf & gwf):**
+```bash
+mkdir -p ~/.local/bin
+ln -sf ~/repos/dotfiles/scripts/cwf.sh ~/.local/bin/cwf
+ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
+ln -sf ~/repos/dotfiles/.config/claude-wf ~/.config/claude-wf
+ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
+```
 
-### File Management
-- **Dolphin** - File manager
-  - Configuration: `.config/dolphinrc`
-  - KDE file manager integration
+**For full installation**, see **[INSTALLATION.md](INSTALLATION.md)**.
 
-### Development Tools
-- **Neovim** - Text editor
-  - Configuration: `.config/nvim/`
-  - Main config: `init.lua`
-  - Lazy plugin manager setup
+## Platform Compatibility
 
-- **Cursor** - AI-powered editor
-  - Configuration: `.config/cursor/`
-  - Auth: `auth.json`
-  - History: `prompt_history.json`
+| Component | Linux | macOS | Notes |
+|-----------|-------|-------|-------|
+| **Shell configs** (.bashrc, .zprofile) | ✅ | ✅ | Cross-platform |
+| **TMUX** (.tmux.conf) | ✅ | ✅ | OS-specific clipboard auto-detected |
+| **CLI tools** (cwf, gwf) | ✅ | ✅ | Requires Bash 4.0+ |
+| **Neovim** | ✅ | ✅ | Cross-platform |
+| **Scripts** (utilities) | ✅ | ✅ | Most are cross-platform |
+| **Hyprland** (desktop) | ✅ | ❌ | Linux Wayland only |
+| **Waybar, Rofi, etc.** | ✅ | ❌ | Linux desktop tools |
+| **Kitty terminal** | ✅ | ✅ | Better support on macOS |
 
-### System & Network
-- **ProtonVPN** - VPN client
-  - Configuration: `.config/protonvpn/`
-  - Login config: `login.conf`
+## Component Overview
 
-- **WayVNC** - VNC server for Wayland
-  - Configuration: `.config/wayvnc/`
+### Cross-Platform Components
 
-- **TigerVNC** - VNC client
-  - Configuration: `.config/tigervnc/`
+#### Shell Configuration
+- **`.bashrc`**: Bash configuration with modular script sourcing
+- **`.zprofile`**: Zsh configuration with lazy-loading completion
+- **`scripts/`**: Collection of utility scripts
+  - `git-aliases.sh`: Enhanced git operations with worktree support
+  - `grep-recursive.sh`: Recursive search utilities
+  - `python-utility.sh`: Python environment helpers
+  - `mermaid-utility.sh`: Mermaid diagram generation
 
-### Applications
-- **Discord** - Chat application
-  - Configuration: `.config/discord/`
-  - Extensive module configuration
+#### CLI Tools
+- **`cwf`** (Claude Workflow CLI)
+  - Category-based command organization (review, feature, customer-mgmt, etc.)
+  - Lazy-loaded template system for performance
+  - Self-extending with meta-commands
+  - Full documentation: [`scripts/docs/cwf-meta-commands.md`](scripts/docs/cwf-meta-commands.md)
 
-- **Spotify** - Music streaming (via Spicetify)
-  - Configuration: `.config/spicetify/`
-  - Main config: `config.ini`
+- **`gwf`** (Git Workflow CLI)
+  - Organized categories: local, remote, worktree, pr, inspect
+  - Intelligent worktree creation with branch auto-detection
+  - Repository-specific config file copying
+  - Full documentation: [`scripts/docs/gwf.md`](scripts/docs/gwf.md)
 
-### System Integration
-- **Matugen** - Material You color generator
-  - Configuration: `.config/matugen/`
-  - CSS themes and configuration files
+#### Terminal Multiplexer
+- **`.tmux.conf`**: TMUX configuration with:
+  - Dracula theme + Catppuccin colors
+  - OS-specific clipboard integration (pbcopy/xclip)
+  - Vim-tmux navigator integration
+  - Session persistence (resurrect/continuum)
+  - Custom keybindings (Ctrl+A prefix)
 
-- **GTK** - GUI toolkit
-  - Configuration: `.config/gtk-3.0/`, `.config/gtk-4.0/`
-  - Themes and CSS customization
+#### Text Editor
+- **`.config/nvim/`**: Neovim configuration with:
+  - Lazy.nvim plugin manager
+  - LSP with mason.nvim for language servers
+  - Conform.nvim for formatting (format-on-save)
+  - Telescope fuzzy finder with custom ignore patterns
+  - Todo-comments with syntax highlighting
+  - Tabby for enhanced tab visualization
+  - Nvim-surround for text manipulation
+  - Toggleterm for integrated terminal
 
-- **User Directories** - XDG user directories
-  - Configuration: `.config/user-dirs.dirs`, `.config/user-dirs.locale`
+### Linux-Only Components
 
-- **DConf** - GNOME configuration system
-  - Configuration: `.config/dconf/`
-  - User settings: `user`
+#### Window Manager & Desktop
+- **Hyprland**: Modern Wayland compositor
+  - Config location: `.config/hypr/`
+  - Modular configuration in `configs/` subdirectory
+  - Custom keybindings, animations, and workspaces
 
-- **GNOME Session** - Session management
-  - Configuration: `.config/gnome-session/`
+#### Status Bar & UI
+- **Waybar**: Wayland status bar
+  - Config: `.config/waybar/`
+  - Custom modules for time, weather, battery, system info
+  - Catppuccin-themed CSS
 
-- **IBus** - Input method framework
-  - Configuration: `.config/ibus/`
+- **Rofi**: Application launcher
+  - Config: `.config/rofi/`
+  - Custom themes and emoji picker
 
-- **KDE** - Desktop environment components
-  - Configuration: `.config/kde.org/`
-  - Settings: `kdeglobals.conf`
+#### System Utilities
+- **SwayNC**: Notification daemon with control center
+- **Wlogout**: Graphical logout menu
+- **CAVA**: Audio visualizer with GLSL shaders
+- **Fastfetch**: System information display
+- **Picom**: X11 compositor (for X11 fallback)
 
-- **MIME Applications** - File type associations
-  - Configuration: `.config/mimeapps.list`
+#### Theming & Visual
+- **Matugen**: Material You color generator
+- **GTK**: Themes for GTK 3 and GTK 4
+- **Catppuccin Mocha**: Color scheme applied throughout
 
-- **Monitors** - Display configuration
-  - Configuration: `.config/monitors.xml`
+#### File Management & Apps
+- **Dolphin**: KDE file manager
+- **Kitty**: GPU-accelerated terminal (better on macOS)
+- Various app configs (Discord, Spotify, etc.)
 
-- **Session Management** - Application session data
-  - Configuration: `.config/session/`
+### macOS-Specific Components
 
-- **SystemD** - System service management
-  - Configuration: `.config/systemd/`
+- **`Library/`**: macOS application preferences
+- **Kitty terminal**: Enhanced terminal emulator (primary terminal for macOS)
 
-- **Procps** - Process utilities
-  - Configuration: `.config/procps/`
+## CLI Tool Documentation
 
-### Package Management
-- **Yay** - AUR helper
-  - Configuration: `.config/yay/`
+### cwf (Claude Workflow CLI)
 
-### Additional Tools
-- **Qalculate** - Calculator
-  - Configuration: `.config/qalculate/`
-  - Settings: `qalculate.cfg`
-  - History: `qalculate.history`
+Unified CLI for Claude-powered workflows:
 
-- **EasyEffects** - Audio effects
-  - Configuration: `.config/easyeffects/`
+```bash
+# Review code with specific focus
+cwf review review-peer "Focus on error handling"
 
-- **Evolution** - Email client
-  - Configuration: `.config/evolution/`
+# Work on feature across repositories
+cwf feature all "Add user activity tracking"
 
-- **Epiphany** - Web browser
-  - Configuration: `.config/epiphany/`
+# Research and learn
+cwf agent chat "How do I implement distributed caching?"
 
-- **Totem** - Video player
-  - Configuration: `.config/totem/`
+# Self-extend: Add new commands
+cwf new add-sub-command feature
+```
 
-- **Nautilus** - File manager (GNOME)
-  - Configuration: `.config/nautilus/`
+Full documentation: [`scripts/README.md`](scripts/README.md) and [`scripts/docs/cwf-meta-commands.md`](scripts/docs/cwf-meta-commands.md)
 
-- **FLTK** - GUI toolkit
-  - Configuration: `.config/fltk.org/`
-  - Preferences: `fluid.prefs`, `fltk.prefs`
+### gwf (Git Workflow CLI)
 
-- **Go** - Programming language
-  - Configuration: `.config/go/`
-  - Module cache and settings
+Git wrapper with worktree management:
 
-- **Matplotlib** - Python plotting library
-  - Configuration: `.config/matplotlib/`
+```bash
+# Create review worktree
+gwf wt review feature/auth
 
-- **NextJS/NodeJS** - JavaScript runtime
-  - Configuration: `.config/nextjs-nodejs/`
-  - Settings: `config.json`
+# Checkout PR for review
+gwf pr co 123
 
-- **PulseAudio** - Audio system
-  - Configuration: `.config/pulse/`
+# Quick commit and push
+gwf l a && gwf l c "Fix bug" && gwf r ps
 
-- **Electron** - Desktop app framework
-  - Configuration: `.config/Electron/`
+# Create and push PR
+gwf pr push "Add new feature"
+```
 
-- **Goa** - GNOME Online Accounts
-  - Configuration: `.config/goa-1.0/`
-
-- **Trash** - File deletion management
-  - Configuration: `.config/trashrc`
-
-- **Yelp** - Help system
-  - Configuration: `.config/yelp/`
-  - Settings: `yelp.cfg`
+Full documentation: [`scripts/docs/gwf.md`](scripts/docs/gwf.md)
 
 ## Installation
 
-### Quick Installation
+**Detailed Instructions**: See **[INSTALLATION.md](INSTALLATION.md)** for:
+- Platform-specific dependency installation
+- Component-by-component setup guide
+- Configuration and post-installation steps
+- Troubleshooting common issues
 
-1. Clone this repository:
-   ```bash
-   git clone <repository-url> ~/dotfiles
-   cd ~/dotfiles
-   ```
-
-2. Run the installation script:
-   ```bash
-   ./install.sh
-   ```
-
-The installation script will:
-- Create symbolic links for all dotfiles to your home directory
-- Backup any existing files before overwriting them
-- Provide colored output for easy monitoring
-- Support both installation and uninstallation
-
-### Manual Installation
-
-If you prefer to install manually:
-
+**Quick Manual Installation**:
 ```bash
-# For .config directory
-ln -sf ~/dotfiles/.config ~/.config
+# Core shell config
+ln -sf ~/repos/dotfiles/.bashrc ~/.bashrc
+ln -sf ~/repos/dotfiles/.zprofile ~/.zprofile
 
-# For individual .config directory
-ln -sf ~/dotfiles/.config/[dir] ~/.config/[dir]
+# TMUX
+ln -sf ~/repos/dotfiles/.tmux.conf ~/.tmux.conf
 
-# For .bashrc
-ln -sf ~/dotfiles/.bashrc ~/.bashrc
+# CLI tools
+mkdir -p ~/.local/bin
+ln -sf ~/repos/dotfiles/scripts/cwf.sh ~/.local/bin/cwf
+ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
 
-# For .tmux.conf
-ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf
+# Neovim
+ln -sf ~/repos/dotfiles/.config/nvim ~/.config/nvim
+
+# Config directories
+ln -sf ~/repos/dotfiles/.config/claude-wf ~/.config/claude-wf
+ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
+
+# Linux only: Desktop environment
+ln -sf ~/repos/dotfiles/.config/hypr ~/.config/hypr
+ln -sf ~/repos/dotfiles/.config/waybar ~/.config/waybar
+# ... (see INSTALLATION.md for complete list)
 ```
 
-### Installation Script Usage
+## Directory Structure
 
-```bash
-# Install dotfiles (default)
-./install.sh
-./install.sh install
-./install.sh -i
-
-# Uninstall dotfiles (remove symlinks)
-./install.sh uninstall
-./install.sh -u
-
-# Restore from backup
-./install.sh restore_backup ~/.dotfiles_backup_20251001_220428
-./install.sh -r ~/.dotfiles_backup_20251001_220428
-
-# Show help
-./install.sh help
-./install.sh -h
+```
+~/repos/dotfiles/
+├── .bashrc                      # Bash configuration
+├── .zprofile                    # Zsh configuration
+├── .tmux.conf                   # TMUX configuration
+├── .config/                     # Application configs
+│   ├── nvim/                    # Neovim (cross-platform)
+│   ├── claude-wf/               # cwf CLI config (cross-platform)
+│   ├── gwf/                     # gwf CLI config (cross-platform)
+│   ├── hypr/                    # Hyprland (Linux only)
+│   ├── waybar/                  # Waybar (Linux only)
+│   ├── rofi/                    # Rofi (Linux only)
+│   ├── kitty/                   # Kitty terminal
+│   └── ...                      # Many more configs
+├── scripts/                     # Utility scripts
+│   ├── cwf.sh                   # Claude Workflow CLI
+│   ├── gwf.sh                   # Git Workflow CLI
+│   ├── git-aliases.sh           # Git utilities
+│   ├── grep-recursive.sh        # Search utilities
+│   ├── python-utility.sh        # Python helpers
+│   ├── mermaid-utility.sh       # Diagram generation
+│   ├── docs/                    # Tool documentation
+│   └── README.md                # Scripts documentation
+├── Library/                     # macOS preferences
+├── wallpapers/                  # Desktop wallpapers
+├── README.md                    # This file
+├── INSTALLATION.md              # Detailed installation guide
+└── PACKAGE_MANAGEMENT.md        # Package management guide
 ```
 
-### Backup and Restore
+## Dependencies
 
-The installation script automatically creates timestamped backups before overwriting existing files. These backups are stored in `~/.dotfiles_backup_YYYYMMDD_HHMMSS/`.
+### Cross-Platform (Linux & macOS)
 
-**To restore your original files:**
+**Required:**
+- Bash 4.0+ or Zsh 5.0+
+- Git 2.0+
+- TMUX 3.0+
+- Neovim 0.9+
+
+**Recommended:**
+- `gh` (GitHub CLI) - for gwf PR commands
+- `claude` CLI - for cwf Claude integration
+- `ripgrep` - for fast searching
+- `fd` - for fast file finding
+- Node.js & npm - for Neovim LSP and formatters
+
+### Linux Only
+
+**For Desktop Environment:**
+- Hyprland (Wayland compositor)
+- Waybar, Rofi, SwayNC, CAVA, Wlogout
+- Kitty terminal
+- PipeWire (audio system)
+- matugen (Material You theming)
+
+**Installation commands** - see [INSTALLATION.md](INSTALLATION.md)
+
+### macOS Only
+
+**For Development:**
+- Homebrew
+- Xcode Command Line Tools
+
+**Recommended:**
 ```bash
-# Using the restore_backup command (recommended)
-./install.sh restore_backup ~/.dotfiles_backup_20251001_220428
-
-# Or manually copy files back
-cp -r ~/.dotfiles_backup_20251001_220428/* ~/
+brew install bash tmux neovim ripgrep fd gh node
 ```
 
-3. Install required packages (Arch Linux):
-   ```bash
-   # Core packages
-   sudo pacman -S hyprland waybar kitty rofi swaync picom cava fastfetch starship tmux
-   
-   # Additional packages
-   sudo pacman -S dolphin discord spotify neovim waybar
-   
-   # AUR packages
-   yay -S matugen
-   ```
+## Documentation
 
-## Features
+- **[INSTALLATION.md](INSTALLATION.md)**: Comprehensive installation guide with platform-specific instructions
+- **[scripts/README.md](scripts/README.md)**: CLI tools overview and quick reference
+- **[scripts/docs/cwf-meta-commands.md](scripts/docs/cwf-meta-commands.md)**: cwf meta-commands for self-extension
+- **[scripts/docs/gwf.md](scripts/docs/gwf.md)**: gwf complete usage guide
+- **[scripts/docs/completion-setup.md](scripts/docs/completion-setup.md)**: Shell completion setup
+- **[scripts/docs/workflow-commands.md](scripts/docs/workflow-commands.md)**: Mid-session mode switching
+- **[PACKAGE_MANAGEMENT.md](PACKAGE_MANAGEMENT.md)**: Package management across systems
 
-- **Hyprland** window manager with modular configuration
-- **Catppuccin** color scheme throughout
-- **Material You** dynamic theming with matugen
-- **Audio visualization** with CAVA
-- **System monitoring** with Waybar and Fastfetch
-- **Development environment** with Neovim and Cursor
-- **VPN integration** with ProtonVPN
-- **Remote access** with VNC support
+## Features Highlight
 
-## Wallpapers
+### Intelligent Worktree Management
+- Auto-detect existing branches (local/remote)
+- Copy repository-specific config files automatically
+- Create review and feature worktrees with one command
+- Smart cleanup that handles "currently in worktree" edge cases
 
-The `wallpapers/` directory contains various wallpapers including anime-themed images and custom designs.
+### Template-Based Workflows
+- Lazy-load prompt fragments only when needed
+- Shared templates eliminate duplication
+- Category-specific rules for contextual behavior
+- Self-extending via meta-commands
 
-## Notes
+### OS-Aware Configurations
+- TMUX automatically detects OS for clipboard integration (pbcopy/xclip)
+- Shell configs work on both Bash and Zsh
+- Scripts handle cross-platform differences transparently
 
-- This configuration is optimized for Arch Linux
-- The configuration assumes a dual-monitor setup (HDMI-A-1 and eDP-1)
-- TMUX sessions are automatically started and managed
-- The setup includes both Wayland (Hyprland) and X11 compatibility where needed
+### Development Productivity
+- Format-on-save in Neovim with LSP fallback
+- Organized git workflows with shorthand syntax
+- Todo-comments highlighting across the codebase
+- Fuzzy finding with intelligent ignore patterns
+
+## Troubleshooting
+
+See **[INSTALLATION.md - Troubleshooting](INSTALLATION.md#troubleshooting)** for common issues and solutions.
+
+Quick checks:
+```bash
+# Verify CLI tools are in PATH
+which cwf gwf
+
+# Test shell config
+source ~/.bashrc  # or ~/.zprofile
+
+# Check TMUX plugins
+tmux run-shell ~/.tmux/plugins/tpm/tpm
+
+# Verify Neovim setup
+nvim +checkhealth
+```
+
+## Contributing
+
+This is a personal dotfiles repository, but feel free to:
+- Fork and adapt for your own use
+- Submit issues for bugs in scripts
+- Suggest improvements via pull requests
+
+## License
+
+Personal configuration files - use freely with attribution.
+
+---
+
+**Last Updated**: 2025-12-23
