@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
-# claude-wf: A unified CLI for Claude workflow commands
-# Usage: claude-wf <category> <subcommand> [args...]
-# Alias: cwf
+# cwf: A unified CLI for Claude workflow commands
+# Usage: cwf <category> <subcommand> [args...]
 
 set -euo pipefail
 
-PROMPT_DIR="$HOME/.config/claude-wf/prompts"
+PROMPT_DIR="$HOME/.config/cwf/prompts"
 SHARED_DIR="$PROMPT_DIR/shared"
 RULES_DIR="$HOME"
 
@@ -220,7 +219,7 @@ function replace_templates() {
 # Display usage information (generated from metadata)
 function show_usage() {
   cat <<EOF
-Usage: claude-wf <category> <subcommand> [additional context...]
+Usage: cwf <category> <subcommand> [additional context...]
    or: cwf <category> <subcommand> [additional context...]
 
 Categories and Subcommands:
@@ -379,7 +378,7 @@ function execute_prompt() {
 function cmd_completion_bash() {
   cat <<'EOF'
 #!/usr/bin/env bash
-# Bash completion for claude-wf (Claude Workflow CLI)
+# Bash completion for cwf (Claude Workflow CLI)
 
 _claude_wf_completion() {
   local cur prev words cword
@@ -435,8 +434,8 @@ _claude_wf_completion() {
   fi
 }
 
-# Register completion for both claude-wf and cwf
-complete -F _claude_wf_completion claude-wf
+# Register completion for both cwf and cwf
+complete -F _claude_wf_completion cwf
 complete -F _claude_wf_completion cwf
 EOF
 }
@@ -444,7 +443,7 @@ EOF
 # Generate zsh completion script from metadata
 function cmd_completion_zsh() {
   cat <<'EOF'
-#compdef claude-wf cwf
+#compdef cwf cwf
 
 _claude_wf() {
   local curcontext="$curcontext" state line
@@ -529,8 +528,8 @@ _claude_wf() {
 }
 
 # Register for both the command and common aliases
-compdef _claude_wf claude-wf
-compdef _claude_wf claude-wf.sh
+compdef _claude_wf cwf
+compdef _claude_wf cwf.sh
 compdef _claude_wf cwf
 EOF
 }
@@ -546,11 +545,11 @@ function cmd_completion_install() {
       shell_config="$HOME/.bashrc"
     else
       echo "Error: Unknown shell. Please specify config file:"
-      echo "  claude-wf completion install ~/.zshrc"
-      echo "  claude-wf completion install ~/.bashrc"
+      echo "  cwf completion install ~/.zshrc"
+      echo "  cwf completion install ~/.bashrc"
       echo ""
       echo "Or manually add:"
-      echo "  source <(claude-wf completion bash)"
+      echo "  source <(cwf completion bash)"
       return 1
     fi
   fi
@@ -572,8 +571,8 @@ function cmd_completion_install() {
   fi
 
   # Check if already installed
-  if grep -q "claude-wf completion" "$shell_config" 2>/dev/null; then
-    echo "✓ claude-wf completion already installed in $shell_config"
+  if grep -q "cwf completion" "$shell_config" 2>/dev/null; then
+    echo "✓ cwf completion already installed in $shell_config"
     return 0
   fi
 
@@ -586,22 +585,22 @@ function cmd_completion_install() {
   # Add completion to config with proper guards
   {
     echo ""
-    echo "# claude-wf completion"
+    echo "# cwf completion"
     if [ $is_zsh -eq 1 ]; then
-      echo "if command -v claude-wf &>/dev/null; then"
+      echo "if command -v cwf &>/dev/null; then"
       echo "  # Ensure compinit is loaded"
       echo "  autoload -Uz compinit 2>/dev/null || true"
       echo "  compinit -C 2>/dev/null || true"
-      echo "  source <(claude-wf completion zsh)"
+      echo "  source <(cwf completion zsh)"
       echo "fi"
     else
-      echo "if command -v claude-wf &>/dev/null; then"
-      echo "  source <(claude-wf completion bash)"
+      echo "if command -v cwf &>/dev/null; then"
+      echo "  source <(cwf completion bash)"
       echo "fi"
     fi
   } >> "$shell_config"
 
-  echo "✓ claude-wf completion installed to $shell_config"
+  echo "✓ cwf completion installed to $shell_config"
   echo ""
   echo "Reload your shell to activate:"
   echo "  source $shell_config"

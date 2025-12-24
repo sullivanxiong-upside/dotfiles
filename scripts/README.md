@@ -4,7 +4,7 @@ This directory contains two main CLI tools for workflow automation:
 
 ## Tools
 
-### claude-wf (cwf) - Claude Workflow CLI
+### cwf (Claude Workflow CLI) - Claude Workflow CLI
 A unified CLI for managing Claude-powered workflows with organized categories, shared prompts, and self-extending capabilities.
 
 ### gwf - Git Workflow CLI
@@ -73,7 +73,7 @@ Shell completion is configured using lazy-loading (Zsh) or immediate-loading (Ba
 ### Directory Structure
 ```
 # Config stored in dotfiles repo, symlinked to ~/.config/
-~/repos/dotfiles/.config/claude-wf/
+~/repos/dotfiles/.config/cwf/
 ├── prompts/
 │   ├── shared/           # Reusable prompt fragments
 │   ├── review/
@@ -84,7 +84,7 @@ Shell completion is configured using lazy-loading (Zsh) or immediate-loading (Ba
 │   └── prepare-release.txt
 
 # Symlink for access
-~/.config/claude-wf -> ~/repos/dotfiles/.config/claude-wf
+~/.config/cwf -> ~/repos/dotfiles/.config/cwf
 
 # Category-specific rules (optional)
 ~/.claude-review-rules
@@ -173,10 +173,10 @@ Detailed documentation for both tools:
 
 ## Files
 
-### claude-wf (cwf)
+### cwf (Claude Workflow CLI)
 - `~/scripts/cwf.sh` - Main CLI implementation
-- `~/repos/dotfiles/.config/claude-wf/` - Config directory (in dotfiles repo)
-- `~/.config/claude-wf` - Symlink to dotfiles config
+- `~/repos/dotfiles/.config/cwf/` - Config directory (in dotfiles repo)
+- `~/.config/cwf` - Symlink to dotfiles config
 
 ### gwf
 - `~/scripts/gwf.sh` - Main script

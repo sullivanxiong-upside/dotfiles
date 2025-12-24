@@ -65,7 +65,7 @@ source ~/.zprofile
 mkdir -p ~/.local/bin
 ln -sf ~/repos/dotfiles/scripts/cwf.sh ~/.local/bin/cwf
 ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
-ln -sf ~/repos/dotfiles/.config/claude-wf ~/.config/claude-wf
+ln -sf ~/repos/dotfiles/.config/cwf ~/.config/cwf
 ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
 ```
 
@@ -237,7 +237,7 @@ ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
 ln -sf ~/repos/dotfiles/.config/nvim ~/.config/nvim
 
 # Config directories
-ln -sf ~/repos/dotfiles/.config/claude-wf ~/.config/claude-wf
+ln -sf ~/repos/dotfiles/.config/cwf ~/.config/cwf
 ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
 
 # Linux only: Desktop environment
@@ -255,7 +255,7 @@ ln -sf ~/repos/dotfiles/.config/waybar ~/.config/waybar
 ├── .tmux.conf                   # TMUX configuration
 ├── .config/                     # Application configs
 │   ├── nvim/                    # Neovim (cross-platform)
-│   ├── claude-wf/               # cwf CLI config (cross-platform)
+│   ├── cwf/               # cwf CLI config (cross-platform)
 │   ├── gwf/                     # gwf CLI config (cross-platform)
 │   ├── hypr/                    # Hyprland (Linux only)
 │   ├── waybar/                  # Waybar (Linux only)

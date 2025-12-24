@@ -149,7 +149,7 @@ gwf completion install    # Auto-detects shell and installs
 **cwf configuration:**
 ```bash
 # Symlink cwf config directory
-ln -sf ~/repos/dotfiles/.config/claude-wf ~/.config/claude-wf
+ln -sf ~/repos/dotfiles/.config/cwf ~/.config/cwf
 ```
 
 **gwf configuration:**
@@ -510,7 +510,7 @@ chmod +x ~/repos/dotfiles/scripts/{cwf.sh,gwf.sh}
 # Remove individual symlinks
 rm ~/.bashrc ~/.zprofile ~/.tmux.conf
 rm ~/.local/bin/cwf ~/.local/bin/gwf
-rm ~/.config/nvim ~/.config/claude-wf ~/.config/gwf
+rm ~/.config/nvim ~/.config/cwf ~/.config/gwf
 
 # Remove entire .config symlink (if you symlinked the whole directory)
 rm ~/.config

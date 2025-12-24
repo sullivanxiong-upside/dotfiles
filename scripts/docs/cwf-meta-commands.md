@@ -2,13 +2,13 @@
 
 ## Overview
 
-Added a new `new` top-level category with interactive meta-commands for managing the claude-wf CLI itself. This allows you to extend the CLI through guided conversations with Claude.
+Added a new `new` top-level category with interactive meta-commands for managing the cwf CLI itself. This allows you to extend the CLI through guided conversations with Claude.
 
 ## New Commands
 
 ### 1. Add Shared Prompt Fragment
 ```bash
-claude-wf new add-shared
+cwf new add-shared
 ```
 
 **Purpose:** Interactively create a new shared prompt fragment that can be reused across multiple commands.
@@ -17,12 +17,12 @@ claude-wf new add-shared
 - Asks you what the fragment should contain
 - Checks if similar functionality already exists
 - Helps you choose a template variable name (e.g., `{{NEW_VARIABLE}}`)
-- Creates the fragment file in `~/.config/claude-wf/prompts/shared/`
+- Creates the fragment file in `~/.config/cwf/prompts/shared/`
 - Suggests which commands should use the new fragment
 
 ### 2. Add Category-Specific Rules
 ```bash
-claude-wf new add-top-rule <category>
+cwf new add-top-rule <category>
 ```
 
 **Purpose:** Interactively add rules that apply to all commands within a specific category.
@@ -37,8 +37,8 @@ claude-wf new add-top-rule <category>
 
 **Examples:**
 ```bash
-claude-wf new add-top-rule review
-claude-wf new add-top-rule feature
+cwf new add-top-rule review
+cwf new add-top-rule feature
 ```
 
 **Shortcut aliases:**
@@ -53,7 +53,7 @@ claude-add-rule customer-mgmt "Verify org ID first"
 
 ### 3. Add Top-Level Category
 ```bash
-claude-wf new add-top-command
+cwf new add-top-command
 ```
 
 **Purpose:** Interactively create a new top-level category (like `review`, `feature`, etc.).
@@ -63,13 +63,13 @@ claude-wf new add-top-command
 - Asks what its purpose is
 - Helps plan initial subcommands
 - Creates the directory structure
-- Updates `claude-wf.sh` with routing logic
+- Updates `cwf.sh` with routing logic
 - Updates documentation
 - Creates category-specific rules support
 
 ### 4. Add Subcommand
 ```bash
-claude-wf new add-sub-command <category>
+cwf new add-sub-command <category>
 ```
 
 **Purpose:** Interactively add a new subcommand to an existing category.
@@ -79,19 +79,19 @@ claude-wf new add-sub-command <category>
 - Asks what the new subcommand should do
 - Identifies relevant shared fragments to include
 - Creates the prompt file with proper template variables
-- Updates `claude-wf.sh` routing
+- Updates `cwf.sh` routing
 - Updates documentation
 
 **Examples:**
 ```bash
-claude-wf new add-sub-command feature
-claude-wf new add-sub-command review
-claude-wf new add-sub-command customer-mgmt
+cwf new add-sub-command feature
+cwf new add-sub-command review
+cwf new add-sub-command customer-mgmt
 ```
 
 ### 5. Improve Rules
 ```bash
-claude-wf new improve-rules
+cwf new improve-rules
 ```
 
 **Purpose:** Analyze and optimize all category-specific rule files and shared prompt fragments.
@@ -111,10 +111,10 @@ cwf new improve-rules
 
 ### 6. Improve Workflows
 ```bash
-claude-wf new improve-workflows [context]
+cwf new improve-workflows [context]
 ```
 
-**Purpose:** Improve the cwf (claude-wf) and gwf (git workflow) CLI tools themselves.
+**Purpose:** Improve the cwf (cwf) and gwf (git workflow) CLI tools themselves.
 
 **What it does:**
 - Asks what aspect to improve (cwf, gwf, or both)
@@ -131,7 +131,7 @@ claude-wf new improve-workflows [context]
 cwf new improve-workflows "Add a new gwf command for stashing changes"
 
 # Fix a bug
-cwf new improve-workflows "Fix template variable replacement in claude-wf.sh"
+cwf new improve-workflows "Fix template variable replacement in cwf.sh"
 
 # Refactor
 cwf new improve-workflows "Simplify the completion script generation"
@@ -174,7 +174,7 @@ Additional context: {{EXTRA_DETAILS}}
 
 **Method 1: Interactive (recommended)**
 ```bash
-claude-wf new add-top-rule feature
+cwf new add-top-rule feature
 # Claude will guide you through adding the rule
 ```
 
@@ -202,7 +202,7 @@ claude-review-add-rule "Ensure all public APIs are documented"
 
 ### Adding a New Shared Fragment
 ```bash
-$ claude-wf new add-shared
+$ cwf new add-shared
 
 Claude: What should this shared fragment contain?
 You: Instructions for checking test coverage
@@ -217,7 +217,7 @@ Claude: [Shows proposed content and which commands should use it]
 Claude: Do you want to proceed?
 You: Yes
 
-Claude: ✓ Created ~/.config/claude-wf/prompts/shared/test-coverage-check.txt
+Claude: ✓ Created ~/.config/cwf/prompts/shared/test-coverage-check.txt
 Claude: Suggested commands to update:
 - feature/dp.txt
 - feature/cd.txt
@@ -226,7 +226,7 @@ Claude: Suggested commands to update:
 
 ### Adding a Rule to Feature Category
 ```bash
-$ claude-wf new add-top-rule feature
+$ cwf new add-top-rule feature
 
 Claude: Current rules for feature category:
 [Shows existing rules if any]
@@ -244,7 +244,7 @@ Claude: ✓ Added rule to ~/.claude-feature-rules
 
 ### Adding a New Subcommand
 ```bash
-$ claude-wf new add-sub-command feature
+$ cwf new add-sub-command feature
 
 Claude: Current feature subcommands: dp, cd, all, general, continue
 Claude: What should the new subcommand be called?
@@ -262,18 +262,18 @@ Claude: Should include:
 Claude: Confirm this plan?
 You: Yes
 
-Claude: ✓ Created ~/.config/claude-wf/prompts/feature/sql.txt
-Claude: ✓ Updated claude-wf.sh routing
+Claude: ✓ Created ~/.config/cwf/prompts/feature/sql.txt
+Claude: ✓ Updated cwf.sh routing
 Claude: ✓ Updated documentation
 Claude:
-Usage: claude-wf feature sql "Add new migration"
+Usage: cwf feature sql "Add new migration"
 ```
 
 ## Technical Details
 
 ### Files Modified
 
-1. **claude-wf.sh** (scripts/work/claude-wf.sh:71-118)
+1. **cwf.sh** (scripts/work/cwf.sh:71-118)
    - Added `get_category_rules()` function
    - Updated `replace_templates()` to support category-specific rules
    - Added `new` category routing
@@ -284,10 +284,10 @@ Usage: claude-wf feature sql "Add new migration"
    - Added `claude-add-rule()` for any category
 
 3. **Prompt Files Created**
-   - `~/.config/claude-wf/prompts/new/add-shared.txt`
-   - `~/.config/claude-wf/prompts/new/add-top-rule.txt`
-   - `~/.config/claude-wf/prompts/new/add-top-command.txt`
-   - `~/.config/claude-wf/prompts/new/add-sub-command.txt`
+   - `~/.config/cwf/prompts/new/add-shared.txt`
+   - `~/.config/cwf/prompts/new/add-top-rule.txt`
+   - `~/.config/cwf/prompts/new/add-top-command.txt`
+   - `~/.config/cwf/prompts/new/add-sub-command.txt`
 
 4. **Documentation Updated**
    - CLAUDE-WORK-README.md - Added meta-commands section
