@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
 # cwf: A unified CLI for Claude workflow commands
-# Usage: cwf <category> <subcommand> [args...]
+# Usage: cwf [--debug] <category> <subcommand> [args...]
+#
+# Uses --append-system-prompt for automatic prompt caching via Claude CLI.
+# Rules and templates are cached in the system prompt for ~99% token reduction.
 
 set -euo pipefail
 
@@ -145,6 +148,50 @@ function load_fragment_if_needed() {
   fi
 }
 
+# Load all shared fragments that are referenced in a prompt
+function load_all_shared_fragments() {
+  local prompt="$1"
+  local all_fragments=""
+
+  # Map of variable names to file names
+  declare -A fragment_map=(
+    ["DOCS_INSTRUCTIONS"]="docs-instructions.txt"
+    ["DESIGN_PATTERNS"]="design-patterns.txt"
+    ["API_PROTO_CHECK"]="api-proto-check.txt"
+    ["FILE_READING_REMINDER"]="file-reading-reminder.txt"
+    ["REVIEW_AND_UPDATE_DOCS"]="review-and-update-docs.txt"
+    ["WORKFLOW_COMMANDS"]="workflow-commands.txt"
+    ["PLANNING_GUIDELINES"]="planning-guidelines.txt"
+    ["CODE_QUALITY_FUNDAMENTALS"]="code-quality-fundamentals.txt"
+    ["RUNTIME_SAFETY"]="runtime-safety.txt"
+    ["SECURITY_CHECKS"]="security-best-practices.txt"
+    ["PERFORMANCE_DATABASE"]="performance-database.txt"
+    ["TESTING_DOCUMENTATION"]="testing-documentation.txt"
+    ["EXTRACT_REUSABLE_CODE"]="reusable-code-extraction.txt"
+  )
+
+  # Load each fragment that's referenced in the prompt
+  for var_name in "${!fragment_map[@]}"; do
+    if echo "$prompt" | grep -q "{{$var_name}}"; then
+      local file_name="${fragment_map[$var_name]}"
+      local content=$(load_file "$SHARED_DIR/$file_name" false)
+
+      if [ -n "$content" ]; then
+        # Add section header and content
+        if [ -n "$all_fragments" ]; then
+          all_fragments="$all_fragments
+
+"
+        fi
+        all_fragments="$all_fragments# $var_name
+$content"
+      fi
+    fi
+  done
+
+  echo "$all_fragments"
+}
+
 # Get category-specific rules
 function get_category_rules() {
   local category="$1"
@@ -212,6 +259,30 @@ function replace_templates() {
   echo "$prompt"
 }
 
+# Remove template variable placeholders from prompt (for optimization)
+function remove_template_placeholders() {
+  local prompt="$1"
+
+  # Remove all template variable placeholders
+  prompt="${prompt//\{\{DOCS_INSTRUCTIONS\}\}/}"
+  prompt="${prompt//\{\{DESIGN_PATTERNS\}\}/}"
+  prompt="${prompt//\{\{API_PROTO_CHECK\}\}/}"
+  prompt="${prompt//\{\{FILE_READING_REMINDER\}\}/}"
+  prompt="${prompt//\{\{REVIEW_AND_UPDATE_DOCS\}\}/}"
+  prompt="${prompt//\{\{WORKFLOW_COMMANDS\}\}/}"
+  prompt="${prompt//\{\{PLANNING_GUIDELINES\}\}/}"
+  prompt="${prompt//\{\{CODE_QUALITY_FUNDAMENTALS\}\}/}"
+  prompt="${prompt//\{\{RUNTIME_SAFETY\}\}/}"
+  prompt="${prompt//\{\{SECURITY_CHECKS\}\}/}"
+  prompt="${prompt//\{\{PERFORMANCE_DATABASE\}\}/}"
+  prompt="${prompt//\{\{TESTING_DOCUMENTATION\}\}/}"
+  prompt="${prompt//\{\{EXTRACT_REUSABLE_CODE\}\}/}"
+  prompt="${prompt//\{\{CUSTOM_RULES\}\}/}"
+  prompt="${prompt//\{\{CATEGORY_RULES\}\}/}"
+
+  echo "$prompt"
+}
+
 # ============================================================================
 # Display Functions
 # ============================================================================
@@ -219,8 +290,11 @@ function replace_templates() {
 # Display usage information (generated from metadata)
 function show_usage() {
   cat <<EOF
-Usage: cwf <category> <subcommand> [additional context...]
-   or: cwf <category> <subcommand> [additional context...]
+Usage: cwf [--debug] <category> <subcommand> [additional context...]
+
+Flags:
+  --debug                         Show caching statistics
+  -h, --help                      Show this help message
 
 Categories and Subcommands:
 
@@ -261,6 +335,7 @@ Examples:
   cwf review review-peer "Focus on error handling"
   cwf customer-mgmt bump-resource
   cwf feature dp "Add new metric aggregation"
+  cwf --debug feature dp "Show caching stats"
   cwf prepare-release
 
 EOF
@@ -327,7 +402,40 @@ function resolve_prompt_file() {
   echo "$PROMPT_DIR/${COMMAND_REGISTRY[$key]}"
 }
 
-# Load and process prompt file
+# Build system additions (rules and fragments) for caching optimization
+function build_system_additions() {
+  local prompt_file="$1"
+  local category="$2"
+
+  # Load the prompt file to check what templates are needed
+  local base_prompt=$(load_file "$prompt_file" true) || return 1
+
+  # Build system additions from category rules
+  local system_additions=""
+
+  # Add category-specific rules if they exist or are referenced
+  if echo "$base_prompt" | grep -q "{{CUSTOM_RULES}}\|{{CATEGORY_RULES}}"; then
+    local category_rules=$(get_category_rules "$category")
+    if [ -n "$category_rules" ]; then
+      system_additions="$category_rules"
+    fi
+  fi
+
+  # Load all shared fragments referenced in the prompt
+  local shared_fragments=$(load_all_shared_fragments "$base_prompt")
+  if [ -n "$shared_fragments" ]; then
+    if [ -n "$system_additions" ]; then
+      system_additions="$system_additions
+
+"
+    fi
+    system_additions="$system_additions$shared_fragments"
+  fi
+
+  echo "$system_additions"
+}
+
+# Load and process prompt file (optimized for caching)
 function process_prompt() {
   local prompt_file="$1"
   local category="$2"
@@ -342,8 +450,11 @@ function process_prompt() {
     return 1
   fi
 
-  # Replace template variables (with lazy loading)
-  base_prompt=$(replace_templates "$base_prompt" "$category")
+  # Replace {{CATEGORY}} placeholder
+  base_prompt="${base_prompt//\{\{CATEGORY\}\}/$category}"
+
+  # Remove template variable placeholders (they'll be in system prompt)
+  base_prompt=$(remove_template_placeholders "$base_prompt")
 
   # Append extra context if provided
   if [ -n "$extra_context" ]; then
@@ -355,9 +466,11 @@ Additional details: $extra_context"
   echo "$base_prompt"
 }
 
-# Execute the prompt with claude
+# Execute the prompt with claude using optimized caching
 function execute_prompt() {
-  local prompt="$1"
+  local user_prompt="$1"
+  local system_additions="$2"
+  local debug_mode="${3:-0}"
 
   # Check if claude command exists
   if ! command -v claude &> /dev/null; then
@@ -366,8 +479,26 @@ function execute_prompt() {
     return 1
   fi
 
-  # Execute
-  claude "$prompt"
+  # Debug mode: show what's being cached
+  if [ "$debug_mode" = "1" ]; then
+    echo "=== cwf debug mode ===" >&2
+    echo "System (cached):" >&2
+    echo "  ${#system_additions} chars (~$((${#system_additions} / 4)) tokens)" >&2
+    echo "User prompt:" >&2
+    echo "  ${#user_prompt} chars (~$((${#user_prompt} / 4)) tokens)" >&2
+    echo "===================" >&2
+    echo "" >&2
+  fi
+
+  # Execute with system additions for caching (if any)
+  if [ -n "$system_additions" ]; then
+    # Use --append-system-prompt to add rules to Claude's system prompt
+    # This enables automatic caching by Claude CLI
+    claude --append-system-prompt "$system_additions" "$user_prompt"
+  else
+    # No system additions, execute normally
+    claude "$user_prompt"
+  fi
 }
 
 # ============================================================================
@@ -617,10 +748,28 @@ function main() {
     return 1
   fi
 
-  # Handle help flag
-  if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]; then
+  # Parse global flags
+  local debug_mode=0
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help|help)
+        show_usage
+        return 0
+        ;;
+      --debug)
+        debug_mode=1
+        shift
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
+
+  # Check for category after parsing flags
+  if [ $# -lt 1 ]; then
     show_usage
-    return 0
+    return 1
   fi
 
   local category="$1"
@@ -685,11 +834,17 @@ function main() {
     return 1
   fi
 
-  # Process the prompt (load, substitute templates, add context)
-  local final_prompt=$(process_prompt "$prompt_file" "$category" "$extra_context") || return 1
+  # Build system additions (rules + fragments) for caching optimization
+  # This will be appended to Claude's system prompt and automatically cached
+  local system_additions=$(build_system_additions "$prompt_file" "$category")
 
-  # Execute with claude
-  execute_prompt "$final_prompt"
+  # Process the prompt (load, remove template placeholders, add context)
+  # Template content is now in system_additions instead
+  local user_prompt=$(process_prompt "$prompt_file" "$category" "$extra_context") || return 1
+
+  # Execute with claude using optimized caching
+  # Rules are in system prompt (cached), user prompt is separate
+  execute_prompt "$user_prompt" "$system_additions" "$debug_mode"
 }
 
 # Export function for use as a command
