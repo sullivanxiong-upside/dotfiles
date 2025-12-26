@@ -1,0 +1,38 @@
+Runtime Safety and Resource Management
+
+## Resource Management
+- Always close resources (files, connections, sockets)
+- Use context managers (Python with), try-with-resources (Java), defer (Go)
+- Don't rely on garbage collection for cleanup
+- Set timeouts on network operations and database queries
+
+## Null/None Safety
+- Check for null/None before dereferencing
+- Use Optional types where values may be absent
+- Fail fast with clear error messages for invalid null values
+- Consider using non-nullable types by default
+
+## Error Handling Principles
+- Catch specific exceptions, not all exceptions
+- Handle expected errors, let unexpected ones propagate
+- Include context in error messages (IDs, values, operation)
+- Log errors with appropriate severity levels
+
+## Defensive Programming
+- Validate inputs at system boundaries (API endpoints, CLI args)
+- Trust internal code, validate external data
+- Use assertions for invariants that should never be violated
+- Bounds check array/list access when index might be invalid
+
+## Async/Concurrency Safety
+- Use locks/mutexes for shared mutable state
+- Prefer immutable data structures in concurrent code
+- Use thread-safe collections or synchronization primitives
+- Avoid blocking operations in async functions
+- Set timeouts on async operations
+
+## Resource Limits
+- Set max memory/CPU limits for operations
+- Implement rate limiting for expensive operations
+- Use pagination for large data sets
+- Stream large files instead of loading into memory

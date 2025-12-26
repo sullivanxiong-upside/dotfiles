@@ -1,0 +1,21 @@
+Generate release notes following the format specified in @.cursor/rules/release-notes.mdc (if available).
+
+## Process:
+
+1. Use git CLI to compare origin/prod (base) to origin/main
+2. Get the full commit messages and descriptions for all commits
+3. For each commit, list the files changed
+4. Use 'gh pr view' to fetch PR titles and descriptions to find linked Linear tickets
+5. Categorize each change (remember: ONE entry per PR/commit):
+   - Customer Impacting / Logical Updates (changes to data processing, datasets, customer configs)
+   - Operational Improvements (performance, infrastructure, doesn't change end product)
+   - Minor Bug Fixes & Patches
+
+## Format
+
+Format each entry as:
+{summary of change} (#{pr_number}) (ref {LINEAR-123})
+
+**CRITICAL:** Each PR must appear exactly ONCE in the release notes, under the most relevant section.
+
+Output the release notes in a markdown code block.

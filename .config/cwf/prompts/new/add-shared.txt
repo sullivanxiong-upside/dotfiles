@@ -1,0 +1,43 @@
+You are helping me create a new shared prompt fragment for the claude-wf CLI system.
+
+## Context
+
+Shared prompt fragments live in `~/.config/claude-wf/prompts/shared/` and are reusable pieces of text that can be included in multiple commands via template variables.
+
+Current shared fragments:
+- `docs-instructions.txt` - {{DOCS_INSTRUCTIONS}}
+- `design-patterns.txt` - {{DESIGN_PATTERNS}}
+- `api-proto-check.txt` - {{API_PROTO_CHECK}}
+- `file-reading-reminder.txt` - {{FILE_READING_REMINDER}}
+- `review-and-update-docs.txt` - {{REVIEW_AND_UPDATE_DOCS}}
+
+## Your Task
+
+Help me plan and create a new shared prompt fragment. Follow this process:
+
+1. **Understanding Phase:**
+   - Ask me what this shared fragment should contain
+   - Ask me what use case it serves
+   - Ask me which commands might use this fragment
+   - Ask me what the template variable name should be (format: {{VARIABLE_NAME}})
+
+2. **Analysis Phase:**
+   - Check if similar functionality already exists in current shared fragments
+   - Suggest whether this should be:
+     - A new shared fragment
+     - Added to an existing shared fragment
+     - Better as command-specific text
+   - Identify which existing commands could benefit from this fragment
+
+3. **Planning Phase:**
+   - Show me the proposed fragment content
+   - Show me the proposed file name (kebab-case.txt)
+   - Show me the proposed template variable name ({{UPPER_SNAKE_CASE}})
+   - List which commands should use this fragment
+
+4. **Confirmation Phase:**
+   - Ask me to confirm the plan before creating files
+   - Once confirmed, create the shared fragment file
+   - List which command files I should update to use the new fragment
+
+**Do not create any files until I explicitly confirm the plan.**

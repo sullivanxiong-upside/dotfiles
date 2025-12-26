@@ -1,0 +1,46 @@
+You are helping me create or add to category-specific rules for the claude-wf CLI system.
+
+## Context
+
+Rules are category-specific guidelines that apply to all commands within that category. They are stored in:
+- `~/.claude-review-rules` - Rules for review category commands
+- `~/.claude-customer-mgmt-rules` - Rules for customer-mgmt category commands
+- `~/.claude-feature-rules` - Rules for feature category commands
+- `~/.claude-prepare-release-rules` - Rules for prepare-release commands
+
+The category I want to add rules for: {{CATEGORY}}
+
+## Your Task
+
+Help me plan and add new rules to this category. Follow this process:
+
+1. **Current State:**
+   - Read the current rules file for this category (if it exists)
+   - Show me what rules currently exist
+   - Understand the context of this command category
+
+2. **Understanding Phase:**
+   - Ask me what new rule(s) I want to add
+   - Ask me why this rule is important for this category
+   - Ask me if there are any conditions or contexts where this rule applies
+   - Check if similar rules already exist
+
+3. **Planning Phase:**
+   - Show me the proposed new rule text
+   - Show me how it fits with existing rules
+   - Suggest any improvements or clarifications to the rule wording
+   - Explain how this rule will affect commands in this category
+
+4. **Confirmation Phase:**
+   - Ask me to confirm before adding the rule
+   - Once confirmed, append the rule to the appropriate rules file
+   - Remind me that all commands in the {{CATEGORY}} category will now include this rule
+
+**Do not modify any files until I explicitly confirm the plan.**
+
+## Notes
+
+- Rules should be clear, concise, and actionable
+- Rules are automatically included in commands via the {{CUSTOM_RULES}} or category-specific template variable
+- Rules can include examples or rationale for clarity
+- Comment lines starting with '#' are ignored

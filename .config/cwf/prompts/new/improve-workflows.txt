@@ -1,0 +1,366 @@
+You are helping me improve the cwf (claude-wf) and gwf (git workflow) CLI tools.
+
+## Context
+
+These are the workflow automation tools located in ~/repos/dotfiles/scripts/:
+
+**cwf (claude-wf.sh):**
+- Unified CLI for Claude-powered workflows
+- Categories: review, customer-mgmt, feature, agent, prepare-release, new, completion
+- Uses prompt files in ~/.config/claude-wf/prompts/
+- Supports template variables and shared fragments
+- Self-extending with meta-commands
+
+**gwf (gwf.sh):**
+- Git workflow CLI with intelligent worktree management
+- Categories: local, remote, worktree, pr, inspect, completion
+- Shorthand syntax for common git operations
+- Integration with GitHub CLI (gh)
+
+## Your Task
+
+Help me improve these workflow tools. Follow this process:
+
+### Phase 1: Understanding Phase
+
+First, ask me:
+1. What aspect do I want to improve?
+   - cwf, gwf, or both?
+2. What type of improvement?
+   - Add new feature/command
+   - Refactor existing code
+   - Fix a bug
+   - Optimize performance
+   - Improve documentation
+   - Enhance error handling
+   - Other
+3. Describe the current behavior and desired behavior
+
+### Phase 2: Analysis Phase
+
+Based on the improvement type:
+
+**For new features/commands:**
+- Read relevant script files to understand current structure
+- Identify where the new feature should integrate
+- Check for similar existing functionality
+- Look at existing patterns to follow
+
+**For refactoring/bugs:**
+- Read the relevant code sections
+- Understand the current implementation
+- Identify the issue or area for improvement
+- Consider impact on existing functionality
+
+**For documentation:**
+- Check current documentation structure
+- Identify what needs updating
+- Look for related docs that may need changes
+
+### Phase 3: Planning Phase
+
+Present a detailed plan:
+
+1. **What will change:**
+   - Files to create or modify
+   - New functions/commands to add
+   - Code sections to refactor
+   - Documentation to update
+
+2. **Implementation approach:**
+   - Show code changes with clear before/after examples
+   - Explain design decisions
+   - Identify any breaking changes
+   - Consider backward compatibility
+
+3. **Files involved:**
+   - ~/repos/dotfiles/scripts/claude-wf.sh
+   - ~/repos/dotfiles/scripts/gwf.sh
+   - Prompt files in ~/.config/claude-wf/prompts/
+   - Completion scripts (gwf-completion.bash, generated completions)
+   - Documentation (README.md, docs/)
+
+4. **Testing plan:**
+   - Manual testing commands to verify changes
+   - Edge cases to consider
+   - Regression tests (commands that should still work)
+
+### Phase 4: Confirmation Phase
+
+Present the complete plan and ask for approval:
+
+```markdown
+# Improvement Plan for [cwf/gwf]
+
+## Summary
+[Brief description of the improvement]
+
+## Changes Required
+
+### Files to Create
+- [List new files with descriptions]
+
+### Files to Modify
+- [List files with summary of changes]
+
+## Implementation Details
+
+### [File 1]
+**Before:**
+```bash
+[Current code]
+```
+
+**After:**
+```bash
+[Proposed code]
+```
+
+**Rationale:** [Explain why this change]
+
+[Repeat for each file]
+
+## Testing Plan
+
+**Test commands:**
+```bash
+# Test 1: [Description]
+command to test
+
+# Test 2: [Description]
+command to test
+```
+
+**Expected behavior:**
+- [What should happen]
+
+## Backward Compatibility
+- [Any breaking changes?]
+- [Migration needed?]
+
+## Documentation Updates
+- [List docs to update]
+```
+
+**Ask for explicit confirmation before implementing.**
+
+### Phase 5: Implementation Phase
+
+Once confirmed:
+
+1. **Make the changes:**
+   - Use Edit tool for modifications
+   - Use Write tool for new files
+   - Make changes atomically and clearly
+
+2. **Verify changes:**
+   - Show what was changed
+   - Confirm files are correct
+   - Check for syntax errors
+
+3. **Update documentation:**
+   - Update README.md if needed
+   - Update relevant docs/ files
+   - Update completion scripts if commands changed
+   - Keep docs synchronized with implementation
+
+4. **Provide testing guidance:**
+   ```bash
+   # Commands to test the changes
+   [Specific test commands]
+   ```
+
+5. **Report completion:**
+   ```markdown
+   # Improvement Complete
+
+   ## Changes Applied
+   - ✓ [File 1]: [What changed]
+   - ✓ [File 2]: [What changed]
+
+   ## Testing
+   Run these commands to verify:
+   ```bash
+   [Test commands]
+   ```
+
+   ## Next Steps
+   - [Any follow-up work needed]
+   - [Suggestions for future improvements]
+   ```
+
+## Best Practices
+
+- **Maintain backward compatibility** unless explicitly asked to break it
+- **Follow existing code patterns** in the scripts
+- **Update all relevant files** together (scripts, docs, completion)
+- **Test changes** with real commands before marking complete
+- **Keep functions modular** and well-documented
+- **Use consistent naming** (kebab-case for commands, snake_case for functions)
+- **Clear error messages** that are actionable
+- **Update command registry** and metadata in claude-wf.sh
+
+## Critical Checklists
+
+### When Adding/Modifying Categories
+
+Categories require updates in **7+ locations**. Use this checklist:
+
+1. **claude-wf.sh - Registry (line ~30):**
+   ```bash
+   ["category:subcommand"]="category/subcommand.txt"
+   ```
+
+2. **claude-wf.sh - CATEGORY_DESC (line ~41):**
+   ```bash
+   ["category"]="Description"
+   ```
+
+3. **claude-wf.sh - SUBCOMMAND_DESC (line ~51):**
+   ```bash
+   ["category:subcommand"]="Subcommand description"
+   ```
+
+4. **claude-wf.sh - Bash completion categories (line ~393):**
+   ```bash
+   COMPREPLY=($(compgen -W "... category ..." -- "$cur"))
+   ```
+
+5. **claude-wf.sh - Bash completion subcommand case (line ~407):**
+   ```bash
+   category)
+     COMPREPLY=($(compgen -W "subcommand1 subcommand2" -- "$cur"))
+     ;;
+   ```
+
+6. **claude-wf.sh - Zsh completion categories (line ~456):**
+   ```bash
+   'category:Description'
+   ```
+
+7. **claude-wf.sh - Zsh completion subcommand case (line ~486):**
+   ```bash
+   category)
+     subcommands=('subcmd:Description')
+     _describe -t subcommands 'subcommand' subcommands
+     return 0
+     ;;
+   ```
+
+8. **Prompt file location:**
+   ```bash
+   mkdir -p ~/.config/claude-wf/prompts/category
+   # Create or move prompt file
+   ```
+
+9. **README.md - Command Categories section:**
+   Add new category with its subcommands
+
+10. **README.md - Examples section:**
+    Add usage examples for new commands
+
+11. **README.md - Directory structure:**
+    Update prompt directory tree
+
+### Testing Completions
+
+Always test both bash and zsh completions:
+
+```bash
+# Test category appears
+cwf completion bash | grep "category"
+cwf completion zsh | grep "category"
+
+# Test subcommands appear
+cwf completion bash | grep -A 3 "category)"
+cwf completion zsh | grep -A 5 "category)"
+
+# Test actual completion works
+cwf category <TAB>
+cwf category subcommand --help
+```
+
+### Shell Completion Best Practices
+
+From completion-setup.md research:
+
+1. **Symlinks over aliases** - Use ~/.local/bin symlinks for PATH availability
+2. **Lazy-loading** - Use `source <(command completion shell)` for on-demand loading
+3. **Cross-platform** - Support both bash and zsh natively (no translation)
+4. **Process substitution** - Avoids tempfiles and startup delays
+
+### Atomic Operations
+
+When moving/creating files:
+```bash
+# Good - atomic
+mkdir -p target/dir && mv source/file target/dir/
+
+# Bad - can fail mid-operation
+mkdir target/dir
+mv source/file target/dir/
+```
+
+### Real-World Example: Adding "agent" Category
+
+This example shows all locations that were updated when adding the "agent" category:
+
+```bash
+# 1. Update COMMAND_REGISTRY
+["agent:chat"]="agent/chat.txt"
+
+# 2. Update CATEGORY_DESC
+["agent"]="Research and learning"
+
+# 3. Update SUBCOMMAND_DESC
+["agent:chat"]="Research and learn about specific topics with expert guidance"
+
+# 4. Bash completion - categories
+COMPREPLY=($(compgen -W "review customer-mgmt feature agent prepare-release new completion help" -- "$cur"))
+
+# 5. Bash completion - subcommands
+agent)
+  COMPREPLY=($(compgen -W "chat" -- "$cur"))
+  ;;
+
+# 6. Zsh completion - categories
+'agent:Research and learning'
+
+# 7. Zsh completion - subcommands
+agent)
+  subcommands=('chat:Research and learn about specific topics')
+  _describe -t subcommands 'subcommand' subcommands
+  return 0
+  ;;
+
+# 8. Create directory and move/create prompt file
+mkdir -p ~/.config/claude-wf/prompts/agent
+# Then create agent/chat.txt
+
+# 9-11. Update README.md
+### Agent (Research and Learning)
+- `chat` - Research and learn about specific topics with expert guidance
+
+# Example usage:
+cwf agent chat "How do I implement distributed caching with Redis?"
+```
+
+Missing ANY of these locations breaks functionality or completion!
+
+## File Locations Reference
+
+**Scripts:**
+- Main: ~/repos/dotfiles/scripts/{claude-wf.sh,gwf.sh}
+- Completion: ~/repos/dotfiles/scripts/gwf-completion.bash
+
+**Config & Prompts:**
+- Prompts: ~/.config/claude-wf/prompts/**/*.txt
+- Shared: ~/.config/claude-wf/prompts/shared/*.txt
+- Config: ~/.config/gwf/ (optional)
+
+**Documentation:**
+- Main: ~/repos/dotfiles/scripts/README.md
+- Docs: ~/repos/dotfiles/scripts/docs/{cwf-meta-commands.md,gwf.md,workflow-commands.md,completion-setup.md}
+
+{{FILE_READING_REMINDER}}
+{{REVIEW_AND_UPDATE_DOCS}}

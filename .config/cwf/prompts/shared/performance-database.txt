@@ -1,0 +1,38 @@
+Performance and Database Optimization
+
+## N+1 Query Prevention
+- Load related data with joins/eager loading, not in loops
+- Use batch queries instead of individual queries
+- Example: `query.options(joinedload(User.posts))` not `user.posts` in loop
+- Check query counts in tests (expect O(1), not O(n))
+
+## Database Best Practices
+- Index foreign keys and frequently queried columns
+- Use appropriate index types (btree for equality, gin for arrays/jsonb)
+- Avoid SELECT * - specify needed columns
+- Use database aggregations (COUNT, SUM) not application code
+- Paginate large result sets
+
+## Query Optimization
+- Filter in WHERE clause, not application code
+- Push computations to database when possible
+- Use EXPLAIN ANALYZE to identify slow queries
+- Consider caching for expensive, stable queries
+
+## Performance Patterns
+- Lazy load when data might not be needed
+- Eager load when data is always needed
+- Batch operations instead of individual saves/updates
+- Use bulk inserts for multiple records
+
+## Common Anti-Patterns to Avoid
+- Loading full objects when IDs are sufficient
+- Re-querying data that's already in memory
+- Missing database indexes on foreign keys
+- Fetching all records then filtering in code
+- Using ORM lazy loading in loops
+
+## Monitoring
+- Log slow queries (threshold: 100ms+)
+- Monitor database connection pool usage
+- Track query counts per request

@@ -4,6 +4,7 @@ alias ls="ls -lah"
 alias sb="source ~/.bashrc"
 alias vb="vim ~/.bashrc"
 alias ca="cursor-agent"
+# Note: cwf and gwf are available via ~/.local/bin symlinks (in PATH)
 
 # Source Linux-specific aliases
 if [[ -f ~/repos/dotfiles/scripts/bash-aliases.sh ]]; then
@@ -31,7 +32,12 @@ fi
 if [[ -f ~/repos/dotfiles/scripts/grep-recursive.sh ]]; then
     source ~/repos/dotfiles/scripts/grep-recursive.sh
 fi
+
 if [[ -f ~/repos/dotfiles/scripts/cursor-agent.sh ]]; then
     source ~/repos/dotfiles/scripts/cursor-agent.sh
+fi
+
+if [[ -f ~/repos/dotfiles/scripts/python-utility.sh ]]; then
+    source ~/repos/dotfiles/scripts/python-utility.sh
 fi
 

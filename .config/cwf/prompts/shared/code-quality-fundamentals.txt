@@ -1,0 +1,51 @@
+Code Quality Fundamentals
+
+## Constants & Configuration
+- Define constants in dedicated files (constants.py/ts) or at top of file
+- Use UPPER_CASE naming and enums for related values
+- Never scatter magic numbers/strings throughout code
+- Single source of truth for each value
+
+## Configuration Management
+- Extract configurable values to config files (don't hardcode in logic)
+- Use existing config structure if available, create new config file if needed
+- Config file location: config/[domain].yaml, config/[feature].json, etc.
+- Examples: timeouts, rate limits, feature flags, API endpoints, thresholds
+- Keep environment-specific configs separate (dev/staging/prod)
+
+## Type Safety
+- Annotate all function parameters and return types
+- Use strict type checking (mypy, TypeScript strict mode)
+- Avoid 'any' or dynamic types unless necessary
+- Prefer type-safe patterns (discriminated unions, enums)
+
+## Error Handling
+- Use specific exception types, not generic Exception/Error
+- Handle expected errors explicitly (try/catch for known failures)
+- Let unexpected errors propagate to global handlers
+- Always clean up resources (use context managers/finally/defer)
+
+## Code Organization
+- Functions should do one thing and do it well
+- Keep functions under 50 lines when possible
+- Extract when you see 2+ similar code blocks
+- Group related functions/classes into modules
+
+## Naming
+- Use descriptive names that reveal intent
+- Avoid abbreviations except for well-known terms
+- Boolean variables: is/has/should prefix (isValid, hasPermission)
+- Functions: verb prefix (getUser, calculateTotal, validateInput)
+
+## Dependencies
+- Inject dependencies via constructor/parameters
+- Don't instantiate dependencies inside classes
+- Follow existing DI patterns in the codebase
+
+## Review Checklist
+- No magic numbers/strings
+- Configurable values in config files, not hardcoded
+- All public functions have type annotations
+- Error handling uses specific exception types
+- Functions are focused and well-named
+- Resources are properly cleaned up

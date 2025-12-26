@@ -1,0 +1,37 @@
+Testing and Documentation Standards
+
+## Test Coverage Requirements
+- New features: Add tests before marking PR complete
+- Bug fixes: Write failing test first, then fix
+- Public APIs: Test all exposed interfaces
+- Business logic: Cover edge cases and error conditions
+
+## Test Organization
+- Unit tests: Individual functions in isolation
+- Integration tests: Component interactions
+- E2E tests: Complete user workflows
+- Name tests: test_function_scenario_expectedResult
+
+## Test Quality
+- Each test should verify one specific behavior
+- Use clear arrange/act/assert structure
+- Mock external dependencies (APIs, databases, filesystem)
+- Tests should be deterministic and isolated
+
+## Documentation Requirements
+- Public APIs: Document parameters, return types, exceptions
+- Complex logic: Explain the "why", not just the "what"
+- README: Keep usage examples up to date
+- Breaking changes: Document migration path
+
+## When to Document
+- Non-obvious design decisions
+- Performance considerations or trade-offs
+- Security implications
+- Deprecated features with alternatives
+
+## Documentation Style
+- Be concise and scannable
+- Use code examples for clarity
+- Keep examples simple and focused
+- Update docs when changing APIs

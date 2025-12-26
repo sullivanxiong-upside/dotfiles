@@ -1,0 +1,50 @@
+Resource Bump Workflow for OOM Alerts
+@config/customer_configs/ @airflow/dags/configs/prod/main.yaml.template
+
+You will receive OOM alerts in this format:
+:fire:[FIRING:1]Smart Retry - OOM Resource Level Progression Detected Airflow Alerts
+(oom_retry_progression org_<ID> <environment>_<customer>_datahub_generation <current_level> warning <task_name> <target_level>)
+
+## Steps:
+
+1. Parse the alert to extract:
+   - Customer org ID and name
+   - Environment (prod, shadow-prod, stage)
+   - Task name (full path like data_processing.X.Y or replica_datasets.Z)
+   - Current resource level → Target resource level
+
+2. Locate the config file: airflow/dags/configs/{environment}/main.yaml.template
+
+3. Find and verify: Read the customer's config section, locate the task, confirm current resource level
+
+4. Update: Change the resource level from current to target using Edit tool
+
+5. Accumulate changes: Wait for user's 'commit' signal before committing (they may provide multiple alerts first)
+
+6. Commit format when requested:
+   chore: Increase resources for <Customer> <task_name> to address OOM
+
+   Bump resource allocation in response to OOM retry progression alert:
+
+   - Customer (environment): task_name current → target
+
+7. Generate PR description in this format:
+   Bump resource allocations in response to OOM retry progression alerts:
+
+   ### **Customer (environment):**
+     - **task_name:** current → target
+     - **another_task:** current → target
+   ### **Another Customer (environment):**
+     - **task_name:** current → target
+
+8. Push: Push to resource-resize branch after committing
+
+9. Rebase: When user says PR is merged, run `git pull origin main --rebase` and then we can continue to use this branch for new resource bump prs
+
+{{PLANNING_GUIDELINES}}
+
+## Notes:
+{{FILE_READING_REMINDER}}
+- Confirm current level matches alert before changing
+- Multiple customers/tasks may be bumped in one commit
+- User may interrupt commits if more alerts arrive

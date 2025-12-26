@@ -15,10 +15,5 @@ if vim.g.vscode then
    -- Adjust some settings for VSCode environment
    vim.opt.number = false  -- VSCode handles line numbers
    vim.opt.relativenumber = false
-   
-   print("VSCode/Cursor environment detected - UI plugins disabled")
-else
-   -- Regular Neovim - all features enabled
-   print("Standard Neovim environment - all features enabled")
 end
 

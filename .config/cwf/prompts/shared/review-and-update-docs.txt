@@ -1,0 +1,14 @@
+After completing the work, review and update any relevant documentation:
+- README.md files in affected directories
+- docs/ directory files
+- CLAUDE.md or .cursor/rules/ if development patterns changed
+- Comments/docstrings in the code itself
+
+Check for:
+- New features that need documenting
+- Changed APIs or interfaces
+- Updated command-line usage
+- New configuration options
+- Architecture changes
+
+Follow @.cursor/rules/readme_conventions.mdc standards if available.

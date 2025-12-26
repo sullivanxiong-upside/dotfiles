@@ -1,0 +1,28 @@
+I need help addressing peer feedback on my current feature branch.
+
+First, analyze the current branch context:
+1. Get the current branch name
+2. Get the list of all commits on this branch (compare against main branch)
+3. Get the full diff of changes on this branch compared to main
+4. Identify the purpose and goals of this feature branch based on:
+   - Branch name
+   - Commit messages
+   - Actual code changes
+
+Then help me understand:
+- What is the overall purpose of this feature branch?
+- What has been implemented so far?
+- What are the key components and changes?
+
+After understanding the context, I'll provide you with peer feedback and you should:
+- Analyze how the feedback relates to the existing changes
+- Determine what needs to be modified, added, or removed
+- Suggest the best approach to address each piece of feedback
+- Identify any potential conflicts or considerations with existing implementation
+- Help implement the necessary changes
+
+Be thorough in your analysis and ask clarifying questions if the feedback is ambiguous or if you need more context about the intended behavior.
+
+{{PLANNING_GUIDELINES}}
+
+{{REVIEW_AND_UPDATE_DOCS}}

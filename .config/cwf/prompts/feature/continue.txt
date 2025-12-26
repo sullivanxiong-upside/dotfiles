@@ -1,0 +1,63 @@
+I need to understand the current state of this feature branch and create a plan to continue or refactor the work.
+
+## Analysis Phase
+
+First, analyze the current branch thoroughly:
+
+1. **Branch Context:**
+   - Get the current branch name
+   - Get all commits on this branch (compare against main)
+   - Get the full diff of changes compared to main
+   - Identify which repository/repositories are being modified
+
+2. **Feature Understanding:**
+   - What is the overall purpose and goal of this feature branch?
+   - What has been implemented so far?
+   - What are the key components, files, and changes?
+   - What patterns or approaches are being used?
+   - Are there any tests, documentation, or configuration changes?
+
+3. **Progress Assessment:**
+   - How complete does the implementation appear to be?
+   - Are there any incomplete sections, TODOs, or stub implementations?
+   - Does the code follow good design patterns?
+   - Are there any obvious issues, bugs, or code smells?
+   - Does it align with the repository's existing patterns and conventions?
+
+4. **Repository-Specific Checks:**
+   - If working in data-pipelines, customer-dashboard, or sql-core-migrations:
+     {{DOCS_INSTRUCTIONS}}
+   - Check if changes align with repository architecture
+   {{API_PROTO_CHECK}}
+
+## Planning Phase
+
+After completing the analysis, provide a comprehensive summary and ask clarifying questions:
+
+1. **Summary of Current State:**
+   - Brief description of the feature goal
+   - What's been completed
+   - What appears to be incomplete or needs work
+   - Any issues or concerns identified
+
+2. **Clarifying Questions:**
+   Before proposing a plan, ask me:
+   - Is the original feature goal still accurate, or has it evolved?
+   - Are there specific areas you want me to focus on?
+   - Should I continue with the current approach or consider refactoring?
+   - Are there any known issues or pain points you've encountered?
+   - What's the priority: finishing current implementation vs. improving existing code?
+
+3. **After receiving answers, propose:**
+   - A clear plan with specific steps to continue or refactor
+   - Rationale for the proposed approach
+   - Any architectural or design decisions that need confirmation
+   - Estimated scope of remaining work
+
+{{DESIGN_PATTERNS}}
+
+{{REVIEW_AND_UPDATE_DOCS}}
+
+{{WORKFLOW_COMMANDS}}
+
+**Do not begin implementation until I've confirmed the plan and answered your questions.**

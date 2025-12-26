@@ -1,0 +1,37 @@
+@scripts/regenerate_customer_sfdc_queries @scripts/regenerate_customer_sfdc_queries/smoke_test @config/customer_configs/
+
+Using the regenerate_customer_sfdc_queries script, regenerate the account, opportunity, and campaign fields for a customer.
+
+## Troubleshooting Field Regeneration
+
+If a field definition does not show up when regenerated, that usually means one of a couple things:
+
+1. The field definition record isn't available yet (possible since this is a brand new field)
+
+To check, run:
+```sql
+SELECT
+  qualified_api_name,
+  entity_definition_id,
+  data_type,
+  _fivetran_synced
+FROM prod_<company_name>_salesforce.field_definition
+WHERE qualified_api_name = 'Field__c'
+```
+
+2. The formula field depends on a concrete field/object that hasn't been synced via Fivetran
+3. The formula field uses unsupported functions
+4. It's a rollup field not a formula field (rollup fields are aggregations like SUM or COUNT and we don't support them yet)
+
+## Debugging
+
+If you run:
+```bash
+uv run python -m src.libraries.salesforce_formulas.cli.cli generate-sql --customer-org-id <customer_org_id> Account > debug2.txt 2>&1
+```
+
+That will write debugging output to a text file, and then you can look for the fields to see what the reported errors are.
+
+{{PLANNING_GUIDELINES}}
+
+{{FILE_READING_REMINDER}}

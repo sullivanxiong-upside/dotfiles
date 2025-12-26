@@ -1,0 +1,16 @@
+## Planning Guidelines
+
+**When to Plan:**
+For non-trivial tasks that involve multiple steps, architectural decisions, or significant code changes:
+- Use EnterPlanMode to explore the codebase and design an implementation approach
+- Present the plan for approval before implementing
+- Examples: new features, refactoring, adding new commands, architectural changes
+
+**When NOT to Plan:**
+For trivial tasks that can be completed quickly in a few prompt cycles:
+- Skip planning and implement directly
+- Examples: typo fixes, single-line changes, adding comments, simple bug fixes
+
+**Rule of Thumb:**
+- If uncertain whether to plan, err on the side of planning - it's better to get alignment upfront than to redo work
+- Planning is especially valuable when the user hasn't provided very specific, detailed instructions
