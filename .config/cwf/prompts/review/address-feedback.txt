@@ -1,5 +1,9 @@
 I need help addressing peer feedback on my current feature branch.
 
+{{PROJECT_RULES}}
+
+{{GIT_SAFETY}}
+
 First, analyze the current branch context:
 1. Get the current branch name
 2. Get the list of all commits on this branch (compare against main branch)

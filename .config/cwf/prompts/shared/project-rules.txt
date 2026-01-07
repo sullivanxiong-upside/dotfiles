@@ -1,0 +1,55 @@
+# Project-Specific Rules Detection
+
+IMPORTANT: Before starting any work, you MUST check for and follow project-specific rules in the current repository.
+
+## Rule Files to Check
+
+Check the current working directory and parent directories (up to git root) for these files:
+
+1. **`.cursor/rules/*.mdc`** - Cursor IDE rule files (MDC format)
+2. **`.cursorrules`** - Single file cursor rules
+3. **`.clinerules`** - Claude Code CLI rules
+4. **`.github/CODE_OF_CONDUCT.md`** - Contribution guidelines
+5. **`CONTRIBUTING.md`** - Project contribution rules
+6. Any other project-specific rule files
+
+## Detection Process
+
+1. Search the current directory for rule files
+2. If not found, search parent directories up to the git root (`.git/` directory)
+3. Read and parse all found rule files
+4. Apply the rules to your current task
+
+## Rule Priority
+
+Project-specific rules take precedence over general rules. If there's a conflict:
+1. Project-specific rules (highest priority)
+2. Category-specific rules
+3. Shared/general rules (lowest priority)
+
+## Common Rule Locations
+
+- `.cursor/rules/` - Modern Cursor IDE rules
+- Root directory - `.cursorrules`, `.clinerules`, `CONTRIBUTING.md`
+- `.github/` directory - Contribution guidelines, templates
+
+## What to Look For
+
+When you find rule files, pay attention to:
+- Coding standards and style guides
+- Workflow requirements (e.g., mandatory todo tracking)
+- Testing requirements
+- Documentation requirements
+- Git commit conventions
+- File organization patterns
+- Technology-specific guidelines
+
+## Action Required
+
+At the START of each task:
+1. Use Glob tool to search for rule files: `**/.cursor/rules/*.mdc`, `**/.cursorrules`, etc.
+2. Read any found rule files
+3. Acknowledge which rules you found
+4. Follow them throughout the task
+
+**Never skip this step** - project-specific rules are critical for maintaining consistency and following the project's workflow.

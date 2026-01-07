@@ -1,5 +1,9 @@
 @~/repos/data-pipelines
 
+{{PROJECT_RULES}}
+
+{{GIT_SAFETY}}
+
 {{DOCS_INSTRUCTIONS}}
 
 {{DESIGN_PATTERNS}}

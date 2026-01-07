@@ -62,11 +62,12 @@ source ~/.zprofile
 
 **For CLI tools (cwf & gwf):**
 ```bash
-mkdir -p ~/.local/bin
+mkdir -p ~/.local/bin ~/.claude
 ln -sf ~/repos/dotfiles/scripts/cwf.sh ~/.local/bin/cwf
 ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
 ln -sf ~/repos/dotfiles/.config/cwf ~/.config/cwf
 ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
+ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
 ```
 
 **For full installation**, see **[INSTALLATION.md](INSTALLATION.md)**.
@@ -240,6 +241,10 @@ ln -sf ~/repos/dotfiles/.config/nvim ~/.config/nvim
 ln -sf ~/repos/dotfiles/.config/cwf ~/.config/cwf
 ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
 
+# Claude Code settings
+mkdir -p ~/.claude
+ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
+
 # Linux only: Desktop environment
 ln -sf ~/repos/dotfiles/.config/hypr ~/.config/hypr
 ln -sf ~/repos/dotfiles/.config/waybar ~/.config/waybar
@@ -253,6 +258,8 @@ ln -sf ~/repos/dotfiles/.config/waybar ~/.config/waybar
 ├── .bashrc                      # Bash configuration
 ├── .zprofile                    # Zsh configuration
 ├── .tmux.conf                   # TMUX configuration
+├── .claude/                     # Claude Code settings
+│   └── settings.json            # Claude Code configuration
 ├── .config/                     # Application configs
 │   ├── nvim/                    # Neovim (cross-platform)
 │   ├── cwf/               # cwf CLI config (cross-platform)

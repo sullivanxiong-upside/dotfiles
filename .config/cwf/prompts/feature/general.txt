@@ -1,5 +1,9 @@
 This is a general feature or update that may be outside the main work repositories (data-pipelines, customer-dashboard, sql-core-migrations).
 
+{{PROJECT_RULES}}
+
+{{GIT_SAFETY}}
+
 First, identify the repository or codebase we're working in and understand its structure.
 
 If documentation exists:

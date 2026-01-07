@@ -1,5 +1,9 @@
 @~/repos/data-pipelines @~/repos/customer-dashboard @~/repos/sql-core-migrations
 
+{{PROJECT_RULES}}
+
+{{GIT_SAFETY}}
+
 This is a feature that spans multiple repositories: data-pipelines, customer-dashboard, and sql-core-migrations.
 
 For each repository involved:

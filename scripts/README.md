@@ -155,6 +155,52 @@ cwf new add-sub-command feature
 cwf prepare-release
 ```
 
+### Handling Special Characters and Quotes
+
+When passing context with quotes or special characters, you have several options:
+
+**Option 1: Use stdin with heredoc (RECOMMENDED - No quote escaping needed!)**
+```bash
+cwf review review-peer <<'EOF'
+The PR description says "Introduce an internal FastAPI service"
+Uses 'any' quotes and `backticks` without escaping
+Multiple lines work perfectly!
+EOF
+```
+
+**Option 2: Pipe content directly**
+```bash
+echo 'Content with "any" quotes' | cwf review review-peer
+
+# Combine with git commands
+git log main..HEAD --oneline --no-merges | cwf review review-peer
+```
+
+**Option 3: Use single quotes for arguments (prevents shell interpolation)**
+```bash
+cwf review review-peer 'the pr says "Introduce new feature"'
+```
+
+**Option 4: Escape inner quotes**
+```bash
+cwf review review-peer "the pr says \"Introduce new feature\""
+```
+
+**Option 5: Mix quote styles**
+```bash
+cwf review review-peer "the pr says 'single quotes' and we're done"
+```
+
+**Option 6: Combine arguments and stdin**
+```bash
+# Arguments provide context, stdin provides the main content
+cwf review review-peer "Focus on security" <<'EOF'
+PR changes include "authentication" and 'authorization'
+EOF
+```
+
+**Tip:** Options 1 and 2 (stdin) are the most flexible and avoid all quoting issues!
+
 ## Architecture
 
 The CLI is built with:

@@ -168,6 +168,7 @@ function load_all_shared_fragments() {
     ["PERFORMANCE_DATABASE"]="performance-database.txt"
     ["TESTING_DOCUMENTATION"]="testing-documentation.txt"
     ["EXTRACT_REUSABLE_CODE"]="reusable-code-extraction.txt"
+    ["GIT_SAFETY"]="git-safety.txt"
   )
 
   # Load each fragment that's referenced in the prompt
@@ -230,6 +231,7 @@ function replace_templates() {
   local performance_db=$(load_fragment_if_needed "$prompt" "PERFORMANCE_DATABASE" "performance-database.txt")
   local testing_docs=$(load_fragment_if_needed "$prompt" "TESTING_DOCUMENTATION" "testing-documentation.txt")
   local extract_reusable=$(load_fragment_if_needed "$prompt" "EXTRACT_REUSABLE_CODE" "reusable-code-extraction.txt")
+  local git_safety=$(load_fragment_if_needed "$prompt" "GIT_SAFETY" "git-safety.txt")
 
   # Replace each template variable
   prompt="${prompt//\{\{DOCS_INSTRUCTIONS\}\}/$docs_inst}"
@@ -245,6 +247,7 @@ function replace_templates() {
   prompt="${prompt//\{\{PERFORMANCE_DATABASE\}\}/$performance_db}"
   prompt="${prompt//\{\{TESTING_DOCUMENTATION\}\}/$testing_docs}"
   prompt="${prompt//\{\{EXTRACT_REUSABLE_CODE\}\}/$extract_reusable}"
+  prompt="${prompt//\{\{GIT_SAFETY\}\}/$git_safety}"
 
   # Replace {{CATEGORY}} with actual category name
   prompt="${prompt//\{\{CATEGORY\}\}/$category}"
@@ -277,6 +280,7 @@ function remove_template_placeholders() {
   prompt="${prompt//\{\{PERFORMANCE_DATABASE\}\}/}"
   prompt="${prompt//\{\{TESTING_DOCUMENTATION\}\}/}"
   prompt="${prompt//\{\{EXTRACT_REUSABLE_CODE\}\}/}"
+  prompt="${prompt//\{\{GIT_SAFETY\}\}/}"
   prompt="${prompt//\{\{CUSTOM_RULES\}\}/}"
   prompt="${prompt//\{\{CATEGORY_RULES\}\}/}"
 
@@ -491,13 +495,15 @@ function execute_prompt() {
   fi
 
   # Execute with system additions for caching (if any)
+  # Redirect stdin to /dev/tty so claude CLI can use interactive terminal
+  # even if cwf read from stdin via heredoc/pipe
   if [ -n "$system_additions" ]; then
     # Use --append-system-prompt to add rules to Claude's system prompt
     # This enables automatic caching by Claude CLI
-    claude --append-system-prompt "$system_additions" "$user_prompt"
+    claude --append-system-prompt "$system_additions" "$user_prompt" < /dev/tty
   else
     # No system additions, execute normally
-    claude "$user_prompt"
+    claude "$user_prompt" < /dev/tty
   fi
 }
 
@@ -822,7 +828,21 @@ function main() {
       return 1
     fi
     shift
-    extra_context="${1:-}"
+    extra_context="$*"
+  fi
+
+  # Read from stdin if available (not a terminal)
+  if [ ! -t 0 ]; then
+    local stdin_content=$(cat)
+    if [ -n "$stdin_content" ]; then
+      if [ -n "$extra_context" ]; then
+        extra_context="$extra_context
+
+$stdin_content"
+      else
+        extra_context="$stdin_content"
+      fi
+    fi
   fi
 
   # Resolve prompt file path

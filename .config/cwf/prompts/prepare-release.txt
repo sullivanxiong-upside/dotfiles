@@ -1,5 +1,7 @@
 Generate release notes following the format specified in @.cursor/rules/release-notes.mdc (if available).
 
+{{GIT_SAFETY}}
+
 ## Process:
 
 1. Use git CLI to compare origin/prod (base) to origin/main

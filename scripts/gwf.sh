@@ -77,6 +77,7 @@ Categories and Subcommands:
     commit <msg>             Create commit (gwf l c "message")
     status                   Show status (gwf l s)
     diff [target]            Show diff (gwf l d)
+    diff-commits [branch]    Show commits ahead of base (gwf l dc)
 
   remote (r)
     push [opts]              Push to remote (gwf r ps)
@@ -95,6 +96,7 @@ Categories and Subcommands:
     list [opts]              List PRs (gwf pr ls)
     diff [base]              Preview PR diff (gwf pr d)
     push [title]             Push + create/update PR (gwf pr p)
+    link                     Get PR URL for current branch (gwf pr l)
 
   inspect (i)
     diff [target]            Show diff (gwf i d)
@@ -200,6 +202,7 @@ function expand_subcommand() {
         c) echo "commit" ;;
         s) echo "status" ;;
         d) echo "diff" ;;
+        dc) echo "diff-commits" ;;
         *) echo "$subcommand" ;;
       esac
       ;;
@@ -218,6 +221,7 @@ function expand_subcommand() {
         ls) echo "list" ;;
         d) echo "diff" ;;
         p) echo "push" ;;
+        l) echo "link" ;;
         *) echo "$subcommand" ;;
       esac
       ;;
@@ -561,6 +565,25 @@ function cmd_local_diff() {
   git diff "$target" HEAD
 }
 
+function cmd_local_diff_commits() {
+  local target="${1:-$(detect_base_branch)}"
+
+  # Get commit count
+  local count=$(git rev-list --count "$target"..HEAD --no-merges 2>/dev/null || echo "0")
+
+  if [ "$count" -eq 0 ]; then
+    echo "No commits ahead of $target"
+    return 0
+  fi
+
+  # Display header with count
+  echo "📊 $count commit$([ "$count" -ne 1 ] && echo "s") ahead of $target"
+  echo ""
+
+  # Display commits with color, author, and date
+  git log "$target"..HEAD --oneline --no-merges --pretty=format:'%C(yellow)%h%C(reset) - %C(cyan)%an%C(reset) (%C(green)%ar%C(reset))%n  %s%n' --color=always
+}
+
 # ============================================================================
 # Remote Commands
 # ============================================================================
@@ -685,6 +708,42 @@ function cmd_pr_push() {
   fi
 }
 
+function cmd_pr_link() {
+  require_gh || return 1
+
+  # Get PR number for current branch
+  local pr_number=$(gh pr view --json number -q '.number' 2>/dev/null)
+
+  if [ -z "$pr_number" ]; then
+    echo "Error: No pull request found for current branch"
+    echo ""
+    echo "Create a PR first with:"
+    echo "  gwf pr create"
+    echo "  gwf pr push"
+    return 1
+  fi
+
+  # Get remote URL and parse org/repo
+  local remote_url=$(git remote get-url origin 2>/dev/null)
+
+  if [ -z "$remote_url" ]; then
+    echo "Error: No git remote 'origin' found"
+    return 1
+  fi
+
+  # Parse org and repo from various GitHub URL formats
+  # Handles: git@github.com:org/repo.git, https://github.com/org/repo.git
+  local org_repo=$(echo "$remote_url" | sed -E 's#^(https://github.com/|git@github.com:)##' | sed 's/\.git$//')
+
+  if [ -z "$org_repo" ]; then
+    echo "Error: Could not parse GitHub org/repo from remote URL: $remote_url"
+    return 1
+  fi
+
+  # Construct and output PR URL
+  echo "https://github.com/${org_repo}/pull/${pr_number}"
+}
+
 # ============================================================================
 # Inspect Commands
 # ============================================================================
@@ -761,7 +820,7 @@ _gwf_completion() {
   if [ $cword -eq 2 ]; then
     case "$category" in
       local)
-        COMPREPLY=($(compgen -W "add a commit c status s diff d" -- "$cur"))
+        COMPREPLY=($(compgen -W "add a commit c status s diff d diff-commits dc" -- "$cur"))
         ;;
       remote)
         COMPREPLY=($(compgen -W "push ps rebase r pull pl" -- "$cur"))
@@ -770,7 +829,7 @@ _gwf_completion() {
         COMPREPLY=($(compgen -W "review feature cleanup list" -- "$cur"))
         ;;
       pr)
-        COMPREPLY=($(compgen -W "create c checkout co list ls diff d push p" -- "$cur"))
+        COMPREPLY=($(compgen -W "create c checkout co list ls diff d push p link l" -- "$cur"))
         ;;
       inspect)
         COMPREPLY=($(compgen -W "diff d log show blame" -- "$cur"))
@@ -796,6 +855,7 @@ _gwf_completion() {
       co) subcommand="checkout" ;;
       ls) subcommand="list" ;;
       p) subcommand="push" ;;
+      l) subcommand="link" ;;
     esac
 
     case "$category:$subcommand" in
@@ -812,6 +872,11 @@ _gwf_completion() {
       local:add)
         # Complete with modified/untracked files
         _filedir
+        ;;
+      local:diff-commits)
+        # Complete with branch names
+        local branches=$(git for-each-ref --format='%(refname:short)' refs/heads/ refs/remotes/origin/ 2>/dev/null | sed 's|^origin/||' | sort -u)
+        COMPREPLY=($(compgen -W "$branches" -- "$cur"))
         ;;
       inspect:blame)
         # Complete with files in repo
@@ -870,7 +935,7 @@ _gwf() {
   if (( CURRENT == 3 )); then
     case $category in
       local)
-        subcommands=('add:Stage files' 'a:Stage files' 'commit:Create commit' 'c:Create commit' 'status:Show status' 's:Show status' 'diff:Show diff' 'd:Show diff')
+        subcommands=('add:Stage files' 'a:Stage files' 'commit:Create commit' 'c:Create commit' 'status:Show status' 's:Show status' 'diff:Show diff' 'd:Show diff' 'diff-commits:Show commits ahead' 'dc:Show commits ahead')
         _describe -t subcommands 'subcommand' subcommands
         return 0
         ;;
@@ -885,7 +950,7 @@ _gwf() {
         return 0
         ;;
       pr)
-        subcommands=('create:Create PR' 'c:Create PR' 'checkout:Checkout PR' 'co:Checkout PR' 'list:List PRs' 'ls:List PRs' 'diff:Preview PR diff' 'd:Preview PR diff' 'push:Push and create PR' 'p:Push and create PR')
+        subcommands=('create:Create PR' 'c:Create PR' 'checkout:Checkout PR' 'co:Checkout PR' 'list:List PRs' 'ls:List PRs' 'diff:Preview PR diff' 'd:Preview PR diff' 'push:Push and create PR' 'p:Push and create PR' 'link:Get PR URL' 'l:Get PR URL')
         _describe -t subcommands 'subcommand' subcommands
         return 0
         ;;
@@ -918,6 +983,7 @@ _gwf() {
       co) subcommand="checkout" ;;
       ls) subcommand="list" ;;
       p) subcommand="push" ;;
+      l) subcommand="link" ;;
     esac
 
     case "$category:$subcommand" in
@@ -935,6 +1001,12 @@ _gwf() {
         ;;
       local:add|inspect:blame)
         _files
+        return 0
+        ;;
+      local:diff-commits)
+        local -a branches
+        branches=(${(f)"$(git for-each-ref --format='%(refname:short)' refs/heads/ refs/remotes/origin/ 2>/dev/null | sed 's|^origin/||' | sort -u)"})
+        _describe -t branches 'branch' branches
         return 0
         ;;
     esac
@@ -1061,9 +1133,10 @@ function main() {
         commit) cmd_local_commit "$@" ;;
         status) cmd_local_status "$@" ;;
         diff) cmd_local_diff "$@" ;;
+        diff-commits) cmd_local_diff_commits "$@" ;;
         *)
           echo "Error: Unknown local subcommand '$subcommand'"
-          echo "Valid subcommands: add, commit, status, diff"
+          echo "Valid subcommands: add, commit, status, diff, diff-commits"
           return 1
           ;;
       esac
@@ -1103,9 +1176,10 @@ function main() {
         list) cmd_pr_list "$@" ;;
         diff) cmd_pr_diff "$@" ;;
         push) cmd_pr_push "$@" ;;
+        link) cmd_pr_link "$@" ;;
         *)
           echo "Error: Unknown pr subcommand '$subcommand'"
-          echo "Valid subcommands: create, checkout, list, diff, push"
+          echo "Valid subcommands: create, checkout, list, diff, push, link"
           return 1
           ;;
       esac

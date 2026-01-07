@@ -34,6 +34,31 @@ gwf l a [files]          # Stage files (default: all)
 gwf l c "message"        # Commit with message
 gwf l s                  # Show status
 gwf l d [target]         # Diff against base branch
+gwf l dc [branch]        # Show commits ahead of base (default: main)
+```
+
+**Diff Commits Examples:**
+```bash
+# Show commits ahead of main
+gwf l dc
+# Output:
+# 📊 3 commits ahead of main
+#
+# abc123 - John Doe (2 hours ago)
+#   Add user authentication
+#
+# def456 - John Doe (1 hour ago)
+#   Fix login bug
+#
+# ghi789 - John Doe (30 minutes ago)
+#   Update tests
+
+# Show commits ahead of develop
+gwf l dc develop
+
+# Show commits when there are none
+gwf l dc
+# Output: No commits ahead of main
 ```
 
 ### Remote (r) - Remote Repository Operations
@@ -90,6 +115,7 @@ gwf pr co <number>       # Checkout PR (creates review worktree)
 gwf pr ls [options]      # List PRs
 gwf pr d [base]          # Preview PR diff
 gwf pr p [title]         # Push + create/update PR
+gwf pr l                 # Get PR URL for current branch
 ```
 
 **PR Examples:**
@@ -100,6 +126,20 @@ gwf pr co 123
 
 # Push and create/update PR in one command
 gwf pr p "Add dark mode feature"
+
+# Get PR URL for current branch
+gwf pr l
+# Output: https://github.com/UpsideLabs/data-pipelines/pull/1686
+
+# Get PR URL (full command)
+gwf pr link
+# Output: https://github.com/UpsideLabs/data-pipelines/pull/1686
+
+# Copy PR URL to clipboard (macOS)
+gwf pr l | pbcopy
+
+# Open PR in browser
+open $(gwf pr l)
 ```
 
 ### Inspect (i) - Inspection Commands
@@ -196,6 +236,7 @@ All categories and common subcommands support shorthand:
 | `gwf local commit` | `gwf l c` |
 | `gwf local status` | `gwf l s` |
 | `gwf local diff` | `gwf l d` |
+| `gwf local diff-commits` | `gwf l dc` |
 | `gwf remote push` | `gwf r ps` |
 | `gwf remote rebase` | `gwf r r` |
 | `gwf remote pull` | `gwf r pl` |
@@ -203,6 +244,7 @@ All categories and common subcommands support shorthand:
 | `gwf pr create` | `gwf pr c` |
 | `gwf pr checkout` | `gwf pr co` |
 | `gwf pr list` | `gwf pr ls` |
+| `gwf pr link` | `gwf pr l` |
 | `gwf inspect diff` | `gwf i d` |
 
 ## Comparison with git-aliases.sh
@@ -256,6 +298,10 @@ gwf l c "Add authentication"
 
 # Push and create PR
 gwf pr p "Add user authentication"
+
+# Get PR URL for sharing
+gwf pr l
+# Output: https://github.com/UpsideLabs/data-pipelines/pull/1686
 
 # Back to main repo
 cd ~/repos/data-pipelines

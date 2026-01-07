@@ -1,5 +1,9 @@
 @~/repos/customer-dashboard
 
+{{PROJECT_RULES}}
+
+{{GIT_SAFETY}}
+
 {{DOCS_INSTRUCTIONS}}
 
 {{API_PROTO_CHECK}}

@@ -1,5 +1,7 @@
 @scripts/regenerate_customer_sfdc_queries @scripts/regenerate_customer_sfdc_queries/smoke_test @config/customer_configs/
 
+{{GIT_SAFETY}}
+
 Using the regenerate_customer_sfdc_queries script, regenerate the account, opportunity, and campaign fields for a customer.
 
 ## Troubleshooting Field Regeneration

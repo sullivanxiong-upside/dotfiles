@@ -1,0 +1,10 @@
+Git Safety Protocol
+
+Before any git operations (add, commit, push, pull, merge, rebase):
+- Run git status to verify working tree state and staged changes
+- Check git remote -v to confirm correct remote repository
+- Run git branch to verify you're on the correct branch
+- Review git log --oneline -5 to understand recent commit history
+- For push operations: verify you're not force-pushing to protected branches (main/master)
+
+This ensures you understand the full context before making potentially irreversible changes.

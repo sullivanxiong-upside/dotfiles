@@ -1,5 +1,7 @@
 We are now onboarding a new client.
 
+{{GIT_SAFETY}}
+
 ## Important Notes
 
 If this is actually "sum of opp" this may be a rollup field we need to write the SQL for manually.

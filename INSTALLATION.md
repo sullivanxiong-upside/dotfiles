@@ -121,7 +121,7 @@ Two powerful CLI tools for workflow automation:
 - `gh` CLI (GitHub CLI) - for gwf PR commands
 
 **Optional:**
-- `claude` CLI - for cwf to work with Claude Code
+- `claude` CLI (Claude Code) - for cwf to work with Claude Code
 
 #### Installation
 
@@ -160,6 +160,17 @@ ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
 # Edit repos.conf to set your repository paths
 vim ~/.config/gwf/repos.conf
 ```
+
+**Claude Code configuration (optional):**
+```bash
+# Symlink Claude Code settings
+mkdir -p ~/.claude
+ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
+```
+
+This configures Claude Code to:
+- Disable "Co-Authored-By" footers in commits
+- Keep commit messages clean and professional
 
 #### Verification
 
