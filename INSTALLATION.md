@@ -166,11 +166,27 @@ vim ~/.config/gwf/repos.conf
 # Symlink Claude Code settings
 mkdir -p ~/.claude
 ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
+
+# Configure MCP servers (Model Context Protocol)
+claude mcp add --transport stdio --scope user playwright -- npx -y @playwright/mcp@latest
+claude mcp add --transport sse --scope user linear https://mcp.linear.app/sse
+claude mcp add --transport http --scope user notion https://mcp.notion.com/mcp
+claude mcp add --transport stdio --scope user github -- npx -y @modelcontextprotocol/server-github
+claude mcp add --transport stdio --scope user grafana-staging -- uv run --directory ~/repos/data-pipelines scripts/grafana_mcp_server/server.py --environment stage
+claude mcp add --transport stdio --scope user grafana-prod -- uv run --directory ~/repos/data-pipelines scripts/grafana_mcp_server/server.py --environment prod
 ```
 
 This configures Claude Code to:
 - Disable "Co-Authored-By" footers in commits
 - Keep commit messages clean and professional
+- Enable MCP servers:
+  - **Playwright**: Browser automation and testing
+  - **Linear**: Issue tracking integration
+  - **Notion**: Workspace integration
+  - **GitHub**: Repository operations and PR workflows (requires `GITHUB_TOKEN`)
+  - **Grafana (Staging/Prod)**: Query dashboards, PromQL, and CloudWatch Logs (requires VPN + AWS auth)
+
+For detailed MCP server configuration and management, see [.claude/README.md](.claude/README.md).
 
 #### Verification
 
@@ -242,6 +258,149 @@ tmux source ~/.tmux.conf
 - Vim-tmux navigator integration
 - Session persistence (resurrect/continuum)
 - Weather, battery, and time widgets
+
+---
+
+### TMUX Claude Status Plugin (Linux & macOS)
+
+A custom tmux plugin that displays real-time Claude Code status in window tabs.
+
+#### Dependencies
+
+**Required:**
+- tmux 3.0+
+- jq (JSON processor)
+- Claude Code CLI
+
+**Install jq:**
+```bash
+# macOS
+brew install jq
+
+# Linux
+sudo apt install jq      # Debian/Ubuntu
+sudo pacman -S jq        # Arch
+```
+
+#### Installation
+
+**Step 1: Plugin is already in dotfiles**
+
+The plugin is located at `~/repos/dotfiles/tmux-plugins/tmux-claude-status/`.
+
+**Step 2: Configure Claude Code statusline**
+
+```bash
+# Copy statusline script to Claude config
+cp ~/repos/dotfiles/tmux-plugins/tmux-claude-status/extras/statusline.sh ~/.claude/
+chmod +x ~/.claude/statusline.sh
+```
+
+**Configure Claude Code settings:**
+
+Edit or create `~/.claude/settings.json`:
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh",
+    "padding": 0
+  }
+}
+```
+
+> **Note**: If you already have other settings in `~/.claude/settings.json`, just add the `statusLine` section to the existing JSON object.
+
+**Step 3: Load plugin in tmux**
+
+Add to your `~/.tmux.conf` (place AFTER TPM plugins):
+```bash
+# IMPORTANT: Load AFTER TPM to override theme formats
+run '~/.tmux/plugins/tpm/tpm'
+
+# Load tmux-claude-status plugin
+run-shell ~/repos/dotfiles/tmux-plugins/tmux-claude-status/tmux-claude-status.tmux
+```
+
+**Step 4: Reload tmux**
+
+```bash
+# Reload configuration
+tmux source-file ~/.tmux.conf
+
+# Or if inside tmux: prefix + r (Ctrl+A then r)
+```
+
+#### Verification
+
+```bash
+# Start Claude in a tmux window
+claude
+
+# Watch the window tab - you should see status indicators:
+# [1] ... claude-session   (while processing)
+# [1] ✔ claude-session     (when ready)
+```
+
+#### Configuration (Optional)
+
+Customize the plugin by adding these options to `.tmux.conf` BEFORE the plugin load line:
+
+```bash
+# Icons (default: "..." and "✔")
+set -g @claude-status-icon-processing "..."
+set -g @claude-status-icon-completed "✔"
+
+# Position: "before" or "after" window name
+set -g @claude-status-position "before"
+
+# Show indicator when no Claude running
+set -g @claude-status-show-empty "false"
+
+# Enable debug logging
+set -g @claude-status-debug "false"
+```
+
+#### What You Get
+
+- **Real-time status updates** every 300ms from Claude's internal state
+- **Status indicators:**
+  - `...` = Claude is processing/thinking
+  - `✔` = Claude completed and ready for next prompt
+- **Per-window tracking** - each tmux window shows its own Claude instance status
+- **No flashing** - smooth transitions based on actual token changes
+- **Color coding:**
+  - Active tab: white bold
+  - Inactive, processing: yellow
+  - Inactive, completed: green
+
+#### Troubleshooting
+
+**Status not showing:**
+```bash
+# Check statusline is working
+claude  # Should see status at bottom of terminal
+
+# Check state files being created
+ls -la ~/repos/dotfiles/tmux-plugins/tmux-claude-status/cache/
+
+# Check jq is installed
+which jq
+```
+
+**Enable debug logs:**
+```bash
+# Add to .tmux.conf
+set -g @claude-status-debug "true"
+
+# Reload and view logs
+tmux source-file ~/.tmux.conf
+tail -f /tmp/tmux-claude-status-debug.log
+```
+
+**See full documentation:**
+- Plugin README: `~/repos/dotfiles/tmux-plugins/tmux-claude-status/README.md`
+- Claude statusline docs: https://code.claude.com/docs/en/statusline.md
 
 ---
 

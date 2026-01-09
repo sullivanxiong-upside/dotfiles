@@ -16,6 +16,11 @@ This repository contains configuration files and scripts for productive developm
 ### 🚀 CLI Workflow Tools (Linux & macOS)
 - **cwf** (Claude Workflow CLI): Organize Claude-powered workflows with categories and templates
 - **gwf** (Git Workflow CLI): Git operations with intelligent worktree management and PR support
+- **Claude Code MCP Integration**: Pre-configured MCP servers
+  - Playwright (browser automation)
+  - Linear & Notion (workspace integration)
+  - GitHub (repository operations)
+  - Grafana (AWS Managed Grafana queries, PromQL, CloudWatch Logs)
 - **Comprehensive shell completion** for both tools (Bash & Zsh)
 
 ### ✏️ Development Environment (Linux & macOS)
@@ -60,7 +65,7 @@ ln -sf ~/repos/dotfiles/.zprofile ~/.zprofile
 source ~/.zprofile
 ```
 
-**For CLI tools (cwf & gwf):**
+**For CLI tools (cwf & gwf) and Claude Code:**
 ```bash
 mkdir -p ~/.local/bin ~/.claude
 ln -sf ~/repos/dotfiles/scripts/cwf.sh ~/.local/bin/cwf
@@ -68,6 +73,14 @@ ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
 ln -sf ~/repos/dotfiles/.config/cwf ~/.config/cwf
 ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
 ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
+
+# Configure MCP servers (see .claude/README.md for details)
+claude mcp add --transport stdio --scope user playwright -- npx -y @playwright/mcp@latest
+claude mcp add --transport sse --scope user linear https://mcp.linear.app/sse
+claude mcp add --transport http --scope user notion https://mcp.notion.com/mcp
+claude mcp add --transport stdio --scope user github -- npx -y @modelcontextprotocol/server-github
+claude mcp add --transport stdio --scope user grafana-staging -- uv run --directory ~/repos/data-pipelines scripts/grafana_mcp_server/server.py --environment stage
+claude mcp add --transport stdio --scope user grafana-prod -- uv run --directory ~/repos/data-pipelines scripts/grafana_mcp_server/server.py --environment prod
 ```
 
 **For full installation**, see **[INSTALLATION.md](INSTALLATION.md)**.
@@ -78,6 +91,7 @@ ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
 |-----------|-------|-------|-------|
 | **Shell configs** (.bashrc, .zprofile) | ✅ | ✅ | Cross-platform |
 | **TMUX** (.tmux.conf) | ✅ | ✅ | OS-specific clipboard auto-detected |
+| **tmux-claude-status** | ✅ | ✅ | Requires jq, Claude Code |
 | **CLI tools** (cwf, gwf) | ✅ | ✅ | Requires Bash 4.0+ |
 | **Neovim** | ✅ | ✅ | Cross-platform |
 | **Scripts** (utilities) | ✅ | ✅ | Most are cross-platform |
@@ -118,6 +132,13 @@ ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
   - Vim-tmux navigator integration
   - Session persistence (resurrect/continuum)
   - Custom keybindings (Ctrl+A prefix)
+
+- **`tmux-claude-status`**: Custom tmux plugin for real-time Claude Code monitoring
+  - Displays Claude status in window tabs (`...` = processing, `✔` = ready)
+  - Token-based state detection (no flashing!)
+  - Integrates with Claude Code's `/statusline` API
+  - Per-window status tracking
+  - Full documentation: [`tmux-plugins/tmux-claude-status/README.md`](tmux-plugins/tmux-claude-status/README.md)
 
 #### Text Editor
 - **`.config/nvim/`**: Neovim configuration with:
@@ -244,6 +265,7 @@ ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
 # Claude Code settings
 mkdir -p ~/.claude
 ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
+# MCP servers: See .claude/README.md for setup instructions
 
 # Linux only: Desktop environment
 ln -sf ~/repos/dotfiles/.config/hypr ~/.config/hypr
@@ -259,7 +281,8 @@ ln -sf ~/repos/dotfiles/.config/waybar ~/.config/waybar
 ├── .zprofile                    # Zsh configuration
 ├── .tmux.conf                   # TMUX configuration
 ├── .claude/                     # Claude Code settings
-│   └── settings.json            # Claude Code configuration
+│   ├── settings.json            # Claude Code configuration
+│   └── mcp.json                 # MCP server configuration
 ├── .config/                     # Application configs
 │   ├── nvim/                    # Neovim (cross-platform)
 │   ├── cwf/               # cwf CLI config (cross-platform)
@@ -278,6 +301,12 @@ ln -sf ~/repos/dotfiles/.config/waybar ~/.config/waybar
 │   ├── mermaid-utility.sh       # Diagram generation
 │   ├── docs/                    # Tool documentation
 │   └── README.md                # Scripts documentation
+├── tmux-plugins/                # Custom tmux plugins
+│   └── tmux-claude-status/      # Claude Code status monitor
+│       ├── tmux-claude-status.tmux  # Plugin entry point
+│       ├── scripts/             # Plugin scripts
+│       ├── extras/              # Statusline script for Claude
+│       └── README.md            # Plugin documentation
 ├── Library/                     # macOS preferences
 ├── wallpapers/                  # Desktop wallpapers
 ├── README.md                    # This file
@@ -327,6 +356,7 @@ brew install bash tmux neovim ripgrep fd gh node
 ## Documentation
 
 - **[INSTALLATION.md](INSTALLATION.md)**: Comprehensive installation guide with platform-specific instructions
+- **[.claude/README.md](.claude/README.md)**: Claude Code MCP server configuration and management
 - **[scripts/README.md](scripts/README.md)**: CLI tools overview and quick reference
 - **[scripts/docs/cwf-meta-commands.md](scripts/docs/cwf-meta-commands.md)**: cwf meta-commands for self-extension
 - **[scripts/docs/gwf.md](scripts/docs/gwf.md)**: gwf complete usage guide
