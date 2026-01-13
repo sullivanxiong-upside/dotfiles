@@ -43,6 +43,15 @@
         "--environment",
         "prod"
       ]
+    },
+    "fireflies": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://api.fireflies.ai/mcp",
+        "--header",
+        "Authorization: Bearer 86b651f1-db0a-42df-a4f2-b635de800e98"
+      ]
     }
   }
 }

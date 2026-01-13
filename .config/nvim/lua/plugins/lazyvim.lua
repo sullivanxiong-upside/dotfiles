@@ -292,6 +292,16 @@ return {
 			{ "<leader>uC",      "<cmd>Telescope colorscheme<cr>",                                                    desc = "Colorscheme" },
 			{ "<leader>ss",      "<cmd>Telescope lsp_document_symbols<cr>",                                           desc = "Goto Symbol" },
 			{ "<leader>sS",      "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>",                                  desc = "Goto Symbol (Workspace)" },
+			{ "<leader>%",       function()
+				require("telescope.builtin").find_files({
+					attach_mappings = function(_, map)
+						local actions = require("telescope.actions")
+						map("i", "<CR>", actions.file_vsplit)
+						map("n", "<CR>", actions.file_vsplit)
+						return true
+					end,
+				})
+			end, desc = "Find Files (open in vsplit)" },
 		},
 		opts = {
 			defaults = {

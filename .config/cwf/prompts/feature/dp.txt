@@ -6,9 +6,9 @@
 
 {{PROJECT_RULES}}
 
-{{GIT_SAFETY}}
+{{UPSIDE_STANDARDS}}
 
-{{DOCS_INSTRUCTIONS}}
+{{GIT_SAFETY}}
 
 {{DESIGN_PATTERNS}}
 
@@ -19,7 +19,5 @@
 {{WORKFLOW_COMMANDS}}
 
 {{PLANNING_GUIDELINES}}
-
-{{CONTINUOUS_IMPROVEMENT}}
 
 Work on the data-pipelines feature requested below.

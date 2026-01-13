@@ -1,10 +1,14 @@
 @~/repos/customer-dashboard
 
+{{WORKTREE_WORKFLOW}}
+
+{{GITHUB_CONTEXT}}
+
 {{PROJECT_RULES}}
 
-{{GIT_SAFETY}}
+{{UPSIDE_STANDARDS}}
 
-{{DOCS_INSTRUCTIONS}}
+{{GIT_SAFETY}}
 
 {{API_PROTO_CHECK}}
 

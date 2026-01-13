@@ -1,0 +1,9 @@
+# Cache directory - runtime state files
+cache/
+*.json
+
+# macOS
+.DS_Store
+
+# Log files
+*.log

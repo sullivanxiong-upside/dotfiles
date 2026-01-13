@@ -1,1 +1,0 @@
-Always read files before editing to understand the current state and ensure accurate modifications.

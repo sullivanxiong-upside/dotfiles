@@ -57,9 +57,12 @@ This is a LazyVim-style Neovim configuration that follows modern conventions and
 ### Navigation
 
 - `<leader>ff`: Find files
+- `<leader>%`: Find files (open in vsplit)
 - `<leader>fg`: Live grep
 - `<leader>fb`: Buffers
 - `<leader>fr`: Recent files
+
+**Tip**: In any telescope picker, use `Ctrl+v` to open in vsplit, `Ctrl+x` for horizontal split
 
 ### LSP
 

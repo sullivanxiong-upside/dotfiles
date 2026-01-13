@@ -1,0 +1,1059 @@
+Upside Labs Coding Standards
+
+## Use Existing Shared Libraries
+
+Before implementing functionality, check if it already exists in shared libraries:
+- `customer_config_provider` - Load customer configurations
+- `project_paths` - Resolve project root and paths (use `get_project_root()`)
+- Existing AWS client factories
+- Database connection utilities
+- Existing adapters and query builders
+
+Reimplementing existing functionality creates maintenance burden and inconsistency.
+
+```python
+# Don't: Reimplement path resolution
+config_path = Path(__file__).parent.parent.parent / "config" / "customers.yaml"
+
+# Do: Use project_paths
+from src.libraries.project_paths import get_project_root
+config_path = get_project_root() / "config" / "customers.yaml"
+
+# Don't: Load config directly
+with open(config_path) as f:
+    config = yaml.safe_load(f)
+
+# Do: Use customer_config_provider
+from src.libraries.customer_config_provider import get_customer_config
+config = get_customer_config(customer_org_id)
+```
+
+## Configuration Management Pattern
+
+Prefer configuration files (TOML/YAML) over environment variables for application-specific settings.
+
+**Rationale:**
+- Keeps all configuration in one place
+- Easier to validate and version control
+- Reduces environment variable pollution
+- Better for complex configuration structures
+
+```python
+# Don't: Use environment variables for app-specific config
+class CustomerOrgsProvider:
+    def __init__(self):
+        self.environment = os.getenv("CUSTOMER_ORG_ENV", "prod")
+
+# In Kubernetes deployment.yaml:
+env:
+  - name: CUSTOMER_ORG_ENV
+    value: {{ .Values.operationalEnv }}
+
+# Do: Pass through config files
+class CustomerOrgsProvider:
+    def __init__(self, environment: str = "prod"):
+        self.environment = environment
+
+# In Kubernetes ConfigMap:
+config.yaml: |
+  customer_org_env: {{ .Values.operationalEnv }}
+
+# Container wiring:
+customer_orgs_container = providers.Container(
+    CustomerOrgsContainer,
+    config=config.customer_orgs,  # Pass config section
+)
+```
+
+**When to use environment variables:**
+- Infrastructure settings (DB host, AWS region)
+- Secrets (use AWS Secrets Manager for actual secrets)
+- Runtime behavior flags (`DEBUG`, `LOG_LEVEL`)
+- Standard variables (`AWS_EXECUTION_ENV`, `NODE_ENV`)
+
+**When to use config files:**
+- Application behavior (which customer orgs to load)
+- Feature flags
+- Service-specific settings
+- Structured configuration with multiple fields
+
+## Configuration File Naming Conventions
+
+When services have multiple config files for different environments, use consistent naming:
+
+**Standard naming:**
+- `local-config.toml` - Fully local development (LocalStack, localhost DB)
+- `stage-config.toml` - Local machine connecting to Stage AWS (for testing against real data)
+- `prod-config.toml` - Only for CLI tools (services deployed via Helm use generated configs)
+
+```
+src/jobs/miniapp_serving_service/
+├── local-config.toml       # LocalStack + localhost
+├── stage-config.toml       # Your laptop → Stage AWS
+└── main.py
+
+scripts/miniapp_management/
+├── local-config.toml       # LocalStack
+├── stage-config.toml       # Stage AWS
+├── prod-config.toml        # Prod AWS
+└── cli.py
+```
+
+**Why this matters:**
+- Prevents confusion where "local" means different things across services
+- Clear intent: `local` = fully local, `stage` = testing against Stage
+- Consistent pattern makes onboarding easier
+
+## Configuration Layers
+
+Services often have multiple configuration contexts - clearly distinguish between them:
+
+**1. Tool orchestration config** (e.g., bash/CLI tool config)
+- Used by orchestration scripts like `mini-app-stack`
+- Controls tool behavior: ports to display, services to start, bucket names
+- Example: `scripts/local-miniapp/local-config.yaml`
+
+**2. Service runtime config** (e.g., application config)
+- Used by the service itself at runtime
+- Contains AWS auth, DB connections, app settings
+- Example: `src/jobs/miniapp_serving_service/local-config.toml`
+
+**3. Helm deployment config** (e.g., K8s templates)
+- Used only in K8s deployments
+- Generated as ConfigMaps in pods, not used locally
+- Example: `charts/miniapp_serving/values.yaml` → `templates/deployment.yaml`
+
+```bash
+# Tool config (bash script reads this)
+scripts/local-miniapp/local-config.yaml:
+  services:
+    serving_port: 49152
+    management_port: 49153
+
+# Service runtime config (Python service reads this)
+src/jobs/miniapp_serving_service/local-config.toml:
+  [aws_auth]
+  endpoint_url_override = "http://localhost:4566"
+
+  [server]
+  port = 49152
+
+# Helm config (K8s only)
+charts/miniapp_serving/templates/deployment.yaml:
+  [server]
+  port = {{ .Values.service.targetPort }}
+```
+
+When documenting configs, explicitly state which layer each file belongs to.
+
+## Config File Header Standards
+
+Every config file MUST have a header comment that clearly explains its purpose and context.
+
+**Required information:**
+1. **Purpose**: What this config is for
+2. **Environment**: Where it runs (local laptop, K8s, CI)
+3. **Target infrastructure**: What it connects to (LocalStack, Stage AWS, etc.)
+4. **NOT used for**: Explicitly state if NOT used in deployments
+5. **Usage example**: How to run with this config
+
+**Template:**
+```toml
+# [Service Name] - [Environment] Configuration ([Context])
+#
+# [FOR LOCAL DEVELOPMENT ONLY / FOR CI ONLY / etc.]
+# This is [NOT] used in deployed environments.
+#
+# What this does:
+# - [Key behavior 1]
+# - [Key behavior 2]
+#
+# For [alternative use case], use [other-config.toml] instead.
+#
+# Usage:
+#   [command example]
+```
+
+**Example:**
+```toml
+# Mini App Serving Service - Stage Configuration (Local Development)
+#
+# FOR LOCAL DEVELOPMENT ONLY - Runs on your laptop, connects to Stage AWS infrastructure.
+# This is NOT used in deployed environments (Stage/Prod use Helm-generated configs).
+#
+# What this does:
+# - Runs the service locally on your machine
+# - Connects to real Stage AWS S3, RDS, Secrets Manager
+# - Useful for testing against real data without deploying
+#
+# For fully local development with LocalStack, use local-config.toml instead.
+#
+# Usage:
+#   uv run python -m src.jobs.miniapp_serving_service.main \
+#     --config_file src/jobs/miniapp_serving_service/stage-config.toml
+```
+
+**Why this matters:**
+- Prevents confusion about which config to use when
+- Makes configs self-documenting
+- Explicit "NOT used in deployments" prevents misunderstandings
+- New developers can understand purpose without reading code
+
+## Port Configuration Strategy
+
+**Default pattern (most services):**
+- Hardcode port 8080 in main.py
+- No `[server]` config section needed
+- Rationale: K8s pods have isolated networks, no port conflicts possible
+
+```python
+# Standard pattern - most services
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8080)
+```
+
+**Configurable pattern (when local conflicts matter):**
+- Read port from config file `[server]` section
+- Use different ports locally (IANA Dynamic/Private range 49152-65535)
+- Use standard 8080 in K8s deployments (via Helm values.yaml)
+- Example: miniapp services run together locally (49152, 49153)
+
+```python
+# Configurable pattern - when services run together locally
+if __name__ == "__main__":
+    config_data = toml.load(args.config_file)
+    server_port = config_data.get("server", {}).get("port", 8080)
+    uvicorn.run(app, host="0.0.0.0", port=server_port)
+```
+
+**When to use each:**
+- **Hardcoded 8080**: Single service, no local port conflicts
+- **Configurable**: Multiple services running locally together
+- **IANA range (49152-65535)**: Avoids conflicts with dev tools (Vite 5173, React 3000, Flask 5000)
+
+**Adding a new service:**
+1. Check `docs/LOCAL_DEV_PORT_ALLOCATION.md` for next available port
+2. Default to hardcoded 8080 unless there's a specific conflict reason
+3. Only make configurable if multiple services must run locally together
+
+## Environment Variable Namespacing
+
+When using environment variables, use proper namespacing to avoid conflicts with other applications or system variables.
+
+```python
+# Don't: Generic names that conflict
+ENVIRONMENT = "stage"  # Too generic - could mean anything
+ENV = "prod"           # System variable
+MODE = "debug"         # Unclear scope
+
+# Do: Namespaced for your domain
+CUSTOMER_ORG_ENV = "stage"      # Clear: customer org environment
+DATAHUB_PROCESSING_ENV = "prod" # Clear: datahub processing environment
+SERVICE_LOG_LEVEL = "debug"     # Clear: service-specific setting
+```
+
+## Kubernetes ConfigMap Patterns
+
+When templating ConfigMaps in Helm charts, place application-specific configuration at the top for visibility.
+
+```yaml
+# Good: Configuration visible at the top
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $appName }}-config
+data:
+  config.yaml: |
+    customer_org_env: {{ .Values.operationalEnv }}
+
+    aws_auth:
+      auth_method: INHERIT
+      region: us-west-2
+
+    # ... rest of config
+
+# For TOML configs:
+config.toml: |
+  [customer_orgs]
+  environment = "{{ .Values.operationalEnv }}"
+
+  [core_deps.aws_auth]
+  auth_method = "INHERIT"
+```
+
+**Consistency across formats:**
+- TOML: Use `[section]` with `key = "value"`
+- YAML: Use `section:` with `key: value` (no quotes around template values)
+
+## Migration Patterns: Backward Compatibility
+
+When changing infrastructure patterns, provide backward compatibility as a fallback.
+
+```python
+# Example: Migrating from env var to config-based approach
+class CustomerOrgsProvider:
+    def __init__(self, environment: Optional[str] = None):
+        """
+        Args:
+            environment: Optional environment name.
+                        If None, reads from CUSTOMER_ORG_ENV env var (deprecated fallback).
+        """
+        if environment is None:
+            # Fallback for backward compatibility
+            environment = os.getenv("CUSTOMER_ORG_ENV", "prod").lower()
+
+        self.environment = environment
+```
+
+**Document the migration:**
+- Mark old approach as "deprecated fallback" in docstrings
+- Update README with new recommended approach
+- Note in deployment docs which services are updated
+- Add migration deadline if applicable
+
+## Testing Infrastructure Changes
+
+When changing how services initialize (e.g., moving from env vars to config), add tests that validate the new pattern.
+
+```python
+def test_whenContainerUsesConfigEnvironment_thenLoadsCorrectly(
+    self, environment_configs, monkeypatch
+):
+    """Test container with environment from config (service-style config)."""
+    from dependency_injector import containers, providers
+
+    # Simulate actual service config structure
+    class ServiceContainer(containers.DeclarativeContainer):
+        config = providers.Configuration()
+
+        customer_orgs_container = providers.Container(
+            CustomerOrgsContainer,
+            config=config.customer_orgs,  # Pass config section
+        )
+
+    # Create container with config
+    container = ServiceContainer()
+    container.config.from_dict({"customer_orgs": {"environment": "stage"}})
+    container.init_resources()
+
+    # Verify it works
+    provider = container.customer_orgs_container.customer_orgs_provider()
+    provider.load()
+
+    all_orgs = provider.get_all()
+    assert "org_stage_citrine" in all_orgs
+```
+
+This ensures the new pattern works before deploying.
+
+## No Side Effects in Constructors
+
+Constructors should only initialize instance variables. Don't perform I/O, make network calls, load files, or execute business logic in `__init__`.
+
+```python
+# Don't: Side effects in constructor
+class DataLoader:
+    def __init__(self, file_path: str):
+        self.data = self._load_file(file_path)  # I/O in constructor
+        self.processed = self._process_data()    # Business logic in constructor
+
+# Do: Lazy initialization or explicit methods
+class DataLoader:
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+        self._data = None
+
+    def load(self):
+        if self._data is None:
+            self._data = self._load_file(self.file_path)
+        return self._data
+```
+
+**Rationale:**
+- Constructors should be fast and predictable
+- Side effects make testing difficult (can't mock without instantiation)
+- Errors in constructors are harder to handle gracefully
+- Lazy loading gives caller control over when expensive operations occur
+
+## Test Naming Convention
+
+Use `test_whenX_thenY` format for all test methods. This clearly documents the scenario and expected outcome.
+
+```python
+# Don't: Vague or inconsistent naming
+def test_database_query():
+def test_get_data():
+def test_validation_1():
+
+# Do: Clear scenario and expectation
+def test_whenUserNotFound_thenReturnsNone():
+def test_whenValidInput_thenCreatesRecord():
+def test_whenDatabaseDown_thenRaisesConnectionError():
+```
+
+## Test Assertion Style
+
+Assert complete outputs rather than checking fragments. This makes tests more robust and easier to understand.
+
+```python
+# Don't: Chunk-by-chunk assertions
+def test_whenGeneratingQuery_thenReturnsCompleteSQL():
+    sql = generate_query()
+    assert "SELECT" in sql
+    assert "FROM users" in sql
+    assert "WHERE active = true" in sql
+
+# Do: Assert full output
+def test_whenGeneratingQuery_thenReturnsCompleteSQL():
+    sql = generate_query()
+    expected = """
+        SELECT id, name, email
+        FROM users
+        WHERE active = true
+    """
+    assert sql.strip() == expected.strip()
+```
+
+For large outputs, use snapshot testing or compare normalized versions.
+
+## README Requirements
+
+New packages, modules, or standalone features require README.md files with quality documentation:
+- **Purpose**: What does this do?
+- **Intended Workflow**: How should this be used in practice? (especially for CLIs and scripts)
+- **Usage**: Code examples showing common operations
+- **API**: Public interfaces and methods
+- **Configuration**: Required setup or environment variables
+- **Dependencies**: External requirements
+- **Supported/Not Supported**: Document known limitations and what's been tested
+
+```
+src/jobs/miniapp_management_api/
+├── README.md          # Required: Explains the API, endpoints, setup
+├── main.py
+└── endpoints.py
+
+src/libraries/custom_rules_engine/
+├── README.md          # Required: Usage examples, architecture, workflow
+├── engine.py
+└── parser.py
+```
+
+**For CLI tools**: Clearly document the intended workflow (e.g., "1. Add package to registry, 2. Test locally, 3. Make PR, 4. On merge, GitHub Actions deploys")
+
+## Dependency Injection Container Specifics
+
+When using `dependency-injector`, keyword arguments with default values can be overridden with `None` during container wiring. Enforce defaults inside `__init__` method body.
+
+```python
+# Don't: Default in signature gets overridden
+class Config:
+    def __init__(self, timeout: int = 30, retries: int = 3):
+        self.timeout = timeout  # Container may pass None!
+        self.retries = retries
+
+# Do: Enforce defaults in body
+class Config:
+    def __init__(self, timeout: int | None = None, retries: int | None = None):
+        self.timeout = timeout if timeout is not None else 30
+        self.retries = retries if retries is not None else 3
+```
+
+See `.cursor/rules/dependency_injection_containers.mdc` for complete guidance.
+
+## Promise Rejection on Connection Failures
+
+In TypeScript/JavaScript, always reject promises in error handlers to prevent hanging connections and memory leaks.
+
+```typescript
+// Don't: Connection hangs on failure
+try {
+  await sendMessage(message);
+} catch (error) {
+  console.error(error);
+  // Promise never resolves or rejects - connection hangs!
+}
+
+// Do: Reject promise and cleanup
+try {
+  await sendMessage(message);
+} catch (error) {
+  console.error(error);
+
+  // Reject the connection promise
+  if (this.rejectConnected) {
+    this.rejectConnected(new Error("Connection failed"));
+    this.rejectConnected = null;
+    this.resolveConnected = null;
+  }
+
+  // Cleanup listeners
+  window.removeEventListener("message", this.onWindowMessage);
+}
+```
+
+## SQL Query Security
+
+Always use parameterized queries, never string formatting or f-strings.
+
+```python
+# Don't: SQL injection vulnerability
+cursor.execute(f"SELECT * FROM users WHERE name = '{user_name}'")
+cursor.execute("SELECT * FROM users WHERE id = " + str(user_id))
+
+# Do: Parameterized queries
+cursor.execute(
+    "SELECT * FROM users WHERE name = %(name)s",
+    {"name": user_name}
+)
+
+# For LIKE patterns, add wildcards to the parameter value
+cursor.execute(
+    "SELECT * FROM campaigns WHERE name LIKE %(pattern)s",
+    {"pattern": f"%{search_term}%"}
+)
+```
+
+This applies to both raw SQL and query builders.
+
+## Avoid Generic File Names
+
+Never use generic names like `utils.py`, `helpers.py`, `common.py`, `misc.py`.
+
+```python
+# Don't: Generic names
+utils.py
+helpers.py
+common.py
+
+# Do: Specific, descriptive names
+date_formatters.py
+string_validators.py
+sql_query_builders.py
+aws_client_factory.py
+```
+
+This makes code easier to navigate and understand at a glance. Apply to both production code and test utilities.
+
+## Test File Organization
+
+Test files should mirror source structure exactly:
+
+```
+src/libraries/custom_channels/
+├── engine.py
+├── parser.py
+└── validators.py
+
+tests/libraries/custom_channels/
+├── test_engine.py          # Mirrors engine.py
+├── test_parser.py          # Mirrors parser.py
+└── test_validators.py      # Mirrors validators.py
+```
+
+Don't create generic test directories like `tests/utils/` - mirror the actual source path.
+
+## Documentation Accuracy
+
+Documentation must accurately describe what the code does. Don't overstate capabilities.
+
+**Common issues to avoid:**
+- Claiming "ML-based" when it's rule-based
+- Describing features that don't exist yet
+- Using marketing language instead of technical accuracy
+- Omitting limitations or edge cases
+
+```markdown
+# Don't: Overstated
+"Our ML-powered engine intelligently predicts customer behavior with 99% accuracy"
+
+# Do: Accurate
+"Rule-based classification engine for customer segments. Uses configurable thresholds
+and boolean logic. Limitations: Does not handle overlapping segments, requires manual
+threshold tuning."
+```
+
+## Configuration Boundaries
+
+Don't use environment variable checks (like `AWS_EXECUTION_ENV`, `NODE_ENV`) to determine application behavior inside service code. Load the appropriate configuration at application entry point.
+
+```python
+# Don't: Environment checks in service
+class Service:
+    def process(self):
+        if os.environ.get('AWS_EXECUTION_ENV'):
+            timeout = 300
+        else:
+            timeout = 30
+
+# Do: Inject configuration
+class Service:
+    def __init__(self, config: Config):
+        self.timeout = config.timeout
+
+    def process(self):
+        # Use self.timeout
+
+# Application entry point determines which config to load
+if __name__ == "__main__":
+    config_name = os.getenv("CONFIG_ENV", "local")
+    config = load_config(f"config/{config_name}.toml")
+    service = Service(config)
+```
+
+## Import Organization
+
+Avoid inline imports - move all imports to the top of the file for clarity and proper dependency management.
+
+```python
+# Don't: Inline imports scattered through code
+def process_data():
+    from pandas import DataFrame  # Don't import here
+    return DataFrame(data)
+
+def generate_report():
+    import numpy as np  # Don't import here
+    return np.array(values)
+
+# Do: All imports at top of file
+from pandas import DataFrame
+import numpy as np
+
+def process_data():
+    return DataFrame(data)
+
+def generate_report():
+    return np.array(values)
+```
+
+**Exception**: Only use inline imports for optional dependencies or to avoid circular imports (document why).
+
+## Configuration Consistency
+
+Ensure consistent path formats, secret names, and configuration values across all environment files (dev, stage, shadow-prod, prod).
+
+```yaml
+# Don't: Inconsistent path formats
+prod-values.yaml:
+  manifest_spec_path: "/app/config/manifest-spec.toml"
+
+shadow-prod-values.yaml:
+  manifest_spec_path: "config/manifest-spec.toml"  # Missing /app/ prefix
+
+# Do: Consistent absolute paths
+prod-values.yaml:
+  manifest_spec_path: "/app/config/manifest-spec.toml"
+
+shadow-prod-values.yaml:
+  manifest_spec_path: "/app/config/manifest-spec.toml"
+```
+
+**Check for:**
+- Path format consistency (absolute vs relative)
+- Correct secret names (e.g., `svc_data_jobs`, not `data_jobs_postgres_user`)
+- Matching hostnames for each environment
+- Consistent validation rules across configs
+
+## API and Method Consistency
+
+Public methods in a class should have consistent parameter requirements.
+
+```python
+# Don't: Inconsistent parameter requirements
+class MiniAppManager:
+    def create_app(self, name: str, customer_org_id: str):  # Requires customer_org_id
+        ...
+
+    def delete_app(self, name: str):  # Doesn't require customer_org_id
+        ...
+
+    def update_app(self, name: str, customer_org_id: str):  # Requires customer_org_id
+        ...
+
+# Do: Consistent parameters across related operations
+class MiniAppManager:
+    def create_app(self, name: str, customer_org_id: str):
+        ...
+
+    def delete_app(self, name: str, customer_org_id: str):
+        ...
+
+    def update_app(self, name: str, customer_org_id: str):
+        ...
+```
+
+## Error Messages and Output Clarity
+
+Distinguish between different error types in output messages. Don't report all failures with the same message.
+
+```bash
+# Don't: Ambiguous error reporting
+echo "Skipped items (not found): item1, item2, item3"  # Could be not found OR failed to delete
+
+# Do: Clear distinction between error types
+echo "Skipped items (not found): item1, item2"
+echo "Failed deletions: item3 (permission denied)"
+```
+
+Provide specific error context: operation type, IDs/names, actual error message.
+
+## Documentation Tone
+
+Avoid using all-caps emphasis words like "IMPORTANT:", "CRITICAL:", "WARNING:" in code comments and user-facing documentation unless it's truly a safety/security issue.
+
+```python
+# Don't: Over-emphasis
+# IMPORTANT: Set CUSTOMER_ORG_ENV before running
+# CRITICAL: This must be configured
+# WARNING: Make sure to configure this
+
+# Do: Clear, professional tone
+# Set CUSTOMER_ORG_ENV before running
+# Configure customer_org_env in the config file
+# This configuration is required for proper environment isolation
+```
+
+```yaml
+# Don't: Over-emphasis in config comments
+# IMPORTANT: Set CUSTOMER_ORG_ENV before running:
+#   export CUSTOMER_ORG_ENV=stage
+
+# Do: Clear instructions without all-caps
+# Set CUSTOMER_ORG_ENV before running:
+#   export CUSTOMER_ORG_ENV=stage
+```
+
+**Exception:** Safety/security issues genuinely warrant emphasis:
+```python
+# WARNING: Never commit secrets to git
+# SECURITY: This query must use parameterized statements to prevent SQL injection
+# CRITICAL: This operation will delete all data - cannot be undone
+```
+
+## File and Code Quality
+
+**File endings**: Always include a newline at the end of files (prevents git diff noise).
+
+**PR alignment**: Ensure code changes match the PR title and description. If PR says "Add X", verify you're actually adding X, not Y.
+
+**Agent instructions**: When writing prompts for AI agents, instruct them to look at specific config files or documentation instead of guessing. Example: "Look at `src/genesis_ontology/upside-ontology-v1.toml` to identify valid slot_uri values."
+
+## Cross-References
+
+For complete standards, see:
+- Repository docs: `docs/GENERIC_CODING_CONVENTIONS.md`, `docs/PYTHON_CODING_CONVENTIONS.md`
+- Project rules: `.cursor/rules/*.mdc`
+- Shared fragments: `~/.config/cwf/prompts/shared/`
+
+## Configuration Change Checklist
+
+When updating configuration values (ports, URLs, domains, service names), ensure ALL references are updated:
+
+**Files to Check:**
+- Code defaults (e.g., `settings.py`, `config.ts`)
+- Environment files: `.env.example`, `.env.test`, `.env.local.example`
+- Security policies: CSP headers in `vite.config.ts`, `_headers`, nginx configs
+- Tests: Unit tests, integration tests, mock data
+- Documentation: README.md, inline comments, API docs
+- Docker/K8s configs: `docker-compose.yml`, `values.yaml`, ConfigMaps
+
+**Search Strategy:**
+```bash
+# Find all references to the old value
+git grep -n "old-value"
+git grep -n "8080"  # For port changes
+
+# Check environment files specifically
+git grep -n "CONFIG_KEY" **/.env* **/env.example
+
+# Verify no references remain after changes
+git grep -n "old-value" | wc -l  # Should be 0 or only in changelog/migrations
+```
+
+**Testing:**
+- Run relevant test suites after changes
+- Verify build succeeds (frontend and backend)
+- Check that no unrelated services are affected
+
+**Rationale:** Environment example files (`.env.example`) are templates for developers. Inconsistency between code defaults and example files causes silent failures in local development.
+
+## Service Boundary Identification
+
+When changing service-specific configurations, explicitly identify what should NOT change:
+
+```python
+# Example: Updating miniapp serving port
+# DO change:
+# - MINI_APP_HOST_DOMAIN (miniapp_serving_service)
+# - CSP frame-src for miniapp embedding
+# - Miniapp-related test assertions
+
+# DO NOT change:
+# - LLM_ANALYSIS_SERVICE_URL (different service, different port)
+# - Database ports
+# - Other unrelated services
+
+# Document in commit message:
+"""
+Update miniapp serving service port from 8080 to 49152
+
+LLM Analysis Service remains on port 8080 (unchanged).
+"""
+```
+
+**Rationale:** Prevents accidental changes to unrelated services sharing similar names or configs.
+
+## Environment File Hierarchy
+
+Understand the purpose of each environment file:
+
+- `.env` - Local developer overrides (gitignored, not committed)
+- `.env.example` - Template showing required variables (committed)
+- `.env.test` - Test-specific values (committed)
+- `.env.local.example` - Local-only template (committed)
+
+When changing defaults:
+1. Update `.env.example` to match code defaults
+2. Update `.env.test` if tests depend on the value
+3. Document migration in README if existing `.env` files need updating
+
+## Port and URL Standardization
+
+Follow IANA port allocation guidelines:
+- **0-1023**: Well-known ports (avoid)
+- **1024-49151**: Registered ports (avoid for custom services)
+- **49152-65535**: Dynamic/Private ports (use for local dev services)
+
+When documenting ports:
+```python
+# Good: Clear documentation of port assignments
+MINI_APPS = {
+    # Local dev: localhost:49152 (miniapp_serving_service)
+    # Staging: stage.upside-miniapps.com
+    # Production: prod.upside-miniapps.com
+    "host_domain": os.getenv("MINI_APP_HOST_DOMAIN", "localhost:49152"),
+}
+```
+
+**Cross-repository coordination:**
+When port changes affect multiple repositories (e.g., data-pipelines and customer-dashboard), ensure updates are coordinated:
+- Document the port change in both repositories
+- Update all references in dependent repositories
+- Reference the related PR/commit in commit messages
+- Update shared documentation (if port registries exist)
+
+## iframe Communication Standards
+
+Use established JSON-RPC libraries for postMessage communication instead of custom handlers.
+
+**Standard:** Prefer **Penpal** or **post-me** libraries for iframe parent-child communication.
+
+```typescript
+// Don't: Custom postMessage handlers
+window.parent.postMessage({ type: 'resize', height: 500 }, '*');
+window.addEventListener('message', (e) => {
+  if (e.data.type === 'theme') {
+    // Manual parsing and validation
+  }
+});
+
+// Do: JSON-RPC library (Penpal example)
+import { connectToParent } from 'penpal';
+
+const connection = connectToParent({
+  parentOrigin: 'https://dashboard.upside.tech',  // No wildcards
+  methods: {
+    resize(height: number) {
+      // Type-safe method
+    }
+  }
+});
+
+connection.promise.then(parent => {
+  parent.updateTheme({ mode: 'dark' });  // Promise-based, type-safe
+});
+```
+
+**Benefits:**
+- Standardized request/response/error handling
+- Promise-based async communication
+- Type-safe method contracts
+- Built-in origin validation
+- Extensible for future needs
+
+**Security Requirements:**
+1. Configure `childOrigin`/`parentOrigin` explicitly (never use `'*'` wildcards)
+2. Only expose explicitly defined methods (allowlist approach)
+3. Validate incoming data before processing
+
+**Reference:** DEV-1209 - Implement postMessage standard
+
+## Content Security Policy (CSP) Implementation
+
+Implement Content Security Policy headers to mitigate XSS, clickjacking, and code injection attacks.
+
+**Standard Approach:**
+1. Start with restrictive policy
+2. Use report-only mode initially to monitor violations without breaking functionality
+3. Gradually tighten based on legitimate content sources
+4. Regularly review and update as application evolves
+
+```python
+# Minimum restrictive policy
+CONTENT_SECURITY_POLICY = (
+    "default-src 'self'; "
+    "script-src 'self'; "
+    "style-src 'self'; "
+    "connect-src 'self';"  # Limit external API calls
+)
+
+# For development/staging: Report-only mode
+response.headers['Content-Security-Policy-Report-Only'] = CONTENT_SECURITY_POLICY
+
+# For production: Enforce mode (after validation)
+response.headers['Content-Security-Policy'] = CONTENT_SECURITY_POLICY
+```
+
+**CSP for Mini Apps:**
+- `default-src 'self'` - No external domains by default
+- `connect-src` - Explicitly whitelist any external APIs
+- Design review required before relaxing CSP directives
+- Document any CSP exceptions and their justification
+
+**Reference:** DEV-1247 - Security: Implement Content Security Policy (CSP) Header
+
+## Production Data Pipeline Standards
+
+Transition from notebook-based orchestration to production Spark submit scripts with S3-based data I/O.
+
+**Standard:** No local disk dependencies in production pipelines.
+
+```python
+# Don't: Local disk paths in production code
+df = spark.read.parquet('/Users/local/data/input.parquet')
+output_path = '/tmp/output.parquet'
+
+# Don't: Notebook-based orchestration for production
+# run_feature_engineering.ipynb
+# run_full_feature_pipeline.ipynb
+
+# Do: S3-based I/O with Spark submit scripts
+df = spark.read.parquet('s3://bucket/data/customer_org_id=x/input.parquet')
+output_path = 's3://bucket/data/customer_org_id=x/features/output.parquet'
+
+# Do: Spark submit scripts for production
+spark-submit src/jobs/feature_generation/main.py \
+  --input-path s3://bucket/data/customer_org_id=x/triples/ \
+  --output-path s3://bucket/data/customer_org_id=x/features/
+```
+
+**Migration Checklist:**
+1. Convert notebook cells to modular Python functions
+2. Replace all local paths with S3 paths
+3. Use existing dependency injection patterns (e.g., `FeatureEngineeringContainer`)
+4. Ensure models can load from S3 paths
+5. Set timeouts on all network/S3 operations
+6. Add proper error handling and logging
+
+**Configuration Storage:**
+- Prefer S3 for generated configs over git repo storage
+- Use customer-specific partitions: `s3://bucket/.../customer_org_id=x/configs/`
+- Enables per-customer configuration without code changes
+
+**Reference:** DEV-1251 - Productionize Node Feature Embedding Generation Pipeline
+
+## Git Workflow Integration with Linear
+
+Follow team conventions for Linear integration and PR workflow.
+
+**Branch Naming:**
+Use Linear "magic branch names" for automatic ticket linking:
+1. Open any Linear ticket
+2. Press `Cmd+Shift+.` (Mac) or `Ctrl+Shift+.` (Windows/Linux)
+3. Copy the pre-formatted branch name (e.g., `dev-1234-add-user-authentication`)
+
+**Pull Request Workflow:**
+1. **Always create PRs as drafts initially**
+   - Verify CI checks pass before requesting review
+   - Draft PRs don't notify the entire team
+   - Only mark "Ready for Review" when actually ready for feedback
+
+2. **PR Description Structure:**
+   ```markdown
+   ## Overview
+   What does this PR do? (1-2 sentences)
+
+   ## Motivation
+   Why is this change needed? Link to Linear tickets
+
+   ## Key Changes
+   - Major modification 1
+   - Major modification 2
+
+   ## Testing
+   How was this tested? What should reviewers verify?
+   ```
+
+**Merge Strategy:**
+- **Feature branches → main:** Always use **squash merge** (keeps main history clean)
+- **main → prod (releases):** Use **regular merge** (keeps prod history linear and matching main)
+
+**Commit Message Format (Best Practice):**
+```
+[DEV-1234]: feat: Add user authentication
+
+- Implement JWT token validation
+- Add login/logout endpoints
+- Update middleware for protected routes
+```
+
+Common types: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`
+
+**Reference:** Notion - Git SDLC & Best Practices
+
+## LLM Agent Documentation Requirements
+
+When building SDKs or libraries that LLM agents will use, provide comprehensive documentation.
+
+**Required Documentation Sections:**
+1. **SDK Structure** - What methods and capabilities are available
+2. **Setup Patterns** - How to properly configure and initialize
+3. **Communication Patterns** - How components interact (e.g., iframe parent-child)
+4. **Action Execution Patterns** - General patterns for extending functionality
+5. **Extensibility Guidelines** - How to add new capabilities
+
+**Documentation Format:**
+```markdown
+# MiniApp SDK Documentation
+
+## Overview
+The MiniApp SDK enables iframe-based mini apps to communicate with the customer dashboard.
+
+## Setup (Child Side)
+```typescript
+import { MiniAppSDK } from '@upside/miniapp-sdk';
+
+const sdk = new MiniAppSDK({
+  parentOrigin: 'https://dashboard.upside.tech'
+});
+
+// Request navigation from parent
+sdk.actions.navigate({ path: '/campaigns/123' });
+```
+
+## Actions Framework
+The SDK supports extensible actions:
+- `navigate`: Request parent navigation
+- Future: Deep research, milestone analysis, etc.
+
+## Extending the SDK
+[Guide for adding new action types]
+```
+
+**Why This Matters:**
+- LLM agents can develop features without manually learning SDK mechanics
+- Generated code properly uses SDK patterns
+- Reduces iteration cycles and improves code quality
+- Enables self-service feature development
+
+**Reference:** DEV-1273 - Provide SDK context and instructions for LLM agents

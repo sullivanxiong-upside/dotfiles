@@ -1,6 +1,12 @@
 I need help addressing peer feedback on my current feature branch.
 
+{{WORKTREE_WORKFLOW}}
+
+{{GITHUB_CONTEXT}}
+
 {{PROJECT_RULES}}
+
+{{UPSIDE_STANDARDS}}
 
 {{GIT_SAFETY}}
 

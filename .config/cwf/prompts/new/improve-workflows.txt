@@ -402,6 +402,7 @@ Use for practices that apply across multiple workflows. Choose the most relevant
 **Code Quality & Structure:**
 - `code-quality-fundamentals.txt` - Constants, types, naming, error handling, code organization
 - `reusable-code-extraction.txt` - When/how to extract reusable code, utility structure
+- `upside.txt` - Upside Labs-specific standards (use shared libraries, no side effects in constructors, test assertion style, README requirements, DI container specifics, promise rejection, SQL security, avoid generic names, test file organization)
 
 **Testing & Documentation:**
 - `testing-documentation.txt` - Test coverage, test organization, documentation standards
@@ -436,6 +437,33 @@ Use for practices that apply across multiple workflows. Choose the most relevant
 **When to use:** Practice applies across multiple workflow categories or is universally applicable.
 
 **Or create new fragment:** If none fit, suggest creating a new shared fragment with a descriptive name.
+
+### Global CLAUDE.md
+
+**Location:** `~/.claude/CLAUDE.md`
+
+Use for environment and tooling guidance that applies to ALL Claude Code usage (not just cwf workflows):
+- Repository organization and directory structure
+- Development environment setup (Nix, direnv, tooling)
+- Common pitfalls and troubleshooting
+- Tool locations and availability (gwf, cwf, etc.)
+- WHERE to find detailed information (pointers to other docs)
+
+**When to use:**
+- Environment-level information (not coding practices)
+- Tool availability and usage patterns
+- Navigation guidance (where things are located)
+- Cross-repository conventions
+
+**What NOT to put here:**
+- Detailed coding standards (use shared fragments instead)
+- Language-specific practices (use repository docs)
+- Workflow-specific behaviors (use prompts or category rules)
+
+**Relationship to shared fragments:**
+- Global CLAUDE.md can REFERENCE shared fragments ("See upside.txt for coding standards")
+- But shouldn't duplicate content that belongs in fragments
+- Think of it as a "table of contents" pointing to more detailed resources
 
 ### How to Add Rules
 
@@ -513,10 +541,8 @@ Each shared fragment is loaded via template variables in cwf.sh:
 | `{{WORKFLOW_COMMANDS}}` | workflow-commands.txt | Prompt contains variable |
 | `{{DESIGN_PATTERNS}}` | design-patterns.txt | Prompt contains variable |
 | `{{API_PROTO_CHECK}}` | api-proto-check.txt | Prompt contains variable |
-| `{{FILE_READING_REMINDER}}` | file-reading-reminder.txt | Prompt contains variable |
-| `{{DOCS_INSTRUCTIONS}}` | docs-instructions.txt | Prompt contains variable |
 | `{{REVIEW_AND_UPDATE_DOCS}}` | review-and-update-docs.txt | Prompt contains variable |
-| `{{CONTINUOUS_IMPROVEMENT}}` | continuous-improvement.txt | Prompt contains variable |
+| `{{UPSIDE_STANDARDS}}` | upside.txt | Prompt contains variable |
 | `{{CATEGORY_RULES}}` | Load category-specific rules | Prompt contains variable |
 
 To use a fragment in a prompt, add the template variable:
@@ -528,5 +554,4 @@ To use a fragment in a prompt, add the template variable:
 
 The script loads these fragments only if the prompt references them (lazy loading).
 
-{{FILE_READING_REMINDER}}
 {{REVIEW_AND_UPDATE_DOCS}}

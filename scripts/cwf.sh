@@ -159,10 +159,8 @@ function load_all_shared_fragments() {
 
   # Map of variable names to file names
   declare -A fragment_map=(
-    ["DOCS_INSTRUCTIONS"]="docs-instructions.txt"
     ["DESIGN_PATTERNS"]="design-patterns.txt"
     ["API_PROTO_CHECK"]="api-proto-check.txt"
-    ["FILE_READING_REMINDER"]="file-reading-reminder.txt"
     ["REVIEW_AND_UPDATE_DOCS"]="review-and-update-docs.txt"
     ["WORKFLOW_COMMANDS"]="workflow-commands.txt"
     ["PLANNING_GUIDELINES"]="planning-guidelines.txt"
@@ -176,6 +174,7 @@ function load_all_shared_fragments() {
     ["PROJECT_RULES"]="project-rules.txt"
     ["WORKTREE_WORKFLOW"]="worktree-workflow.txt"
     ["GITHUB_CONTEXT"]="github-context.txt"
+    ["UPSIDE_STANDARDS"]="upside.txt"
   )
 
   # Load each fragment that's referenced in the prompt
@@ -225,10 +224,8 @@ function replace_templates() {
   local category="$2"
 
   # Lazy-load shared fragments only if needed
-  local docs_inst=$(load_fragment_if_needed "$prompt" "DOCS_INSTRUCTIONS" "docs-instructions.txt")
   local design_pat=$(load_fragment_if_needed "$prompt" "DESIGN_PATTERNS" "design-patterns.txt")
   local api_check=$(load_fragment_if_needed "$prompt" "API_PROTO_CHECK" "api-proto-check.txt")
-  local file_rem=$(load_fragment_if_needed "$prompt" "FILE_READING_REMINDER" "file-reading-reminder.txt")
   local review_doc=$(load_fragment_if_needed "$prompt" "REVIEW_AND_UPDATE_DOCS" "review-and-update-docs.txt")
   local workflow_cmd=$(load_fragment_if_needed "$prompt" "WORKFLOW_COMMANDS" "workflow-commands.txt")
   local planning_guide=$(load_fragment_if_needed "$prompt" "PLANNING_GUIDELINES" "planning-guidelines.txt")
@@ -242,13 +239,10 @@ function replace_templates() {
   local project_rules=$(load_fragment_if_needed "$prompt" "PROJECT_RULES" "project-rules.txt")
   local worktree_workflow=$(load_fragment_if_needed "$prompt" "WORKTREE_WORKFLOW" "worktree-workflow.txt")
   local github_context=$(load_fragment_if_needed "$prompt" "GITHUB_CONTEXT" "github-context.txt")
-  local continuous_improvement=$(load_fragment_if_needed "$prompt" "CONTINUOUS_IMPROVEMENT" "continuous-improvement.txt")
 
   # Replace each template variable
-  prompt="${prompt//\{\{DOCS_INSTRUCTIONS\}\}/$docs_inst}"
   prompt="${prompt//\{\{DESIGN_PATTERNS\}\}/$design_pat}"
   prompt="${prompt//\{\{API_PROTO_CHECK\}\}/$api_check}"
-  prompt="${prompt//\{\{FILE_READING_REMINDER\}\}/$file_rem}"
   prompt="${prompt//\{\{REVIEW_AND_UPDATE_DOCS\}\}/$review_doc}"
   prompt="${prompt//\{\{WORKFLOW_COMMANDS\}\}/$workflow_cmd}"
   prompt="${prompt//\{\{PLANNING_GUIDELINES\}\}/$planning_guide}"
@@ -262,7 +256,6 @@ function replace_templates() {
   prompt="${prompt//\{\{PROJECT_RULES\}\}/$project_rules}"
   prompt="${prompt//\{\{WORKTREE_WORKFLOW\}\}/$worktree_workflow}"
   prompt="${prompt//\{\{GITHUB_CONTEXT\}\}/$github_context}"
-  prompt="${prompt//\{\{CONTINUOUS_IMPROVEMENT\}\}/$continuous_improvement}"
 
   # Replace {{CATEGORY}} with actual category name
   prompt="${prompt//\{\{CATEGORY\}\}/$category}"

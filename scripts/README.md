@@ -68,6 +68,151 @@ Shell completion is configured using lazy-loading (Zsh) or immediate-loading (Ba
 - `improve-rules` - Analyze and optimize all rule files and shared fragments
 - `improve-workflows` - Improve the cwf/gwf workflow tools themselves
 
+## Automatic Worktree Management
+
+`cwf` integrates with `gwf` to automatically manage worktrees for code review and feature development workflows.
+
+### How It Works
+
+When you run `cwf review` or `cwf feature`, Claude will:
+
+1. **Detect your branch name** from:
+   - Linear ticket (via MCP if available)
+   - Current git branch (`git branch --show-current`)
+   - Your prompt text (e.g., "Review branch sul-123-fix-bug")
+
+2. **Check your location**:
+   - Feature work expects: `~/repos/${repo}-feature-${branch}`
+   - Review work expects: `~/repos/${repo}-review-${branch}`
+
+3. **Create worktree if needed**:
+   - Uses `gwf wt feature <branch>` for features
+   - Uses `gwf wt review <branch>` for reviews
+   - Changes to the worktree directory
+   - Continues with your task
+
+### Examples
+
+**Already in worktree (most common):**
+```bash
+cd ~/repos/data-pipelines-feature-sul-123-my-feature
+cwf feature dp "Implement new aggregation logic"
+# Claude detects you're already in correct worktree, proceeds immediately
+```
+
+**Need to create worktree:**
+```bash
+cd ~/repos/data-pipelines
+git checkout sul-456-another-feature
+cwf feature dp "Continue working on this feature"
+# Claude detects branch sul-456-another-feature
+# Creates ~/repos/data-pipelines-feature-sul-456-another-feature
+# Changes to that directory
+# Proceeds with feature work
+```
+
+**Review someone's PR:**
+```bash
+cd ~/repos/customer-dashboard
+cwf review review-peer "Review branch john-789-fix-bug"
+# Claude extracts branch name from prompt
+# Creates ~/repos/customer-dashboard-review-john-789-fix-bug
+# Changes to that directory
+# Proceeds with review
+```
+
+### Requirements
+
+- `gwf` must be available in PATH (should be at ~/.local/bin/gwf)
+- Must be in a git repository
+- Branch name must be detectable or provided in prompt
+
+### Smart Behavior
+
+Claude intelligently handles:
+- **Already in correct worktree (99% case)**: Proceeds silently
+- **Branch detection from multiple sources**: Linear MCP > git > prompt text
+- **Existing worktrees**: Just changes directory, no recreation
+- **Failed detection**: Asks you for branch name or continues in current directory
+- **Non-git repos**: Skips worktree logic entirely
+
+## GitHub CLI Context Gathering (MCP-Like)
+
+`cwf` teaches Claude to use the GitHub CLI (`gh`) to proactively gather rich context about PRs, issues, commits, and repositories - mimicking what an MCP integration would provide automatically.
+
+### How It Works
+
+Claude will intelligently use `gh` commands to gather context BEFORE making recommendations:
+
+**For PR Reviews:**
+- `gh pr view` - Get PR details, author, status, checks
+- `gh pr diff` - See what changed
+- `gh pr checks` - Verify CI/CD status
+- `gh pr view --json reviews,comments` - Read existing feedback
+
+**For Feature Development:**
+- `gh pr status` - Check if PR exists for current branch
+- `gh issue list --assignee @me` - See your assigned issues
+- `gh pr list --author @me` - See your PRs
+- `gh run list` - Check CI/CD workflow status
+
+**For Repository Context:**
+- `gh repo view` - Get repo info, default branch, languages
+- `gh api` - Query GitHub API for detailed information
+- Extract Linear ticket IDs from branch names or PR bodies
+
+### Benefits
+
+✅ **Comprehensive Context**: Claude knows PR status, CI checks, review comments
+✅ **Informed Decisions**: Makes recommendations based on actual GitHub state
+✅ **No Assumptions**: Queries GitHub instead of guessing
+✅ **Linear Integration**: Can extract Linear ticket IDs from branches/PRs
+✅ **Proactive**: Gathers context automatically during review/feature workflows
+
+### Example Context Gathering
+
+When you run `cwf review review-peer`, Claude will:
+
+```bash
+# 1. Check if in a PR branch
+gh pr view --json number,title,state,mergeable,statusCheckRollup
+
+# 2. Get the PR diff
+gh pr diff
+
+# 3. Check CI status
+gh pr checks
+
+# 4. Read existing review comments
+gh pr view --json reviews,comments
+
+# 5. Then provide informed review feedback
+```
+
+When you run `cwf feature continue`, Claude will:
+
+```bash
+# 1. Check current branch
+git branch --show-current
+
+# 2. See if PR exists
+gh pr view --json number,title,state
+
+# 3. Get your related issues
+gh issue list --assignee @me --state open
+
+# 4. Check recent commits
+git log --oneline -10
+
+# 5. Then help you continue work with full context
+```
+
+### Requirements
+
+- `gh` CLI must be installed and authenticated
+- Run `gh auth login` if not already authenticated
+- Works in any GitHub repository
+
 ## Configuration
 
 ### Directory Structure
