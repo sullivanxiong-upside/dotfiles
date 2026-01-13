@@ -1,0 +1,73 @@
+# WORKTREE_WORKFLOW
+
+## Worktree Management Protocol
+
+Before starting feature or review work, ensure you're in the correct worktree directory.
+
+## Expected Locations
+
+- Feature: `~/repos/${repo}-feature-${sanitized-branch}`
+- Review: `~/repos/${repo}-review-${sanitized-branch}`
+- `${sanitized-branch}` = branch name with special chars replaced by dashes
+
+## Workflow Steps
+
+**1. Detect Branch Name (Priority Order)**
+
+- Linear MCP tools (if available)
+- Current git branch: `git branch --show-current` (skip if main/master)
+- User's prompt context (extract patterns like `sul-123-feature-name`)
+- Ask user if unclear
+
+**2. Check Current Location**
+
+Run `pwd` - 99% of the time user is already in correct worktree.
+
+If current directory matches `~/repos/${repo}-{feature|review}-${branch}`, skip worktree creation and proceed.
+
+**3. Check if Worktree Exists**
+
+If not in correct location:
+```bash
+ls -d ~/repos/${repo}-{feature|review}-${sanitized-branch}
+```
+
+**4. Create Worktree if Needed**
+
+Feature: `gwf wt feature <branch-name>`
+Review: `gwf wt review <branch-name>`
+
+gwf handles fetch, checkout, tracking, and config file copying.
+
+**5. Change to Worktree**
+
+```bash
+cd ~/repos/${repo}-{feature|review}-${sanitized-branch}
+```
+
+**6. Proceed with Task**
+
+## Decision Logic
+
+- Already in correct worktree → Proceed silently
+- Branch not detected → Ask user or let them handle manually
+- Worktree creation fails → Report error, suggest manual command
+- Not in git repo → Skip worktree logic
+- On main/master for reviews → Branch must come from context or user
+
+## Important Notes
+
+- gwf and cwf available via ~/.local/bin
+- Worktrees always in ~/repos/
+- Branch sanitization: `user/feature-123` → `user-feature-123`
+- Cross-repo features: handle each repo's worktree separately
+- Trust gwf for all git operations (fetch, checkout, track)
+
+## Example Scenario
+
+User at `~/repos/data-pipelines` wants to review `john-789-fix`:
+1. Extract branch: `john-789-fix`
+2. Check: `~/repos/data-pipelines-review-john-789-fix` doesn't exist
+3. Run: `gwf wt review john-789-fix`
+4. cd: `~/repos/data-pipelines-review-john-789-fix`
+5. Proceed with review

@@ -1,5 +1,9 @@
 This is a general feature or update that may be outside the main work repositories (data-pipelines, customer-dashboard, sql-core-migrations).
 
+{{WORKTREE_WORKFLOW}}
+
+{{GITHUB_CONTEXT}}
+
 {{PROJECT_RULES}}
 
 {{GIT_SAFETY}}
@@ -18,5 +22,7 @@ If documentation exists:
 {{WORKFLOW_COMMANDS}}
 
 {{PLANNING_GUIDELINES}}
+
+{{CONTINUOUS_IMPROVEMENT}}
 
 Work on the feature requested below.

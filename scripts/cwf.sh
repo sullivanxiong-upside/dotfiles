@@ -30,6 +30,7 @@ declare -A COMMAND_REGISTRY=(
   ["feature:continue"]="feature/continue.txt"
   ["feature:plan"]="feature/plan.txt"
   ["agent:chat"]="agent/chat.txt"
+  ["agent:orchestrate"]="agent/orchestrate.txt"
   ["prepare-release:__main__"]="prepare-release.txt"
   ["new:add-shared"]="new/add-shared.txt"
   ["new:add-top-rule"]="new/add-top-rule.txt"
@@ -37,6 +38,7 @@ declare -A COMMAND_REGISTRY=(
   ["new:add-sub-command"]="new/add-sub-command.txt"
   ["new:improve-rules"]="new/improve-rules.txt"
   ["new:improve-workflows"]="new/improve-workflows.txt"
+  ["new:improve-claude-auto-enable"]="new/improve-claude-auto-enable.txt"
 )
 
 # Category descriptions
@@ -64,6 +66,7 @@ declare -A SUBCOMMAND_DESC=(
   ["feature:continue"]="Analyze current branch and plan next steps"
   ["feature:plan"]="Plan feature implementation with detailed exploration"
   ["agent:chat"]="Research and learn about specific topics with expert guidance"
+  ["agent:orchestrate"]="Orchestrate complex tasks by spawning and managing sub-agents"
   ["prepare-release:__main__"]="Generate release notes from prod to main"
   ["new:add-shared"]="Interactively add a new shared prompt fragment"
   ["new:add-top-rule"]="Interactively add rules for a category"
@@ -71,6 +74,7 @@ declare -A SUBCOMMAND_DESC=(
   ["new:add-sub-command"]="Interactively add a subcommand to a category"
   ["new:improve-rules"]="Analyze and improve all rule files"
   ["new:improve-workflows"]="Improve the cwf/gwf workflow tools themselves"
+  ["new:improve-claude-auto-enable"]="Manage Claude Code auto-approval permissions list"
 )
 
 # Commands that require extra arguments
@@ -169,6 +173,9 @@ function load_all_shared_fragments() {
     ["TESTING_DOCUMENTATION"]="testing-documentation.txt"
     ["EXTRACT_REUSABLE_CODE"]="reusable-code-extraction.txt"
     ["GIT_SAFETY"]="git-safety.txt"
+    ["PROJECT_RULES"]="project-rules.txt"
+    ["WORKTREE_WORKFLOW"]="worktree-workflow.txt"
+    ["GITHUB_CONTEXT"]="github-context.txt"
   )
 
   # Load each fragment that's referenced in the prompt
@@ -232,6 +239,10 @@ function replace_templates() {
   local testing_docs=$(load_fragment_if_needed "$prompt" "TESTING_DOCUMENTATION" "testing-documentation.txt")
   local extract_reusable=$(load_fragment_if_needed "$prompt" "EXTRACT_REUSABLE_CODE" "reusable-code-extraction.txt")
   local git_safety=$(load_fragment_if_needed "$prompt" "GIT_SAFETY" "git-safety.txt")
+  local project_rules=$(load_fragment_if_needed "$prompt" "PROJECT_RULES" "project-rules.txt")
+  local worktree_workflow=$(load_fragment_if_needed "$prompt" "WORKTREE_WORKFLOW" "worktree-workflow.txt")
+  local github_context=$(load_fragment_if_needed "$prompt" "GITHUB_CONTEXT" "github-context.txt")
+  local continuous_improvement=$(load_fragment_if_needed "$prompt" "CONTINUOUS_IMPROVEMENT" "continuous-improvement.txt")
 
   # Replace each template variable
   prompt="${prompt//\{\{DOCS_INSTRUCTIONS\}\}/$docs_inst}"
@@ -248,6 +259,10 @@ function replace_templates() {
   prompt="${prompt//\{\{TESTING_DOCUMENTATION\}\}/$testing_docs}"
   prompt="${prompt//\{\{EXTRACT_REUSABLE_CODE\}\}/$extract_reusable}"
   prompt="${prompt//\{\{GIT_SAFETY\}\}/$git_safety}"
+  prompt="${prompt//\{\{PROJECT_RULES\}\}/$project_rules}"
+  prompt="${prompt//\{\{WORKTREE_WORKFLOW\}\}/$worktree_workflow}"
+  prompt="${prompt//\{\{GITHUB_CONTEXT\}\}/$github_context}"
+  prompt="${prompt//\{\{CONTINUOUS_IMPROVEMENT\}\}/$continuous_improvement}"
 
   # Replace {{CATEGORY}} with actual category name
   prompt="${prompt//\{\{CATEGORY\}\}/$category}"
@@ -281,6 +296,9 @@ function remove_template_placeholders() {
   prompt="${prompt//\{\{TESTING_DOCUMENTATION\}\}/}"
   prompt="${prompt//\{\{EXTRACT_REUSABLE_CODE\}\}/}"
   prompt="${prompt//\{\{GIT_SAFETY\}\}/}"
+  prompt="${prompt//\{\{PROJECT_RULES\}\}/}"
+  prompt="${prompt//\{\{WORKTREE_WORKFLOW\}\}/}"
+  prompt="${prompt//\{\{GITHUB_CONTEXT\}\}/}"
   prompt="${prompt//\{\{CUSTOM_RULES\}\}/}"
   prompt="${prompt//\{\{CATEGORY_RULES\}\}/}"
 
@@ -305,7 +323,7 @@ Categories and Subcommands:
 EOF
 
   # Generate category and subcommand list from metadata
-  for category in review customer-mgmt feature prepare-release new completion; do
+  for category in review customer-mgmt feature agent prepare-release new completion; do
     local desc="${CATEGORY_DESC[$category]:-}"
     echo "  $category"
     [ -n "$desc" ] && echo "    # $desc"
@@ -369,7 +387,7 @@ function resolve_prompt_file() {
   # Check if category exists
   if ! category_exists "$category" && [ "$category" != "completion" ]; then
     echo "Error: Unknown category '$category'" >&2
-    echo "Valid categories: review, customer-mgmt, feature, prepare-release, new, completion" >&2
+    echo "Valid categories: review, customer-mgmt, feature, agent, prepare-release, new, completion" >&2
     return 1
   fi
 
@@ -454,8 +472,27 @@ function process_prompt() {
     return 1
   fi
 
-  # Replace {{CATEGORY}} placeholder
-  base_prompt="${base_prompt//\{\{CATEGORY\}\}/$category}"
+  # Handle special case: {{CATEGORY}} in prompts that take a target category as argument
+  # For commands like "cwf new add-sub-command feature", we want {{CATEGORY}} to be "feature", not "new"
+  if echo "$base_prompt" | grep -q "{{CATEGORY}}"; then
+    # Extract first word from extra_context as the target category
+    local target_category=$(echo "$extra_context" | awk '{print $1}')
+    if [ -n "$target_category" ]; then
+      base_prompt="${base_prompt//\{\{CATEGORY\}\}/$target_category}"
+      # Remove the first word from extra_context so it's not duplicated
+      extra_context=$(echo "$extra_context" | sed 's/^[^ ]* *//')
+    else
+      # Fallback to command category if no target category provided
+      base_prompt="${base_prompt//\{\{CATEGORY\}\}/$category}"
+    fi
+  fi
+
+  # Handle special case: {{CONTEXT}} - replace with extra_context directly
+  # Don't append "Additional details" for these prompts
+  if echo "$base_prompt" | grep -q "{{CONTEXT}}"; then
+    base_prompt="${base_prompt//\{\{CONTEXT\}\}/$extra_context}"
+    extra_context=""  # Clear it so we don't append "Additional details" later
+  fi
 
   # Remove template variable placeholders (they'll be in system prompt)
   base_prompt=$(remove_template_placeholders "$base_prompt")
@@ -547,7 +584,7 @@ _claude_wf_completion() {
         COMPREPLY=($(compgen -W "chat" -- "$cur"))
         ;;
       new)
-        COMPREPLY=($(compgen -W "add-shared add-top-rule add-top-command add-sub-command improve-rules improve-workflows" -- "$cur"))
+        COMPREPLY=($(compgen -W "add-shared add-top-rule add-top-command add-sub-command improve-rules improve-workflows improve-claude-auto-enable" -- "$cur"))
         ;;
       completion)
         COMPREPLY=($(compgen -W "bash zsh install" -- "$cur"))
@@ -630,7 +667,7 @@ _claude_wf() {
         return 0
         ;;
       new)
-        subcommands=('add-shared:Add shared prompt fragment' 'add-top-rule:Add category rules' 'add-top-command:Add top-level category' 'add-sub-command:Add subcommand' 'improve-rules:Analyze and improve rule files' 'improve-workflows:Improve cwf/gwf tools')
+        subcommands=('add-shared:Add shared prompt fragment' 'add-top-rule:Add category rules' 'add-top-command:Add top-level category' 'add-sub-command:Add subcommand' 'improve-rules:Analyze and improve rule files' 'improve-workflows:Improve cwf/gwf tools' 'improve-claude-auto-enable:Manage Claude Code auto-approval permissions')
         _describe -t subcommands 'subcommand' subcommands
         return 0
         ;;

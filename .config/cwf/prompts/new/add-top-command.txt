@@ -67,3 +67,5 @@ Help me plan and create a new top-level category. Follow this process:
 - Each category should have a clear, distinct purpose
 - Consider whether category-specific rules would be helpful
 - Ensure the category name doesn't conflict with existing commands
+
+{{CONTINUOUS_IMPROVEMENT}}

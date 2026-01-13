@@ -1,80 +1,21 @@
 Code Reusability
 
 ## When to Extract
-- Extract functions when 2+ similar code blocks exist
+- Extract when 2+ similar code blocks exist
 - Look for repeated patterns before implementing
 - Check if standard library or existing utility covers the need
 - Consider extracting when function exceeds ~50 lines
 
-<DoNotChange>
 ## Utility File Structure
-
-When extracting reusable utilities, follow this file structure:
-
-```
-.../utils/[util-category]/[util-feature].[lang]
-```
-
-**Example Structure:**
-```
-utils/
-├── __init__.py                    # Top-level entry point
-├── string-helpers/
-│   ├── __init__.py                # Category entry point
-│   ├── slug-generator.ts
-│   ├── sanitize-html.ts
-│   └── truncate-text.ts
-├── date-helpers/
-│   ├── __init__.py                # Category entry point
-│   ├── format-timestamp.py
-│   └── parse-duration.py
-└── validation/
-    ├── __init__.py                # Category entry point
-    ├── email-validator.js
-    └── phone-validator.js
-```
-
-**Entry Point Pattern (Python example):**
-```python
-# utils/string-helpers/__init__.py
-from .slug_generator import generate_slug
-from .sanitize_html import sanitize_html
-from .truncate_text import truncate_text
-
-__all__ = ['generate_slug', 'sanitize_html', 'truncate_text']
-
-# utils/__init__.py
-from .string_helpers import generate_slug, sanitize_html, truncate_text
-from .date_helpers import format_timestamp, parse_duration
-from .validation import validate_email, validate_phone
-
-__all__ = [
-    'generate_slug', 'sanitize_html', 'truncate_text',
-    'format_timestamp', 'parse_duration',
-    'validate_email', 'validate_phone'
-]
-```
-
-**This enables clean imports:**
-```python
-# Instead of:
-from utils.string_helpers.slug_generator import generate_slug
-
-# You can do:
-from utils import generate_slug
-```
-
-**Guidelines:**
-- `[util-category]`: Broad category (string-helpers, date-helpers, validation, etc.)
-- `[util-feature]`: Specific functionality in kebab-case
+Follow pattern: `utils/[category]/[feature].[ext]`
+- Example: `utils/string-helpers/slug-generator.ts`
 - One utility per file for clarity and testability
-- Include tests alongside: `[util-feature].test.[lang]`
-- Add __init__ files to create clean import paths
-</DoNotChange>
+- Use __init__ files (Python) or index files (JS/TS) for clean imports
+- Include tests alongside: `[feature].test.[ext]`
 
-## Where to Extract To
-- Same file: Helper functions for file-specific logic
-- Utils/helpers module: Cross-cutting concerns (see structure above)
+## Where to Extract
+- Same file: File-specific helper functions
+- Utils/helpers: Cross-cutting concerns
 - Shared library: Multi-project utilities
 - Class methods: Related operations on same data
 

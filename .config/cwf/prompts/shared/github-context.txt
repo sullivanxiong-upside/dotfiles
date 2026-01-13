@@ -1,0 +1,400 @@
+# GITHUB_CONTEXT
+
+## GitHub CLI Context Gathering (MCP-Like Approach)
+
+Use the `gh` CLI to proactively gather rich context about PRs, issues, commits, and repositories. This mimics what a GitHub MCP integration would provide - giving you comprehensive information to make informed decisions.
+
+### Core Philosophy
+
+**Always gather context BEFORE making suggestions or changes.**
+
+Think of `gh` as your MCP-like interface to GitHub's knowledge base. Instead of making assumptions, actively query GitHub for:
+- PR details, status, and metadata
+- Commit history and messages
+- Issue/ticket relationships
+- CI/CD check status
+- Review comments and feedback
+- Repository conventions and patterns
+
+### Essential Commands by Scenario
+
+#### 1. PR Review Context
+
+**When reviewing a PR or branch:**
+
+```bash
+# Get current PR info (if you're in a PR branch)
+gh pr view --json number,title,body,author,createdAt,updatedAt,state,mergeable,statusCheckRollup,reviewDecision,labels
+
+# Get PR with comments and reviews
+gh pr view <pr-number> --json comments,reviews,latestReviews
+
+# Get PR diff (what actually changed)
+gh pr diff [pr-number]
+
+# Get PR checks status (CI/CD)
+gh pr checks [pr-number]
+
+# Get PR commits
+gh pr view <pr-number> --json commits
+
+# List all PRs for context
+gh pr list --json number,title,author,state,updatedAt --limit 20
+```
+
+**Why this matters:**
+- See what the PR is trying to accomplish (title/body)
+- Know who authored it and when
+- Check if it's safe to merge (mergeable, checks)
+- Review existing feedback (comments, reviews)
+- Understand CI/CD status before reviewing code
+
+#### 2. Feature/Branch Context
+
+**When working on a feature branch:**
+
+```bash
+# Check if current branch has a PR
+gh pr view --json number,title,state,url
+
+# Get branch's PR status
+gh pr status
+
+# Find related PRs
+gh pr list --author @me --state all --limit 10
+
+# Get related issues
+gh issue list --assignee @me --state open --json number,title,body,labels
+
+# See what PRs are blocking/related
+gh pr list --label "blocked" --label "dependencies"
+```
+
+**Why this matters:**
+- Know if PR already exists (avoid duplicates)
+- See related work you're doing
+- Identify blocking issues or dependencies
+- Understand priority from labels
+
+#### 3. Commit & History Context
+
+**Understanding recent changes:**
+
+```bash
+# Get commit details for a specific SHA
+gh api repos/:owner/:repo/commits/<sha> --jq '.commit.message, .author.login, .stats'
+
+# Get PR associated with a commit
+gh api repos/:owner/:repo/commits/<sha>/pulls --jq '.[0] | {number, title, state}'
+
+# See recent commits on a branch
+gh api repos/:owner/:repo/commits?sha=<branch> --jq '.[] | {sha: .sha[0:7], message: .commit.message, author: .commit.author.name, date: .commit.author.date}' | head -n 10
+
+# Get commit comparison between branches
+gh api repos/:owner/:repo/compare/main...<branch> --jq '.commits | length, .total_commits'
+```
+
+**Why this matters:**
+- Understand what recently changed
+- See who made changes and when
+- Track feature evolution
+- Identify related commits
+
+#### 4. Repository Context
+
+**Understanding the repository:**
+
+```bash
+# Get repository info
+gh repo view --json name,description,defaultBranch,isPrivate,languages,topics
+
+# Get repository settings and conventions
+gh api repos/:owner/:repo --jq '{default_branch, has_issues, has_wiki, archived}'
+
+# Check branch protection rules
+gh api repos/:owner/:repo/branches/<branch>/protection --jq '.required_status_checks, .required_pull_request_reviews'
+
+# List repository topics/tags
+gh repo view --json repositoryTopics
+
+# Get recent repository activity
+gh api repos/:owner/:repo/events --jq '.[] | {type, created_at, actor: .actor.login}' | head -n 20
+```
+
+**Why this matters:**
+- Know default branch (main vs master)
+- Understand repo conventions
+- See what checks are required
+- Identify tech stack from languages/topics
+
+#### 5. Issue & Linear Integration Context
+
+**When working with issues/tickets:**
+
+```bash
+# Get issue details
+gh issue view <issue-number> --json number,title,body,state,labels,assignees,comments
+
+# List issues in current milestone
+gh issue list --milestone <milestone-name> --json number,title,state,assignees
+
+# Find issues by label
+gh issue list --label "bug" --label "priority:high" --state open
+
+# Get issue comments
+gh issue view <issue-number> --json comments --jq '.comments[] | {author: .author.login, body: .body, created: .createdAt}'
+
+# Create issue (for tracking)
+gh issue create --title "Title" --body "Description" --label "enhancement"
+```
+
+**Why this matters:**
+- Understand ticket requirements
+- See existing discussion and context
+- Track related issues
+- Link PRs to issues
+
+#### 6. CI/CD & Deployment Context
+
+**Check build and deployment status:**
+
+```bash
+# Get workflow runs for current branch
+gh run list --branch <branch-name> --limit 5 --json status,conclusion,name,createdAt
+
+# Get specific workflow run details
+gh run view <run-id> --json status,conclusion,jobs
+
+# Watch a workflow run in progress
+gh run watch <run-id>
+
+# Get failed jobs details
+gh run view <run-id> --json jobs --jq '.jobs[] | select(.conclusion=="failure") | {name, steps: [.steps[] | select(.conclusion=="failure") | .name]}'
+
+# List recent deployments
+gh api repos/:owner/:repo/deployments --jq '.[] | {environment, ref, created_at, state}' | head -n 10
+```
+
+**Why this matters:**
+- Know if changes will break CI
+- See deployment history
+- Identify failing tests
+- Understand build patterns
+
+### Complete Command Reference
+
+#### PR Commands
+- `gh pr view [<number>]` - View PR details (current PR if no number)
+- `gh pr list [--state <state>] [--author <user>]` - List PRs
+- `gh pr create [--title <title>] [--body <body>]` - Create new PR
+- `gh pr edit <number> [--title | --body | --add-label]` - Edit PR
+- `gh pr checkout <number>` - Check out PR branch locally
+- `gh pr merge [<number>] [--merge|--squash|--rebase]` - Merge PR
+- `gh pr review [<number>] [--approve|--request-changes|--comment]` - Review PR
+- `gh pr comment <number> [--body <text>]` - Add comment to PR
+- `gh pr diff [<number>]` - View PR diff
+- `gh pr checks [<number>]` - Show CI/CD check status
+
+#### Issue Commands
+- `gh issue view <number>` - View issue details
+- `gh issue list [--label <label>] [--state <state>]` - List issues
+- `gh issue create [--title <title>] [--body <body>]` - Create issue
+- `gh issue edit <number> [--title | --body | --add-label]` - Edit issue
+- `gh issue comment <number> [--body <text>]` - Add comment to issue
+- `gh issue close <number>` - Close issue
+
+#### Repository Commands
+- `gh repo view [<repo>]` - View repository details
+- `gh repo clone <repo>` - Clone repository
+- `gh repo fork [<repo>]` - Fork repository
+
+#### Workflow & Run Commands
+- `gh workflow list` - List repository workflows
+- `gh run list [--branch <branch>] [--workflow <name>]` - List workflow runs
+- `gh run view <run-id>` - View workflow run details
+- `gh run watch <run-id>` - Watch workflow run in real-time
+- `gh run rerun <run-id>` - Rerun failed workflow
+
+#### Auth Commands
+- `gh auth status` - Check authentication status
+- `gh auth login` - Authenticate with GitHub
+
+#### Search Commands
+- `gh search commits <query>` - Search commits across GitHub
+- `gh search issues <query>` - Search issues
+- `gh search prs <query>` - Search pull requests
+- `gh search repos <query>` - Search repositories
+
+#### Git Commands (for context)
+These are standard git commands often used alongside gh:
+- `git status` - Show working tree status
+- `git log [--oneline] [-<n>]` - Show commit history
+- `git diff [<ref>]` - Show changes
+- `git branch [--show-current]` - List/show branches
+- `git checkout <branch>` - Switch branches
+- `git add <files>` - Stage changes
+- `git commit -m "<message>"` - Commit changes
+- `git push [<remote> <branch>]` - Push commits
+
+### Proactive Context Gathering Strategy
+
+**BEFORE making changes or recommendations:**
+
+1. **Start with location awareness:**
+   ```bash
+   # Where am I?
+   pwd
+   git branch --show-current
+   git remote get-url origin
+   ```
+
+2. **Get PR context (if applicable):**
+   ```bash
+   gh pr view --json number,title,body,state,statusCheckRollup
+   gh pr diff
+   gh pr checks
+   ```
+
+3. **Get branch/commit context:**
+   ```bash
+   git log --oneline -10
+   git diff main...HEAD --stat
+   gh pr list --author @me --limit 5
+   ```
+
+4. **Get related issues:**
+   ```bash
+   gh issue list --assignee @me --state open --limit 10
+   ```
+
+5. **Check repo conventions:**
+   ```bash
+   gh repo view --json defaultBranch,languages
+   ls -la  # Check for .github/ workflows, CONTRIBUTING.md, etc.
+   ```
+
+### Advanced Techniques
+
+#### Query GitHub GraphQL API
+
+For complex queries:
+```bash
+gh api graphql -f query='
+  query($owner: String!, $repo: String!) {
+    repository(owner: $owner, name: $repo) {
+      pullRequests(last: 10, states: OPEN) {
+        nodes {
+          number
+          title
+          author { login }
+          reviewDecision
+          commits(last: 1) {
+            nodes {
+              commit {
+                statusCheckRollup { state }
+              }
+            }
+          }
+        }
+      }
+    }
+  }' -F owner=<owner> -F repo=<repo>
+```
+
+#### Find Related PRs by File Changes
+
+```bash
+# PRs that touched similar files
+gh pr list --search "path:src/specific/file.py" --json number,title,state
+```
+
+#### Get Review Comments on Specific Files
+
+```bash
+# Review comments for a file in a PR
+gh api repos/:owner/:repo/pulls/<pr-number>/comments --jq '.[] | select(.path=="src/file.py") | {user: .user.login, body: .body, line: .line}'
+```
+
+### Integration with Linear (via gh)
+
+If PRs are linked to Linear tickets:
+
+```bash
+# Extract Linear ticket from PR body or branch name
+gh pr view --json body,headRefName
+
+# Pattern match for Linear IDs (e.g., "SUL-123" or "ENG-456")
+gh pr view --json body --jq '.body' | grep -oE '[A-Z]+-[0-9]+'
+```
+
+### Best Practices
+
+1. **Be Proactive**: Run context commands BEFORE asking user for clarification
+2. **Cache Context**: Store `gh` output in variables to avoid repeated API calls
+3. **Format Output**: Use `--json` and `--jq` for structured, parseable data
+4. **Handle Errors**: Check if `gh` is authenticated and repository is valid
+5. **Combine Commands**: Use context from multiple sources for complete picture
+6. **Respect Rate Limits**: GitHub API has rate limits, don't over-query
+
+### Common Patterns
+
+**Pattern 1: Full PR Context Gathering**
+```bash
+PR_NUMBER=$(gh pr view --json number -q .number 2>/dev/null)
+if [ -n "$PR_NUMBER" ]; then
+  gh pr view --json number,title,body,author,state,mergeable,statusCheckRollup,reviewDecision
+  gh pr diff
+  gh pr checks
+fi
+```
+
+**Pattern 2: Branch + Issues Context**
+```bash
+BRANCH=$(git branch --show-current)
+echo "Current branch: $BRANCH"
+
+# Check for PR
+gh pr view --json number,title,state 2>/dev/null
+
+# Find related issues from branch name (e.g., branch "sul-123-feature" -> issue SUL-123)
+ISSUE_ID=$(echo "$BRANCH" | grep -oE '[A-Z]+-[0-9]+' | head -n1)
+if [ -n "$ISSUE_ID" ]; then
+  echo "Related Linear ticket: $ISSUE_ID"
+fi
+```
+
+**Pattern 3: Repository Health Check**
+```bash
+gh repo view --json name,defaultBranch,isArchived
+gh pr list --state open --json number,title --limit 5
+gh issue list --state open --json number,title --limit 5
+gh run list --branch main --limit 3 --json status,conclusion,name
+```
+
+### Error Handling
+
+Always check if `gh` commands succeed:
+
+```bash
+# Check if gh is installed and authenticated
+if ! command -v gh &> /dev/null; then
+  echo "Warning: gh CLI not found. Cannot gather GitHub context."
+  # Fall back to git commands only
+fi
+
+# Check if in a GitHub repository
+if ! gh repo view &> /dev/null; then
+  echo "Not a GitHub repository, skipping gh context gathering"
+fi
+```
+
+### Summary
+
+Treat `gh` CLI as your MCP-like interface to GitHub. Before making any suggestions:
+1. ✅ Gather PR context with `gh pr view/diff/checks`
+2. ✅ Check commit history with `gh api` and git commands
+3. ✅ Find related issues with `gh issue list`
+4. ✅ Verify CI/CD status with `gh run list`
+5. ✅ Understand repository conventions with `gh repo view`
+
+This comprehensive context gathering mimics what an MCP would provide automatically, ensuring you have all necessary information to make informed, accurate recommendations.

@@ -1,0 +1,5 @@
+Continuous Improvement
+
+When you discover practices that significantly improve workflow, prevent common mistakes, or should be standardized, proactively suggest adding them to:
+- Category-specific rules: ~/.claude-<category>-rules
+- Shared fragments: ~/.config/cwf/prompts/shared/<fragment>.txt

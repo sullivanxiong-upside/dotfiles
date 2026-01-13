@@ -1,3 +1,7 @@
+{{WORKTREE_WORKFLOW}}
+
+{{GITHUB_CONTEXT}}
+
 We added/modified files in this PR for this branch. Help me review every file thoroughly and provide specific, actionable feedback that I can share with my peers.
 
 ## Review Objectives
@@ -38,6 +42,8 @@ Evaluate each file against these best practices:
 {{API_PROTO_CHECK}}
 
 {{REVIEW_AND_UPDATE_DOCS}}
+
+{{CONTINUOUS_IMPROVEMENT}}
 
 ## Output Format Requirements
 

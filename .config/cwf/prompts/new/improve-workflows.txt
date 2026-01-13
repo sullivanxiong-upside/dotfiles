@@ -364,5 +364,169 @@ Missing ANY of these locations breaks functionality or completion!
 - Main: ~/repos/dotfiles/scripts/README.md
 - Docs: ~/repos/dotfiles/scripts/docs/{cwf-meta-commands.md,gwf.md,workflow-commands.md,completion-setup.md}
 
+## Where to Add Rule Improvements
+
+When improving the workflow by adding new rules or best practices, choose the appropriate location:
+
+### Category-Specific Rules
+
+**Location:** `~/.claude-<category>-rules`
+
+Use for practices specific to one workflow type:
+- `~/.claude-feature-rules` - Feature development practices
+- `~/.claude-review-rules` - Code review practices
+- `~/.claude-customer-mgmt-rules` - Customer management practices
+- `~/.claude-prepare-release-rules` - Release preparation practices
+- Or create new: `~/.claude-<new-category>-rules`
+
+**When to use:** Practice only applies to one specific workflow category.
+
+**Format:**
+```markdown
+# Category Rules
+
+## Section Name
+Brief description of when this applies.
+
+- Rule 1
+- Rule 2
+- Rule 3
+```
+
+### Shared Fragments
+
+**Location:** `~/.config/cwf/prompts/shared/<fragment>.txt`
+
+Use for practices that apply across multiple workflows. Choose the most relevant fragment:
+
+**Code Quality & Structure:**
+- `code-quality-fundamentals.txt` - Constants, types, naming, error handling, code organization
+- `reusable-code-extraction.txt` - When/how to extract reusable code, utility structure
+
+**Testing & Documentation:**
+- `testing-documentation.txt` - Test coverage, test organization, documentation standards
+- `docs-instructions.txt` - Documentation reading/updating practices
+
+**Security & Safety:**
+- `security-best-practices.txt` - Input validation, auth, data protection, vulnerabilities
+- `runtime-safety.txt` - Resource management, null safety, error handling, concurrency
+
+**Performance:**
+- `performance-database.txt` - Query optimization, N+1 prevention, database best practices
+
+**Git & GitHub:**
+- `git-safety.txt` - Git operation safety protocols
+- `github-context.txt` - GitHub CLI usage patterns, context gathering
+
+**Project & Workflow:**
+- `project-rules.txt` - Project-specific rule file detection
+- `planning-guidelines.txt` - When/how to use plan mode
+- `worktree-workflow.txt` - Worktree management patterns
+- `workflow-commands.txt` - Workflow modes, behaviors, continuous improvement
+
+**Design & Architecture:**
+- `design-patterns.txt` - Design pattern considerations
+- `api-proto-check.txt` - API/protobuf change reminders
+
+**Misc:**
+- `file-reading-reminder.txt` - File reading practices
+- `review-and-update-docs.txt` - Documentation update checklist
+- `continuous-improvement.txt` - Short reminder about continuous improvement
+
+**When to use:** Practice applies across multiple workflow categories or is universally applicable.
+
+**Or create new fragment:** If none fit, suggest creating a new shared fragment with a descriptive name.
+
+### How to Add Rules
+
+When implementing rule improvements:
+
+1. **Identify the practice clearly**
+   - What specific behavior should change?
+   - What problem does this prevent or solve?
+
+2. **Choose the correct location**
+   - Single category? → Category-specific rules
+   - Multiple categories? → Shared fragment
+   - New domain? → Create new fragment
+
+3. **Follow existing format**
+   - Use imperative mood ("Check for X", "Use Y", "Avoid Z")
+   - Be concise and actionable
+   - Use bullet points for lists
+   - Add section headers for organization
+
+4. **Maintain consistency**
+   - Match the style of existing content
+   - Keep similar density/brevity
+   - Use parallel structure in lists
+
+5. **Test the addition**
+   - Ensure template variables load correctly
+   - Verify file is used by relevant commands
+   - Check that rule is clear and actionable
+
+### Example: Adding a New Rule
+
+**Scenario:** Discovered that all database migrations should include rollback scripts.
+
+**Decision:** This is database-specific → Add to `performance-database.txt`
+
+**Implementation:**
+```bash
+# Read the file
+cat ~/.config/cwf/prompts/shared/performance-database.txt
+
+# Edit to add new section or add to existing section
+# Add under "## Database Best Practices":
+- Include rollback scripts for all migrations
+- Test rollback procedure in staging before production
+- Document migration dependencies and order
+```
+
+**Verification:**
+```bash
+# Check which prompts use this fragment
+grep -r "PERFORMANCE_DATABASE" ~/.config/cwf/prompts/
+
+# Test with a command that uses it
+cwf feature dp "test database work"
+```
+
+### Template Variable Reference
+
+Each shared fragment is loaded via template variables in cwf.sh:
+
+| Template Variable | Fragment File | Loaded When |
+|-------------------|---------------|-------------|
+| `{{CODE_QUALITY_FUNDAMENTALS}}` | code-quality-fundamentals.txt | Prompt contains variable |
+| `{{TESTING_DOCUMENTATION}}` | testing-documentation.txt | Prompt contains variable |
+| `{{SECURITY_CHECKS}}` | security-best-practices.txt | Prompt contains variable |
+| `{{RUNTIME_SAFETY}}` | runtime-safety.txt | Prompt contains variable |
+| `{{PERFORMANCE_DATABASE}}` | performance-database.txt | Prompt contains variable |
+| `{{GIT_SAFETY}}` | git-safety.txt | Prompt contains variable |
+| `{{GITHUB_CONTEXT}}` | github-context.txt | Prompt contains variable |
+| `{{EXTRACT_REUSABLE_CODE}}` | reusable-code-extraction.txt | Prompt contains variable |
+| `{{PROJECT_RULES}}` | project-rules.txt | Prompt contains variable |
+| `{{PLANNING_GUIDELINES}}` | planning-guidelines.txt | Prompt contains variable |
+| `{{WORKTREE_WORKFLOW}}` | worktree-workflow.txt | Prompt contains variable |
+| `{{WORKFLOW_COMMANDS}}` | workflow-commands.txt | Prompt contains variable |
+| `{{DESIGN_PATTERNS}}` | design-patterns.txt | Prompt contains variable |
+| `{{API_PROTO_CHECK}}` | api-proto-check.txt | Prompt contains variable |
+| `{{FILE_READING_REMINDER}}` | file-reading-reminder.txt | Prompt contains variable |
+| `{{DOCS_INSTRUCTIONS}}` | docs-instructions.txt | Prompt contains variable |
+| `{{REVIEW_AND_UPDATE_DOCS}}` | review-and-update-docs.txt | Prompt contains variable |
+| `{{CONTINUOUS_IMPROVEMENT}}` | continuous-improvement.txt | Prompt contains variable |
+| `{{CATEGORY_RULES}}` | Load category-specific rules | Prompt contains variable |
+
+To use a fragment in a prompt, add the template variable:
+```markdown
+# In a prompt file like feature/dp.txt
+{{CODE_QUALITY_FUNDAMENTALS}}
+{{PERFORMANCE_DATABASE}}
+```
+
+The script loads these fragments only if the prompt references them (lazy loading).
+
 {{FILE_READING_REMINDER}}
 {{REVIEW_AND_UPDATE_DOCS}}

@@ -1,5 +1,9 @@
 @~/repos/data-pipelines
 
+{{WORKTREE_WORKFLOW}}
+
+{{GITHUB_CONTEXT}}
+
 {{PROJECT_RULES}}
 
 {{GIT_SAFETY}}
@@ -15,5 +19,7 @@
 {{WORKFLOW_COMMANDS}}
 
 {{PLANNING_GUIDELINES}}
+
+{{CONTINUOUS_IMPROVEMENT}}
 
 Work on the data-pipelines feature requested below.

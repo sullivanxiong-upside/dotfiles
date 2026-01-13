@@ -35,3 +35,78 @@ The user may request different workflow modes during the session using these com
 - "regen fields for [customer]" → Regenerate SFDC query fields
 
 When the user invokes any of these commands, immediately switch to that workflow mode and apply the relevant rules and processes.
+
+## Continuous Improvement
+
+When you discover practices during development that:
+- Significantly improve workflow efficiency
+- Prevent common mistakes or errors
+- Would benefit future work across the codebase
+- Should be standardized across the team
+
+**Proactively suggest adding them to the appropriate rules file.**
+
+### Where to Add Rules
+
+**Category-Specific Rules** (`~/.claude-<category>-rules`):
+- Practices specific to one workflow type (feature, review, customer-mgmt, etc.)
+- Example categories: feature, review, customer-mgmt, prepare-release
+- Format: Create file if it doesn't exist: `~/.claude-<category>-rules`
+
+**Shared Fragments** (`~/.config/cwf/prompts/shared/<fragment>.txt`):
+- Practices that apply across multiple workflows
+- Choose the most relevant fragment:
+  - `code-quality-fundamentals.txt` - Code structure, constants, naming, types
+  - `testing-documentation.txt` - Testing standards, documentation requirements
+  - `security-best-practices.txt` - Security, validation, auth patterns
+  - `runtime-safety.txt` - Error handling, resource management, safety
+  - `performance-database.txt` - Query optimization, N+1 prevention
+  - `git-safety.txt` - Git operation protocols
+  - `github-context.txt` - GitHub CLI usage patterns
+  - `reusable-code-extraction.txt` - Code reusability patterns
+  - `project-rules.txt` - Project-specific rule detection
+  - `planning-guidelines.txt` - When/how to plan work
+  - `worktree-workflow.txt` - Worktree management patterns
+  - `workflow-commands.txt` - Workflow modes and behaviors (this file)
+  - Or suggest creating a new fragment if none fit
+
+### How to Suggest Improvements
+
+When suggesting a rule addition:
+
+1. **Identify the practice**: Clearly describe what you learned
+2. **Explain the benefit**: Why this improves workflow or prevents issues
+3. **Determine location**: Category-specific rules or shared fragment?
+4. **Propose the addition**: Show exactly what text to add and where
+5. **Format properly**: Use imperative mood, be concise, follow existing style
+
+**Example suggestion format:**
+```
+I noticed that [situation/problem]. This could be prevented by [practice].
+
+I recommend adding this to ~/.config/cwf/prompts/shared/code-quality-fundamentals.txt
+under the "## Error Handling" section:
+
+- Always include error context (operation, IDs, values) in error messages
+- Use structured logging for errors to enable filtering and alerting
+
+This would help prevent [specific issue] in future work.
+
+Would you like me to add this rule?
+```
+
+### When to Suggest Rules
+
+**Do suggest** when you notice:
+- Repeated mistakes across multiple sessions
+- Patterns that save significant time or prevent bugs
+- Best practices from this codebase that aren't documented
+- Missing guidelines that caused confusion or rework
+- Tool/command usage patterns that work especially well
+
+**Don't suggest** for:
+- One-off situations unlikely to recur
+- Practices already covered in existing rules
+- Highly project-specific patterns (should go in project's .cursor/rules instead)
+- Personal preferences without clear benefit
+- Common knowledge that experienced developers know
