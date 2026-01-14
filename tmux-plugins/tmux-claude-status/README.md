@@ -1,29 +1,30 @@
-# tmux-claude-status v2.0
+# tmux-claude-status v3.0
 
-Real-time Claude Code status monitoring in tmux window tabs.
+Real-time Claude Code status monitoring in tmux window tabs using official hooks API.
 
 ## Features
 
-- **Real-time status** - Updates every 300ms from Claude's internal state via `/statusline` API
-- **No flashing** - Smooth transitions based on token changes, not arbitrary timeouts
+- **Event-driven** - Uses Claude Code's official hooks system for deterministic state changes
+- **No UI clutter** - Hooks run silently, no visible text in Claude's status line
 - **Per-window tracking** - Each tmux window shows its own Claude instance status
-- **Customizable** - Configure icons, colors, and position
-- **Low overhead** - Minimal CPU usage, efficient caching
+- **Simple states** - Working (`...`) or Ready (`✔`) - no complex token analysis needed
+- **Instant updates** - Status changes immediately when events fire
+- **Low overhead** - Hooks run only on actual events, not continuous polling
 - **TPM compatible** - Works as a standard tmux plugin
 
 ## Status Indicators
 
 | Icon | Meaning | When Shown |
 |------|---------|------------|
-| `...` | Processing | Claude is generating response, thinking, or executing tools |
-| `✔` | Completed | Claude finished and ready for next prompt |
-| `○` | No Claude | No Claude running in this pane (optional) |
+| `...` | Working | Claude is processing your prompt, generating response, or using tools |
+| `✔` | Ready | Claude finished and is waiting for your next prompt |
+| (empty) | No Claude | No Claude running in this pane, or pane switched to another command |
 
 ### Colors
 
 - **Active tab**: White bold (high visibility)
-- **Inactive, processing**: Yellow `...`
-- **Inactive, completed**: Green `✔`
+- **Inactive, working**: Yellow `...`
+- **Inactive, ready**: Green `✔`
 
 ## Prerequisites
 
@@ -37,7 +38,7 @@ Real-time Claude Code status monitoring in tmux window tabs.
    sudo apt install jq     # Debian/Ubuntu
    sudo pacman -S jq       # Arch
    ```
-3. **Claude Code CLI** with statusline configured
+3. **Claude Code CLI** with hooks configured
 
 ## Installation
 
@@ -45,28 +46,69 @@ Real-time Claude Code status monitoring in tmux window tabs.
 
 This plugin is located at `~/repos/dotfiles/tmux-plugins/tmux-claude-status/`.
 
-### Step 2: Configure Claude Code Statusline
+### Step 2: Configure Claude Code Hooks
 
-The statusline script tells Claude Code to write state information that the plugin reads.
-
-```bash
-# Copy statusline script to Claude config
-cp ~/repos/dotfiles/tmux-plugins/tmux-claude-status/extras/statusline.sh ~/.claude/
-chmod +x ~/.claude/statusline.sh
-```
-
-Configure Claude Code to use it:
+Claude Code's hooks system runs commands on specific lifecycle events. Configure it to track state.
 
 **Edit or create `~/.claude/settings.json`:**
 ```json
 {
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline.sh",
-    "padding": 0
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh SessionStart"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh UserPromptSubmit"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh Stop"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh Notification"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh SessionEnd"
+          }
+        ]
+      }
+    ]
   }
 }
 ```
+
+**Important**: After updating settings.json, restart Claude Code or run `/hooks` to review hook configuration.
 
 ### Step 3: Load Plugin in tmux
 
@@ -90,35 +132,13 @@ tmux source-file ~/.tmux.conf
 claude
 
 # Watch the window tab - status should appear!
-# You should see: [1] ... claude-session  (while processing)
-#            or:  [1] ✔ claude-session  (when ready)
-```
+# You should see: [1] ✔ claude-session   (initially ready)
 
-## Configuration
+# Submit a prompt
+# Status changes to: [1] ... claude-session  (while processing)
 
-Customize via `.tmux.conf` (place BEFORE plugin load):
-
-```bash
-# Icons (default: "..." and "✔")
-set -g @claude-status-icon-processing "⚙️"
-set -g @claude-status-icon-completed "✨"
-set -g @claude-status-icon-empty "○"
-
-# Position: "before" or "after" window name
-# before: [1] ... window-name
-# after:  [1] window-name ...
-set -g @claude-status-position "before"
-
-# Show indicator when no Claude running (default: false)
-set -g @claude-status-show-empty "true"
-
-# State max age in seconds (default: 5)
-# Files older than this are considered stale
-set -g @claude-status-max-age "10"
-
-# Enable debug logging (default: false)
-set -g @claude-status-debug "true"
-# View logs: tail -f /tmp/tmux-claude-status-debug.log
+# When Claude finishes
+# Status returns to: [1] ✔ claude-session   (ready again)
 ```
 
 ## How It Works
@@ -127,26 +147,32 @@ set -g @claude-status-debug "true"
 
 ```
 ┌──────────────────────┐
-│   Claude Code        │ Runs in tmux pane
-│   (every 300ms)      │
+│   Claude Code        │ Lifecycle events
+│   (SessionStart,     │
+│    UserPromptSubmit, │
+│    Stop, etc.)       │
 └──────────┬───────────┘
-           │ JSON via stdin
+           │ Triggers hook
            ▼
 ┌──────────────────────┐
-│  ~/.claude/          │ Analyzes token changes
-│  statusline.sh       │ - tokens_out ↑ = generating
-└──────────┬───────────┘ - tokens_in ↑ = thinking
-           │             - stable = completed
+│  hooks/              │ Event handler
+│  tmux-claude-        │ - UserPromptSubmit → "working"
+│  status-hook.sh      │ - Stop → "ready"
+└──────────┬───────────┘ - SessionEnd → delete state
+           │
            ▼
 ┌──────────────────────┐
-│  cache/*.json        │ State files per pane
-│  (in plugin dir)     │
+│  ~/.cache/           │ State files per pane
+│  tmux-claude-status/ │ (keyed by tmux server + pane)
+│  *.json              │
 └──────────┬───────────┘
            │
            ▼
 ┌──────────────────────┐
-│  state_reader.sh     │ Reads cache, formats display
-└──────────┬───────────┘
+│  scripts/            │ Reads cache, formats display
+│  claude_state_       │ - Checks pane is running Claude
+│  reader.sh           │ - Resolves window_id to active pane
+└──────────┬───────────┘ - Returns formatted status
            │
            ▼
 ┌──────────────────────┐
@@ -154,71 +180,97 @@ set -g @claude-status-debug "true"
 └──────────────────────┘
 ```
 
-### Token-Based State Detection
+### Event-Driven State Tracking
 
-The plugin detects Claude's state by monitoring token changes in the JSON data from `/statusline`:
+The plugin uses Claude Code's official hooks API for deterministic state changes:
 
-- **Output tokens increasing** → Generating response (`...`)
-- **Input tokens increasing** → Thinking/processing (`...`)
-- **Cache reads increasing** → Loading context (`...`)
-- **Tokens stable** → Completed/Ready (`✔`)
+| Hook Event | State Transition | tmux Display |
+|------------|------------------|--------------|
+| `SessionStart` | → ready | `✔` (green) |
+| `UserPromptSubmit` | → working | `...` (yellow) |
+| `Stop` | → ready | `✔` (green) |
+| `Notification` | → ready | `✔` (green) |
+| `SessionEnd` | → (delete state) | (empty) |
 
-This approach eliminates the "flashing" problem from v1.0 which used arbitrary time windows.
+**Why hooks?** Claude's hooks system is designed for automation and runs on actual lifecycle events. This is far more reliable than:
+- Token delta inference (what v2.0 did)
+- Process observation (what v1.0 attempted)
+- Polling-based heuristics
+
+Hooks fire exactly when they should, giving you clean state transitions with zero guesswork.
 
 ## Troubleshooting
 
 ### Status not showing
 
-1. **Check Claude statusline is working:**
+1. **Check hooks are configured:**
    ```bash
-   claude
-   # Look for status line at bottom of terminal
+   # Start Claude and run:
+   /hooks
+
+   # You should see tmux-claude-status-hook.sh listed for each event
    ```
 
-2. **Check state files are being created:**
+2. **Check hook script is executable:**
    ```bash
-   ls -la ~/repos/dotfiles/tmux-plugins/tmux-claude-status/cache/
+   ls -l ~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh
+   # Should show -rwxr-xr-x
+
+   chmod +x ~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh
+   ```
+
+3. **Check state files are being created:**
+   ```bash
+   ls -lah ~/.cache/tmux-claude-status/
    # Should show .json files while Claude is running
 
-   cat ~/repos/dotfiles/tmux-plugins/tmux-claude-status/cache/*.json | jq .
-   # Should show valid JSON with status, tokens, etc.
+   cat ~/.cache/tmux-claude-status/*.json | jq .
+   # Should show: {"pane_id":"%47","status":"working","event":"UserPromptSubmit",...}
    ```
 
-3. **Check jq is installed:**
+4. **Verify you're in a tmux pane:**
+   ```bash
+   echo $TMUX_PANE
+   # Should output something like: %47
+
+   # Hooks only work when Claude is running inside tmux
+   ```
+
+5. **Check jq is installed:**
    ```bash
    which jq
    jq --version
    ```
 
-4. **Enable debug logging:**
+### Status stuck on "working"
+
+If the status never changes back to ready after Claude finishes:
+
+1. **Check hook fired:**
    ```bash
-   # Add to .tmux.conf
-   set -g @claude-status-debug "true"
+   # Look at the updated timestamp in the state file
+   cat ~/.cache/tmux-claude-status/*.json | jq '.updated'
 
-   # Reload tmux
-   tmux source-file ~/.tmux.conf
+   # Compare to current time:
+   date +%s
 
-   # View logs
-   tail -f /tmp/tmux-claude-status-debug.log
+   # If updated is old, the Stop hook may not have fired
    ```
 
-### Status shows stale data
+2. **Restart Claude:**
+   ```bash
+   # Exit and restart Claude Code
+   # This triggers SessionEnd (cleanup) and SessionStart (reset)
+   ```
 
-State files older than 5 seconds are ignored. This happens if:
-- Claude crashed/exited
-- Statusline script has errors
-- File permissions issue
+3. **Manually test hook:**
+   ```bash
+   echo '{"session_id":"test"}' | \
+     ~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh Stop
 
-**Check for errors:**
-```bash
-tail -f ~/.claude/statusline-errors.log
-```
-
-**Test statusline manually:**
-```bash
-echo '{"model":{"display_name":"Test"},"context_window":{"input_tokens":100,"output_tokens":200},"cost":{"total_cost_usd":0.05}}' | \
-  ~/.claude/statusline.sh
-```
+   # Check state file updated to "ready"
+   cat ~/.cache/tmux-claude-status/*.json | jq '.status'
+   ```
 
 ### Plugin not loading
 
@@ -237,82 +289,142 @@ echo '{"model":{"display_name":"Test"},"context_window":{"input_tokens":100,"out
    ```bash
    ls -l ~/repos/dotfiles/tmux-plugins/tmux-claude-status/*.tmux
    ls -l ~/repos/dotfiles/tmux-plugins/tmux-claude-status/scripts/*.sh
-   ls -l ~/.claude/statusline.sh
+   ls -l ~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/*.sh
    ```
 
-3. **Make executable if needed:**
+3. **Test plugin manually:**
    ```bash
-   chmod +x ~/repos/dotfiles/tmux-plugins/tmux-claude-status/*.tmux
-   chmod +x ~/repos/dotfiles/tmux-plugins/tmux-claude-status/scripts/*.sh
-   chmod +x ~/.claude/statusline.sh
+   ~/repos/dotfiles/tmux-plugins/tmux-claude-status/tmux-claude-status.tmux
+
+   # Check window formats updated:
+   tmux show-option -gv window-status-format
+   # Should contain: claude_state_reader.sh
    ```
 
-### Wrong path in statusline.sh
+### Hooks not firing
 
-The statusline script needs to know where to write cache files. By default it uses:
-```bash
-STATE_DIR="${HOME}/repos/dotfiles/tmux-plugins/tmux-claude-status/cache"
-```
+1. **Restart Claude Code** - Hooks are loaded at startup:
+   ```bash
+   # Exit Claude (Ctrl+D)
+   # Start again
+   claude
 
-If you cloned dotfiles to a different location, update this path in `~/.claude/statusline.sh`.
+   # Check hooks loaded
+   /hooks
+   ```
+
+2. **Check settings.json syntax:**
+   ```bash
+   # Validate JSON
+   cat ~/.claude/settings.json | jq .
+   # Should not show syntax errors
+   ```
+
+3. **Check hook paths are correct:**
+   ```bash
+   # Verify the path in settings.json exists
+   ls -l ~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh
+   ```
 
 ## Performance
 
-- **Update latency**: ~300ms (Claude's statusline update cycle)
-- **CPU overhead**: Minimal (< 1% - just file reads and jq parsing)
-- **Memory**: Negligible (small JSON files, ~1KB per active pane)
-- **Disk I/O**: ~3KB written per update per pane
+- **Update latency**: Instant (event-driven, not polled)
+- **CPU overhead**: Minimal (hooks run only on events, not continuously)
+- **Memory**: Negligible (small JSON files, ~100 bytes per pane)
+- **Disk I/O**: ~100 bytes written per state change per pane
 
-## Comparison: v1.0 vs v2.0
+## Comparison: v1.0 vs v2.0 vs v3.0
 
-### v1.0 (External Observation - Failed Approach)
+### v1.0 (External Observation - Failed)
 
 - Used `ps` to check process state → Doesn't work with Node.js event loop
 - Used `lsof` to check stdin → Can't distinguish blocked vs waiting
 - Used time windows in `history.jsonl` → Caused flashing between states
 - Result: **Unreliable, frequent flashing**
 
-### v2.0 (Internal State Access - Current)
+### v2.0 (Statusline API - Hacky)
 
-- Uses Claude's official `/statusline` API → Direct access to internal state
-- Detects state from token changes → No arbitrary time windows
-- Smooth transitions based on actual activity → No flashing
-- Result: **Accurate, smooth, reliable**
+- Used `/statusline` API for internal state access
+- Analyzed token deltas to infer state (tokens_out ↑ = generating, etc.)
+- Needed 3-second grace period to prevent flashing during tool calls
+- **Problem**: Cluttered Claude's UI with visible status text
+- Result: **Worked, but was a hack - statusline isn't meant for IPC**
+
+### v3.0 (Hooks API - Official)
+
+- Uses official hooks system designed for automation
+- Deterministic state changes based on actual events
+- No token analysis, no grace periods, no inference needed
+- No UI clutter - hooks are silent
+- Instant state transitions
+- Result: **Clean, reliable, officially supported**
+
+## Migration from v2.0
+
+If you're upgrading from v2.0 (statusline-based):
+
+### Changes
+
+1. **Remove statusline**: Delete `~/.claude/statusline.sh` and remove `"statusLine"` block from settings.json
+2. **Add hooks**: Configure hooks block as shown in installation (Step 2)
+3. **Restart Claude**: Hooks load at startup, run `/hooks` to verify
+4. **Same UX**: tmux tabs still show `...` / `✔` in the same position
+
+### Breaking Changes
+
+- **No fine-grained states**: v2.0 showed "generating", "thinking", "loading" - v3.0 only shows "working" vs "ready"
+- **No token/cost display**: v3.0 focuses on simple status indicator only
+- **Different cache location**: v3.0 uses `~/.cache/tmux-claude-status/` instead of plugin's cache/ directory
+
+### Benefits
+
+- ✅ No visible text in Claude's status line
+- ✅ Deterministic state tracking (not token inference)
+- ✅ Instant state changes (no polling delay)
+- ✅ Uses officially supported API (hooks, not statusline)
 
 ## File Structure
 
 ```
 ~/repos/dotfiles/tmux-plugins/tmux-claude-status/
 ├── tmux-claude-status.tmux      # Main entry point (TPM compatible)
+├── hooks/
+│   └── tmux-claude-status-hook.sh  # Event handler for Claude hooks
 ├── scripts/
 │   ├── claude_state_reader.sh   # Reads state, formats display
-│   └── helpers.sh               # Utility functions
-├── extras/
-│   └── statusline.sh            # Claude statusline script (copy to ~/.claude/)
-├── cache/                       # State files (runtime, auto-created)
-│   └── *.json
+│   └── helpers.sh               # Utility functions (legacy, mostly unused)
+├── cache/                       # (Legacy from v2.0, no longer used)
 └── README.md                    # This file
 ```
 
-## Why This Plugin?
+## Why v3.0?
 
-Your v1.0 implementation revealed a fundamental problem: **you can't reliably observe Claude's state from the outside**. Process states, file descriptors, and activity timestamps are all indirect heuristics that fail with event-driven Node.js processes.
+The v2.0 plugin revealed a key insight: **Claude's `/statusline` API is designed for UI rendering, not IPC**. Using it as a state signal works, but it's a hack:
 
-Claude's `/statusline` API solves this by providing **internal access** to the actual state through token changes. This v2.0 plugin leverages that official API to deliver accurate, real-time status with zero flashing.
+- The status text is visible in Claude's UI (clutters the display)
+- Requires parsing Claude's internal JSON to infer state from token deltas
+- Needs grace periods and heuristics to avoid flashing
+
+**Claude's hooks system solves this properly** - it's designed for automation and integration. Hooks:
+- Run on actual lifecycle events (UserPromptSubmit, Stop, etc.)
+- Are completely silent (no UI rendering)
+- Provide deterministic state transitions (no inference needed)
+- Are officially supported for this exact use case
+
+v3.0 uses the right tool for the job.
 
 ## Related Documentation
 
-- [Claude Code Statusline Docs](https://code.claude.com/docs/en/statusline.md)
+- [Claude Code Hooks Docs](https://code.claude.com/docs/en/hooks.md)
 - [Main Dotfiles README](../../README.md)
-- [Installation Guide](../../INSTALLATION.md)
-- [Initial Implementation Summary](~/Documents/tmux-claude-status-initial.md) (your v1.0 research)
+- [QUICKSTART Guide](./QUICKSTART.md)
+
+## Credits
+
+- Built with [Claude Code's hooks API](https://code.claude.com/docs/en/hooks.md)
+- Inspired by [samleeney/claude-tmux-status](https://github.com/samleeney/claude-tmux-status) (also uses hooks)
+- Learned from v1.0's external observation and v2.0's statusline challenges
 
 ## License
 
 MIT - Part of personal dotfiles
-
-## Credits
-
-- Built with [Claude Code's statusline API](https://code.claude.com/docs/en/statusline.md)
-- Inspired by [dracula/tmux](https://github.com/dracula/tmux) plugin structure
-- Learned from v1.0's external observation challenges

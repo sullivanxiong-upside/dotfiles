@@ -1,108 +1,58 @@
 #!/usr/bin/env bash
 #
-# tmux-claude-status v2.0
+# tmux-claude-status v3.0
 # Main plugin entry point
 #
-# Integrates with Claude Code's statusline API to display real-time
+# Integrates with Claude Code's hooks API to display real-time
 # status in tmux window tabs.
 
-set -e
+set -euo pipefail
 
-CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+READER="$CURRENT_DIR/scripts/claude_state_reader.sh"
 
-# Source helper functions
-source "$CURRENT_DIR/scripts/helpers.sh"
+# Use window_id so the reader can resolve the active pane reliably
+STATUS_INACTIVE="#($READER '#{window_id}' inactive)"
+STATUS_ACTIVE="#($READER '#{window_id}' active)"
 
-# Ensure cache directory exists
-CACHE_DIR="${CURRENT_DIR}/cache"
-mkdir -p "$CACHE_DIR"
+inject_before_window_name() {
+  local fmt="$1"
+  local insert="$2" # includes surrounding spaces
 
-# Log plugin initialization (if debug enabled)
-debug_log "tmux-claude-status v2.0 initializing"
+  # avoid double-inject
+  if [[ "$fmt" == *"claude_state_reader.sh"* ]]; then
+    echo "$fmt"
+    return
+  fi
 
-# Configuration defaults
-DEFAULT_ICON_PROCESSING="..."
-DEFAULT_ICON_COMPLETED="✔"
-DEFAULT_ICON_EMPTY="○"
-DEFAULT_POSITION="before"
-DEFAULT_SHOW_EMPTY="false"
-DEFAULT_MAX_AGE="5"
+  # Most formats contain #W or #{window_name}; inject before that.
+  if [[ "$fmt" == *"#W"* ]]; then
+    echo "${fmt/\#W/${insert}#W}"
+    return
+  fi
 
-# Get user configuration options
-ICON_PROCESSING=$(get_tmux_option "@claude-status-icon-processing" "$DEFAULT_ICON_PROCESSING")
-ICON_COMPLETED=$(get_tmux_option "@claude-status-icon-completed" "$DEFAULT_ICON_COMPLETED")
-POSITION=$(get_tmux_option "@claude-status-position" "$DEFAULT_POSITION")
-SHOW_EMPTY=$(get_tmux_option "@claude-status-show-empty" "$DEFAULT_SHOW_EMPTY")
+  if [[ "$fmt" == *"#{window_name}"* ]]; then
+    # Use sed for #{window_name} to avoid bash brace expansion issues
+    echo "$fmt" | sed "s/#{window_name}/${insert}#{window_name}/"
+    return
+  fi
 
-debug_log "Config: processing=$ICON_PROCESSING, completed=$ICON_COMPLETED, position=$POSITION"
-
-# Build the status script command
-# This will be injected into tmux's window-status-format
-STATE_READER="${CURRENT_DIR}/scripts/claude_state_reader.sh"
-
-# Script for inactive windows (colored status)
-status_script_inactive="#($STATE_READER '#{pane_id}' inactive)"
-
-# Script for active window (white bold status)
-status_script_active="#($STATE_READER '#{pane_id}' active)"
-
-# Get current window format strings
-current_format=$(tmux show-option -gqv window-status-format)
-active_format=$(tmux show-option -gqv window-status-current-format)
-
-debug_log "Current format: $current_format"
-debug_log "Active format: $active_format"
-
-# Check if formats are empty (shouldn't happen, but safety check)
-if [ -z "$current_format" ]; then
-    current_format="#I #W"
-    debug_log "Warning: window-status-format was empty, using default"
-fi
-
-if [ -z "$active_format" ]; then
-    active_format="#I #W"
-    debug_log "Warning: window-status-current-format was empty, using default"
-fi
-
-# Inject status script into format strings
-# Position can be "before" (between index and name) or "after" (after name)
-if [ "$POSITION" = "after" ]; then
-    # Place status after window name: #I #W STATUS
-    new_format="${current_format} ${status_script_inactive}"
-    new_active="${active_format} ${status_script_active}"
-else
-    # Place status before window name: #I STATUS #W
-    # Use bash parameter substitution to inject after #I
-    new_format="${current_format/ #I #W/ #I ${status_script_inactive} #W}"
-    new_active="${active_format/ #I #W/ #I ${status_script_active} #W}"
-
-    # Fallback if pattern doesn't match (theme might use different format)
-    if [ "$new_format" = "$current_format" ]; then
-        # Pattern didn't match, append instead
-        new_format="${current_format} ${status_script_inactive}"
-        debug_log "Warning: Could not inject before name, appending instead"
-    fi
-
-    if [ "$new_active" = "$active_format" ]; then
-        new_active="${active_format} ${status_script_active}"
-        debug_log "Warning: Could not inject before name (active), appending instead"
-    fi
-fi
-
-debug_log "New format: $new_format"
-debug_log "New active: $new_active"
-
-# Apply the new formats
-tmux set-option -gq window-status-format "$new_format"
-tmux set-option -gq window-status-current-format "$new_active"
-
-# Set up periodic cleanup of stale cache files (older than 1 day)
-# This prevents accumulation of abandoned state files
-cleanup_stale_cache() {
-    find "$CACHE_DIR" -name '*.json' -mtime +1 -delete 2>/dev/null || true
+  # fallback: append
+  echo "${fmt}${insert}"
 }
 
-# Run cleanup in background
-cleanup_stale_cache &
+fmt="$(tmux show-option -gqv window-status-format)"
+cur="$(tmux show-option -gqv window-status-current-format)"
 
-debug_log "tmux-claude-status v2.0 loaded successfully"
+new_fmt="$(inject_before_window_name "$fmt" " $STATUS_INACTIVE ")"
+new_cur="$(inject_before_window_name "$cur" " $STATUS_ACTIVE ")"
+
+tmux set-option -gq window-status-format "$new_fmt"
+tmux set-option -gq window-status-current-format "$new_cur"
+
+# Set up periodic cleanup of stale cache files (older than 7 days)
+# This prevents accumulation of abandoned state files
+CACHE_DIR="${CLAUDE_TMUX_STATUS_CACHE_DIR:-$HOME/.cache/tmux-claude-status}"
+if [[ -d "$CACHE_DIR" ]]; then
+  find "$CACHE_DIR" -name '*.json' -mtime +7 -delete 2>/dev/null &
+fi
