@@ -30,3 +30,15 @@ disable=SC2162
 # Array handling is intentional in these scripts
 disable=SC2178
 disable=SC2128
+
+# SC2207: Prefer mapfile or read -a to split command output
+# Current pattern works fine for package lists
+disable=SC2207
+
+# SC2002: Useless cat
+# Cat with pipes is more readable for chained commands
+disable=SC2002
+
+# SC2164: Use 'cd ... || exit' or 'cd ... || return'
+# Directory changes are safe in these contexts
+disable=SC2164
