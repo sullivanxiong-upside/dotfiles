@@ -38,7 +38,7 @@ First, understand what the user wants to do:
 
 1. **Read current settings:**
    ```bash
-   cat ~/repos/dotfiles/.claude/settings.json
+   cat ~/repos/dotfiles/home/.claude/settings.json
    ```
 
 2. **Ask the user their goal:**
@@ -169,7 +169,7 @@ Once confirmed:
 
 1. **Backup current settings:**
    ```bash
-   cp ~/repos/dotfiles/.claude/settings.json ~/repos/dotfiles/.claude/settings.json.backup
+   cp ~/repos/dotfiles/home/.claude/settings.json ~/repos/dotfiles/home/.claude/settings.json.backup
    ```
 
 2. **Apply changes:**
