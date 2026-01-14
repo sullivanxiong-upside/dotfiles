@@ -16,7 +16,7 @@ Reimplementing existing functionality creates maintenance burden and inconsisten
 config_path = Path(__file__).parent.parent.parent / "config" / "customers.yaml"
 
 # Do: Use project_paths
-from src.libraries.project_paths import get_project_root
+from upside.core.project_paths import get_project_root
 config_path = get_project_root() / "config" / "customers.yaml"
 
 # Don't: Load config directly
@@ -24,7 +24,7 @@ with open(config_path) as f:
     config = yaml.safe_load(f)
 
 # Do: Use customer_config_provider
-from src.libraries.customer_config_provider import get_customer_config
+from upside.core.customer_config_provider import get_customer_config
 config = get_customer_config(customer_org_id)
 ```
 
@@ -87,7 +87,7 @@ When services have multiple config files for different environments, use consist
 - `prod-config.toml` - Only for CLI tools (services deployed via Helm use generated configs)
 
 ```
-src/jobs/miniapp_serving_service/
+python-src/apps/miniapp_serving_service/src/upside/apps/miniapp_serving_service/
 ├── local-config.toml       # LocalStack + localhost
 ├── stage-config.toml       # Your laptop → Stage AWS
 └── main.py
@@ -116,7 +116,7 @@ Services often have multiple configuration contexts - clearly distinguish betwee
 **2. Service runtime config** (e.g., application config)
 - Used by the service itself at runtime
 - Contains AWS auth, DB connections, app settings
-- Example: `src/jobs/miniapp_serving_service/local-config.toml`
+- Example: `python-src/apps/miniapp_serving_service/src/upside/apps/miniapp_serving_service/local-config.toml`
 
 **3. Helm deployment config** (e.g., K8s templates)
 - Used only in K8s deployments
@@ -131,7 +131,7 @@ scripts/local-miniapp/local-config.yaml:
     management_port: 49153
 
 # Service runtime config (Python service reads this)
-src/jobs/miniapp_serving_service/local-config.toml:
+python-src/apps/miniapp_serving_service/src/upside/apps/miniapp_serving_service/local-config.toml:
   [aws_auth]
   endpoint_url_override = "http://localhost:4566"
 
@@ -189,8 +189,8 @@ Every config file MUST have a header comment that clearly explains its purpose a
 # For fully local development with LocalStack, use local-config.toml instead.
 #
 # Usage:
-#   uv run python -m src.jobs.miniapp_serving_service.main \
-#     --config_file src/jobs/miniapp_serving_service/stage-config.toml
+#   uv run python -m upside.apps.miniapp_serving_service.main \
+#     --config_file python-src/apps/miniapp_serving_service/src/upside/apps/miniapp_serving_service/stage-config.toml
 ```
 
 **Why this matters:**
@@ -428,12 +428,12 @@ New packages, modules, or standalone features require README.md files with quali
 - **Supported/Not Supported**: Document known limitations and what's been tested
 
 ```
-src/jobs/miniapp_management_api/
+python-src/apps/miniapp_management_api/src/upside/apps/miniapp_management_api/
 ├── README.md          # Required: Explains the API, endpoints, setup
 ├── main.py
 └── endpoints.py
 
-src/libraries/custom_rules_engine/
+python-src/libs/custom_rules_engine/src/upside/libs/custom_rules_engine/
 ├── README.md          # Required: Usage examples, architecture, workflow
 ├── engine.py
 └── parser.py
@@ -540,18 +540,18 @@ This makes code easier to navigate and understand at a glance. Apply to both pro
 Test files should mirror source structure exactly:
 
 ```
-src/libraries/custom_channels/
+python-src/libs/custom_channels/src/upside/libs/custom_channels/
 ├── engine.py
 ├── parser.py
 └── validators.py
 
-tests/libraries/custom_channels/
+python-src/tests/libs/custom_channels/
 ├── test_engine.py          # Mirrors engine.py
 ├── test_parser.py          # Mirrors parser.py
 └── test_validators.py      # Mirrors validators.py
 ```
 
-Don't create generic test directories like `tests/utils/` - mirror the actual source path.
+Don't create generic test directories like `python-src/tests/utils/` - mirror the actual source path.
 
 ## Documentation Accuracy
 
@@ -736,7 +736,52 @@ Avoid using all-caps emphasis words like "IMPORTANT:", "CRITICAL:", "WARNING:" i
 
 **PR alignment**: Ensure code changes match the PR title and description. If PR says "Add X", verify you're actually adding X, not Y.
 
-**Agent instructions**: When writing prompts for AI agents, instruct them to look at specific config files or documentation instead of guessing. Example: "Look at `src/genesis_ontology/upside-ontology-v1.toml` to identify valid slot_uri values."
+**Agent instructions**: When writing prompts for AI agents, instruct them to look at specific config files or documentation instead of guessing. Example: "Look at `python-src/libs/genesis/src/upside/libs/genesis/upside-ontology-v1.toml` to identify valid slot_uri values."
+
+## UV Workspace Structure
+
+The repository uses UV workspace with PEP 420 namespace packages:
+
+**Directory Structure:**
+```
+python-src/
+├── libs/           # Shared libraries (upside.core.*, upside.libs.*)
+├── apps/           # FastAPI services and batch jobs (upside.apps.*)
+├── cli-tools/      # CLI utilities (upside.cli.*)
+├── airflow-dags/   # Airflow DAGs
+└── tests/          # Test workspace members (upside_tests.*)
+```
+
+**Import Patterns:**
+```python
+# Core libraries
+from upside.core.cade import Dataset
+from upside.core.aws import AthenaClient
+
+# Data processing
+from upside.data_processing.datasets.users import UserDataset
+
+# Apps
+from upside.apps.datahub_llm_analysis_service import routes
+
+# Tests use separate namespace
+from upside_tests.libs.core.fixtures import mock_dataset
+```
+
+**Running Commands:**
+```bash
+# Run an app
+uv run python -m upside.apps.my_service.main
+
+# Run tests
+./run_tests.sh python-src/tests/libs/core
+```
+
+**Key Conventions:**
+- NO `__init__.py` in namespace directories (`upside/`, `upside_tests/`)
+- Each package has its own `pyproject.toml`
+- All imports use absolute paths from namespace root
+- Config files nested under full package structure
 
 ## Cross-References
 
@@ -942,7 +987,7 @@ df = spark.read.parquet('s3://bucket/data/customer_org_id=x/input.parquet')
 output_path = 's3://bucket/data/customer_org_id=x/features/output.parquet'
 
 # Do: Spark submit scripts for production
-spark-submit src/jobs/feature_generation/main.py \
+spark-submit python-src/apps/feature_generation/src/upside/apps/feature_generation/main.py \
   --input-path s3://bucket/data/customer_org_id=x/triples/ \
   --output-path s3://bucket/data/customer_org_id=x/features/
 ```
