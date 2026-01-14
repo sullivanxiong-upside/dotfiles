@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 function py() {
-	uv run $@
+	uv run "$@"
 }

@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env bash
 
 # Mermaid CLI helper: render .mmd files to SVGs into a sibling out/ directory
 function mermaid() {
@@ -30,8 +30,10 @@ function mermaid() {
 
         local dirpath
         dirpath="$(cd "$(dirname "$file")" && pwd)"
+        local filename
+        filename="${file##*/}"
         local basename
-        basename="${${file##*/}%.*}"
+        basename="${filename%.*}"
         local out_dir="$dirpath/out"
         local out_file="$out_dir/$basename.svg"
 

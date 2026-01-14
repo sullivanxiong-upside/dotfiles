@@ -68,10 +68,10 @@ source ~/.zprofile
 **For CLI tools (cwf & gwf) and Claude Code:**
 ```bash
 mkdir -p ~/.local/bin ~/.claude
-ln -sf ~/repos/dotfiles/scripts/cwf.sh ~/.local/bin/cwf
-ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
-ln -sf ~/repos/dotfiles/.config/cwf ~/.config/cwf
-ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
+ln -sf ~/repos/dotfiles/bin/cwf ~/.local/bin/cwf
+ln -sf ~/repos/dotfiles/bin/gwf ~/.local/bin/gwf
+ln -sf ~/repos/dotfiles/home/.config/cwf ~/.config/cwf
+ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
 ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
 
 # Configure MCP servers (see .claude/README.md for details)
@@ -252,15 +252,15 @@ ln -sf ~/repos/dotfiles/.tmux.conf ~/.tmux.conf
 
 # CLI tools
 mkdir -p ~/.local/bin
-ln -sf ~/repos/dotfiles/scripts/cwf.sh ~/.local/bin/cwf
-ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
+ln -sf ~/repos/dotfiles/bin/cwf ~/.local/bin/cwf
+ln -sf ~/repos/dotfiles/bin/gwf ~/.local/bin/gwf
 
 # Neovim
-ln -sf ~/repos/dotfiles/.config/nvim ~/.config/nvim
+ln -sf ~/repos/dotfiles/home/.config/nvim ~/.config/nvim
 
 # Config directories
-ln -sf ~/repos/dotfiles/.config/cwf ~/.config/cwf
-ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
+ln -sf ~/repos/dotfiles/home/.config/cwf ~/.config/cwf
+ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
 
 # Claude Code settings
 mkdir -p ~/.claude
@@ -268,8 +268,8 @@ ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
 # MCP servers: See .claude/README.md for setup instructions
 
 # Linux only: Desktop environment
-ln -sf ~/repos/dotfiles/.config/hypr ~/.config/hypr
-ln -sf ~/repos/dotfiles/.config/waybar ~/.config/waybar
+ln -sf ~/repos/dotfiles/home/.config/hypr ~/.config/hypr
+ln -sf ~/repos/dotfiles/home/.config/waybar ~/.config/waybar
 # ... (see INSTALLATION.md for complete list)
 ```
 

@@ -7,37 +7,37 @@ alias ca="cursor-agent"
 # Note: cwf and gwf are available via ~/.local/bin symlinks (in PATH)
 
 # Source Linux-specific aliases
-if [[ -f ~/repos/dotfiles/scripts/bash-aliases.sh ]]; then
-    source ~/repos/dotfiles/scripts/bash-aliases.sh
+if [[ -f ~/repos/dotfiles/bin/bash-aliases.sh ]]; then
+    source ~/repos/dotfiles/bin/bash-aliases.sh
 fi
 
 # Source Git aliases
-if [[ -f ~/repos/dotfiles/scripts/git-aliases.sh ]]; then
-    source ~/repos/dotfiles/scripts/git-aliases.sh
+if [[ -f ~/repos/dotfiles/bin/git-aliases ]]; then
+    source ~/repos/dotfiles/bin/git-aliases
 fi
 
 # Source bash path and environment
-if [[ -f ~/repos/dotfiles/scripts/bash-path.sh ]]; then
-    source ~/repos/dotfiles/scripts/bash-path.sh
+if [[ -f ~/repos/dotfiles/bin/bash-path.sh ]]; then
+    source ~/repos/dotfiles/bin/bash-path.sh
 fi
 
 # Source bash TMUX initialization
-if [[ -f ~/repos/dotfiles/scripts/bash-tmux-init.sh ]]; then
-    source ~/repos/dotfiles/scripts/bash-tmux-init.sh
+if [[ -f ~/repos/dotfiles/bin/bash-tmux-init.sh ]]; then
+    source ~/repos/dotfiles/bin/bash-tmux-init.sh
 fi
 
 
 # More complex functions
 # Source shared shell functions
-if [[ -f ~/repos/dotfiles/scripts/grep-recursive.sh ]]; then
-    source ~/repos/dotfiles/scripts/grep-recursive.sh
+if [[ -f ~/repos/dotfiles/bin/grep-recursive ]]; then
+    source ~/repos/dotfiles/bin/grep-recursive
 fi
 
-if [[ -f ~/repos/dotfiles/scripts/cursor-agent.sh ]]; then
-    source ~/repos/dotfiles/scripts/cursor-agent.sh
+if [[ -f ~/repos/dotfiles/bin/cursor-agent ]]; then
+    source ~/repos/dotfiles/bin/cursor-agent
 fi
 
-if [[ -f ~/repos/dotfiles/scripts/python-utility.sh ]]; then
-    source ~/repos/dotfiles/scripts/python-utility.sh
+if [[ -f ~/repos/dotfiles/bin/python-utility ]]; then
+    source ~/repos/dotfiles/bin/python-utility
 fi
 

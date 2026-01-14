@@ -130,8 +130,8 @@ Two powerful CLI tools for workflow automation:
 mkdir -p ~/.local/bin
 
 # Symlink the scripts
-ln -sf ~/repos/dotfiles/scripts/cwf.sh ~/.local/bin/cwf
-ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
+ln -sf ~/repos/dotfiles/bin/cwf ~/.local/bin/cwf
+ln -sf ~/repos/dotfiles/bin/gwf ~/.local/bin/gwf
 
 # Make executable
 chmod +x ~/.local/bin/cwf ~/.local/bin/gwf
@@ -149,13 +149,13 @@ gwf completion install    # Auto-detects shell and installs
 **cwf configuration:**
 ```bash
 # Symlink cwf config directory
-ln -sf ~/repos/dotfiles/.config/cwf ~/.config/cwf
+ln -sf ~/repos/dotfiles/home/.config/cwf ~/.config/cwf
 ```
 
 **gwf configuration:**
 ```bash
 # Symlink gwf config directory
-ln -sf ~/repos/dotfiles/.config/gwf ~/.config/gwf
+ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
 
 # Edit repos.conf to set your repository paths
 vim ~/.config/gwf/repos.conf
@@ -434,7 +434,7 @@ cargo install stylua     # Lua (if you have Rust)
 
 ```bash
 # Symlink nvim config directory
-ln -sf ~/repos/dotfiles/.config/nvim ~/.config/nvim
+ln -sf ~/repos/dotfiles/home/.config/nvim ~/.config/nvim
 
 # Start nvim - plugins will auto-install via Lazy.nvim
 nvim
@@ -482,15 +482,12 @@ yay -S matugen hyprpicker-git
 #### Installation
 
 ```bash
-# Symlink entire .config directory (includes all desktop configs)
-ln -sf ~/repos/dotfiles/.config ~/.config
-
-# Or selectively symlink specific configs:
-ln -sf ~/repos/dotfiles/.config/hypr ~/.config/hypr
-ln -sf ~/repos/dotfiles/.config/waybar ~/.config/waybar
-ln -sf ~/repos/dotfiles/.config/kitty ~/.config/kitty
-ln -sf ~/repos/dotfiles/.config/rofi ~/.config/rofi
-ln -sf ~/repos/dotfiles/.config/swaync ~/.config/swaync
+# Selectively symlink specific configs:
+ln -sf ~/repos/dotfiles/home/.config/hypr ~/.config/hypr
+ln -sf ~/repos/dotfiles/home/.config/waybar ~/.config/waybar
+ln -sf ~/repos/dotfiles/home/.config/kitty ~/.config/kitty
+ln -sf ~/repos/dotfiles/home/.config/rofi ~/.config/rofi
+ln -sf ~/repos/dotfiles/home/.config/swaync ~/.config/swaync
 # ... and so on
 ```
 
@@ -516,7 +513,7 @@ ln -sf ~/repos/dotfiles/.config/swaync ~/.config/swaync
 brew install kitty
 
 # Symlink Kitty config
-ln -sf ~/repos/dotfiles/.config/kitty ~/.config/kitty
+ln -sf ~/repos/dotfiles/home/.config/kitty ~/.config/kitty
 
 # Launch Kitty
 open -a Kitty
@@ -652,11 +649,11 @@ exec $SHELL
 **Solution**:
 ```bash
 # Make scripts executable
-chmod +x ~/repos/dotfiles/scripts/*.sh
+chmod +x ~/repos/dotfiles/bin/*.sh
 chmod +x ~/.local/bin/cwf ~/.local/bin/gwf
 
 # If symlinks are correct, chmod the source files
-chmod +x ~/repos/dotfiles/scripts/{cwf.sh,gwf.sh}
+chmod +x ~/repos/dotfiles/bin/{cwf,gwf}
 ```
 
 ### Hyprland Won't Start (Linux)
@@ -702,11 +699,11 @@ cp -r ~/.dotfiles_backup_20231223_120000/* ~/
 
 ## Additional Resources
 
-- **cwf Documentation**: `~/repos/dotfiles/scripts/docs/cwf-meta-commands.md`
-- **gwf Documentation**: `~/repos/dotfiles/scripts/docs/gwf.md`
-- **Completion Setup**: `~/repos/dotfiles/scripts/docs/completion-setup.md`
+- **cwf Documentation**: `~/repos/dotfiles/docs/cwf-meta-commands.md`
+- **gwf Documentation**: `~/repos/dotfiles/docs/gwf.md`
+- **Completion Setup**: `~/repos/dotfiles/docs/completion-setup.md`
 - **Main README**: `~/repos/dotfiles/README.md`
-- **Scripts README**: `~/repos/dotfiles/scripts/README.md`
+- **Scripts README**: `~/repos/dotfiles/README.md`
 
 ---
 

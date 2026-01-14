@@ -273,7 +273,7 @@ gwf wt cleanup name      # Cleanup worktree (works from anywhere!)
 
 ## Configuration
 
-Minimal config stored in `~/repos/dotfiles/.config/gwf/` (optional):
+Minimal config stored in `~/repos/dotfiles/home/.config/gwf/` (optional):
 ```bash
 base_branch=main  # Default base branch
 ```
@@ -343,7 +343,7 @@ gwf wt cleanup someones-pr
 ## Files
 
 - `~/scripts/gwf.sh` - Main script
-- `~/repos/dotfiles/.config/gwf/` - Config directory (optional)
+- `~/repos/dotfiles/home/.config/gwf/` - Config directory (optional)
 - `~/.config/gwf` - Symlink to config
 - `.bashrc` / `.zprofile` - Shell aliases
 

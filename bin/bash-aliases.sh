@@ -13,13 +13,13 @@ alias spotify-avahi-daemon="sudo systemctl start avahi-daemon"
 alias password-reset="faillock --reset"
 
 # Package management aliases
-alias pkg-export="$HOME/repos/dotfiles/scripts/package-manager.sh export"
-alias pkg-install="$HOME/repos/dotfiles/scripts/package-manager.sh install"
-alias pkg-install-dry="$HOME/repos/dotfiles/scripts/package-manager.sh install-dry"
-alias pkg-info="$HOME/repos/dotfiles/scripts/package-manager.sh info"
-alias pkg-export-minimal="$HOME/repos/dotfiles/scripts/package-manager.sh export minimal"
-alias pkg-export-aur="$HOME/repos/dotfiles/scripts/package-manager.sh export aur"
-alias pkg-export-official="$HOME/repos/dotfiles/scripts/package-manager.sh export official"
+alias pkg-export="$HOME/repos/dotfiles/bin/package-manager export"
+alias pkg-install="$HOME/repos/dotfiles/bin/package-manager install"
+alias pkg-install-dry="$HOME/repos/dotfiles/bin/package-manager install-dry"
+alias pkg-info="$HOME/repos/dotfiles/bin/package-manager info"
+alias pkg-export-minimal="$HOME/repos/dotfiles/bin/package-manager export minimal"
+alias pkg-export-aur="$HOME/repos/dotfiles/bin/package-manager export aur"
+alias pkg-export-official="$HOME/repos/dotfiles/bin/package-manager export official"
 
 # Quick package installation aliases
 alias pkg-install-pacman="pkg-install packages-pacman.txt pacman"
@@ -37,7 +37,7 @@ alias pkg-clean-cache="sudo pacman -Sc"
 alias pkg-clean-all="sudo pacman -Scc"
 
 # Package manager script help
-alias pkg-help="$HOME/repos/dotfiles/scripts/package-manager.sh help"
+alias pkg-help="$HOME/repos/dotfiles/bin/package-manager help"
 alias pkg-export-all="pkg-export pacman packages-pacman.txt && pkg-export aur packages-aur.txt"
 
 # Run fastfetch-small on shell startup (if fastfetch is available)

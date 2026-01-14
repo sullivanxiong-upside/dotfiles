@@ -10,23 +10,23 @@ if [[ -f ~/scripts/work/main-work.sh ]]; then
 fi
 
 # Source mermaid utility
-if [[ -f ~/scripts/mermaid-utility.sh ]]; then
-   source ~/scripts/mermaid-utility.sh
+if [[ -f ~/repos/dotfiles/bin/mermaid-utility ]]; then
+   source ~/repos/dotfiles/bin/mermaid-utility
 fi
 
 # Source Git aliases
-if [[ -f ~/scripts/git-aliases.sh ]]; then
-    source ~/scripts/git-aliases.sh
+if [[ -f ~/repos/dotfiles/bin/git-aliases ]]; then
+    source ~/repos/dotfiles/bin/git-aliases
 fi
 
 # Source grep-recursive function
-if [[ -f ~/scripts/grep-recursive.sh ]]; then
-    source ~/scripts/grep-recursive.sh
+if [[ -f ~/repos/dotfiles/bin/grep-recursive ]]; then
+    source ~/repos/dotfiles/bin/grep-recursive
 fi
 
 # Source python-utility
-if [[ -f ~/scripts/python-utility.sh ]]; then
-    source ~/scripts/python-utility.sh
+if [[ -f ~/repos/dotfiles/bin/python-utility ]]; then
+    source ~/repos/dotfiles/bin/python-utility
 fi
 
 # Path

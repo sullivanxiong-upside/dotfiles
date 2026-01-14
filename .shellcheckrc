@@ -1,0 +1,54 @@
+# ShellCheck configuration for dotfiles repository
+# These are style warnings that don't affect functionality
+
+# SC2155: Declare and assign separately to avoid masking return values
+# Common pattern in cwf/gwf scripts, not a functional issue
+disable=SC2155
+
+# SC2139: Variable expansion in alias definitions
+# Intentional behavior in bash-aliases.sh, variables should expand at definition time
+disable=SC2139
+
+# SC2001: Use ${variable//search/replace} instead of sed
+# Sed is more readable for complex patterns, this is a style preference
+disable=SC2001
+
+# SC2181: Check exit code directly instead of $?
+# Sometimes checking $? is more readable, especially with complex conditions
+disable=SC2181
+
+# SC1090: ShellCheck can't follow non-constant source
+# Dynamic sourcing is intentional in shell configs
+disable=SC1090
+
+# SC2162: read without -r will mangle backslashes
+# Not a concern for simple input parsing
+disable=SC2162
+
+# SC2178: Variable was used as an array but is now assigned a string
+# SC2128: Expanding an array without an index only gives the first element
+# Array handling is intentional in these scripts
+disable=SC2178
+disable=SC2128
+
+# SC2207: Prefer mapfile or read -a to split command output
+# Current pattern works fine for package lists
+disable=SC2207
+
+# SC2002: Useless cat
+# Cat with pipes is more readable for chained commands
+disable=SC2002
+
+# SC2164: Use 'cd ... || exit' or 'cd ... || return'
+# Directory changes are safe in these contexts
+disable=SC2164
+
+# SC2016: Expressions don't expand in single quotes
+# Single quotes are intentional for literal strings
+disable=SC2016
+
+# SC2030: Modification of variable is local (to subshell caused by pipeline)
+# SC2031: Variable was modified in a subshell, change might be lost
+# Subshell behavior is understood and intentional
+disable=SC2030
+disable=SC2031

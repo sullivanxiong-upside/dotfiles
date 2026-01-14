@@ -29,8 +29,8 @@ cwf new add-sub-command feature
 
 Both tools are available in your PATH via symlinks:
 ```bash
-~/.local/bin/cwf -> ~/repos/dotfiles/scripts/cwf.sh
-~/.local/bin/gwf -> ~/repos/dotfiles/scripts/gwf.sh
+~/.local/bin/cwf -> ~/repos/dotfiles/bin/cwf
+~/.local/bin/gwf -> ~/repos/dotfiles/bin/gwf
 ```
 
 Shell completion is configured using lazy-loading (Zsh) or immediate-loading (Bash) patterns. See **[docs/completion-setup.md](docs/completion-setup.md)** for detailed setup and cross-platform configuration.
@@ -218,7 +218,7 @@ git log --oneline -10
 ### Directory Structure
 ```
 # Config stored in dotfiles repo, symlinked to ~/.config/
-~/repos/dotfiles/.config/cwf/
+~/repos/dotfiles/home/.config/cwf/
 ├── prompts/
 │   ├── shared/           # Reusable prompt fragments
 │   ├── review/
@@ -229,7 +229,7 @@ git log --oneline -10
 │   └── prepare-release.txt
 
 # Symlink for access
-~/.config/cwf -> ~/repos/dotfiles/.config/cwf
+~/.config/cwf -> ~/repos/dotfiles/home/.config/cwf
 
 # Category-specific rules (optional)
 ~/.claude-review-rules
@@ -366,12 +366,12 @@ Detailed documentation for both tools:
 
 ### cwf (Claude Workflow CLI)
 - `~/scripts/cwf.sh` - Main CLI implementation
-- `~/repos/dotfiles/.config/cwf/` - Config directory (in dotfiles repo)
+- `~/repos/dotfiles/home/.config/cwf/` - Config directory (in dotfiles repo)
 - `~/.config/cwf` - Symlink to dotfiles config
 
 ### gwf
 - `~/scripts/gwf.sh` - Main script
-- `~/repos/dotfiles/.config/gwf/` - Config directory (optional)
+- `~/repos/dotfiles/home/.config/gwf/` - Config directory (optional)
 - `~/.config/gwf` - Symlink to config
 
 ### Shared

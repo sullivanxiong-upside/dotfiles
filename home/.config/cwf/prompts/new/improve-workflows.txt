@@ -4,16 +4,16 @@ You are helping me improve the cwf (claude-wf) and gwf (git workflow) CLI tools.
 
 ## Context
 
-These are the workflow automation tools located in ~/repos/dotfiles/scripts/:
+These are the workflow automation tools located in ~/repos/dotfiles/bin/:
 
-**cwf (claude-wf.sh):**
+**cwf (cwf):**
 - Unified CLI for Claude-powered workflows
 - Categories: review, customer-mgmt, feature, agent, prepare-release, new, completion
 - Uses prompt files in ~/.config/claude-wf/prompts/
 - Supports template variables and shared fragments
 - Self-extending with meta-commands
 
-**gwf (gwf.sh):**
+**gwf (gwf):**
 - Git workflow CLI with intelligent worktree management
 - Categories: local, remote, worktree, pr, inspect, completion
 - Shorthand syntax for common git operations
@@ -76,8 +76,8 @@ Present a detailed plan:
    - Consider backward compatibility
 
 3. **Files involved:**
-   - ~/repos/dotfiles/scripts/claude-wf.sh
-   - ~/repos/dotfiles/scripts/gwf.sh
+   - ~/repos/dotfiles/bin/cwf
+   - ~/repos/dotfiles/bin/gwf
    - Prompt files in ~/.config/claude-wf/prompts/
    - Completion scripts (gwf-completion.bash, generated completions)
    - Documentation (README.md, docs/)
@@ -200,7 +200,7 @@ Once confirmed:
 - **Keep functions modular** and well-documented
 - **Use consistent naming** (kebab-case for commands, snake_case for functions)
 - **Clear error messages** that are actionable
-- **Update command registry** and metadata in claude-wf.sh
+- **Update command registry** and metadata in cwf
 
 ## Critical Checklists
 
@@ -208,39 +208,39 @@ Once confirmed:
 
 Categories require updates in **7+ locations**. Use this checklist:
 
-1. **claude-wf.sh - Registry (line ~30):**
+1. **cwf - Registry (line ~30):**
    ```bash
    ["category:subcommand"]="category/subcommand.txt"
    ```
 
-2. **claude-wf.sh - CATEGORY_DESC (line ~41):**
+2. **cwf - CATEGORY_DESC (line ~41):**
    ```bash
    ["category"]="Description"
    ```
 
-3. **claude-wf.sh - SUBCOMMAND_DESC (line ~51):**
+3. **cwf - SUBCOMMAND_DESC (line ~51):**
    ```bash
    ["category:subcommand"]="Subcommand description"
    ```
 
-4. **claude-wf.sh - Bash completion categories (line ~393):**
+4. **cwf - Bash completion categories (line ~393):**
    ```bash
    COMPREPLY=($(compgen -W "... category ..." -- "$cur"))
    ```
 
-5. **claude-wf.sh - Bash completion subcommand case (line ~407):**
+5. **cwf - Bash completion subcommand case (line ~407):**
    ```bash
    category)
      COMPREPLY=($(compgen -W "subcommand1 subcommand2" -- "$cur"))
      ;;
    ```
 
-6. **claude-wf.sh - Zsh completion categories (line ~456):**
+6. **cwf - Zsh completion categories (line ~456):**
    ```bash
    'category:Description'
    ```
 
-7. **claude-wf.sh - Zsh completion subcommand case (line ~486):**
+7. **cwf - Zsh completion subcommand case (line ~486):**
    ```bash
    category)
      subcommands=('subcmd:Description')
@@ -352,8 +352,8 @@ Missing ANY of these locations breaks functionality or completion!
 ## File Locations Reference
 
 **Scripts:**
-- Main: ~/repos/dotfiles/scripts/{claude-wf.sh,gwf.sh}
-- Completion: ~/repos/dotfiles/scripts/gwf-completion.bash
+- Main: ~/repos/dotfiles/bin/{cwf,gwf}
+- Completion: ~/repos/dotfiles/bin/gwf-completion.bash
 
 **Config & Prompts:**
 - Prompts: ~/.config/claude-wf/prompts/**/*.txt
@@ -361,8 +361,8 @@ Missing ANY of these locations breaks functionality or completion!
 - Config: ~/.config/gwf/ (optional)
 
 **Documentation:**
-- Main: ~/repos/dotfiles/scripts/README.md
-- Docs: ~/repos/dotfiles/scripts/docs/{cwf-meta-commands.md,gwf.md,workflow-commands.md,completion-setup.md}
+- Main: ~/repos/dotfiles/bin/README.md
+- Docs: ~/repos/dotfiles/docs/{cwf-meta-commands.md,gwf.md,workflow-commands.md,completion-setup.md}
 
 ## Where to Add Rule Improvements
 

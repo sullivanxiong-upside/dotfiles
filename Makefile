@@ -45,10 +45,8 @@ endif
 # Shell configuration
 install-shell:
 	@echo "→ Installing shell configuration..."
-	@mkdir -p ~/.local/bin
 	@ln -sf $(PWD)/home/.bashrc ~/.bashrc
 	@ln -sf $(PWD)/home/.zprofile ~/.zprofile
-	@ln -sf $(PWD)/home/.config ~/.config
 	@echo "  ✓ Shell configs linked"
 
 # TMUX configuration
@@ -68,14 +66,16 @@ install-neovim:
 # CLI tools (cwf, gwf)
 install-tools:
 	@echo "→ Installing CLI tools..."
-	@mkdir -p ~/.local/bin
+	@mkdir -p ~/.local/bin ~/.config
 	@ln -sf $(PWD)/bin/cwf ~/.local/bin/cwf
 	@ln -sf $(PWD)/bin/gwf ~/.local/bin/gwf
 	@chmod +x ~/.local/bin/cwf ~/.local/bin/gwf
 	@ln -sf $(PWD)/home/.config/cwf ~/.config/cwf
 	@ln -sf $(PWD)/home/.config/gwf ~/.config/gwf
-	@ln -sf $(PWD)/home/.claude ~/.claude
-	@ln -sf $(PWD)/home/.cursor ~/.cursor
+	@ln -sf $(PWD)/home/.config/cursor ~/.config/cursor
+	@ln -sf $(PWD)/home/.config/kitty ~/.config/kitty
+	@ln -sfn $(PWD)/home/.claude ~/.claude
+	@ln -sfn $(PWD)/home/.cursor ~/.cursor
 	@echo "  ✓ cwf and gwf installed to ~/.local/bin"
 	@echo "  ✓ Config directories linked"
 	@echo "  ⚠ Ensure ~/.local/bin is in your PATH"
@@ -118,5 +118,6 @@ clean:
 	@echo "→ Removing symlinks..."
 	@rm -f ~/.bashrc ~/.zprofile ~/.tmux.conf
 	@rm -f ~/.local/bin/cwf ~/.local/bin/gwf
-	@rm -f ~/.config/nvim ~/.config/cwf ~/.config/gwf ~/.claude ~/.cursor
+	@rm -f ~/.config/nvim ~/.config/cwf ~/.config/gwf ~/.config/cursor ~/.config/kitty
+	@rm -f ~/.claude ~/.cursor
 	@echo "  ✓ Symlinks removed"
