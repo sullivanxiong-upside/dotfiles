@@ -38,8 +38,8 @@ Both `cwf` and `gwf` must be available in your `$PATH`:
 
 ```bash
 # Already done via symlinks:
-~/.local/bin/cwf -> ~/repos/dotfiles/scripts/claude-wf.sh
-~/.local/bin/gwf -> ~/repos/dotfiles/scripts/gwf.sh
+~/.local/bin/cwf -> ~/repos/dotfiles/bin/cwf
+~/.local/bin/gwf -> ~/repos/dotfiles/bin/gwf
 ```
 
 Verify:

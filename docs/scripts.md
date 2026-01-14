@@ -29,8 +29,8 @@ cwf new add-sub-command feature
 
 Both tools are available in your PATH via symlinks:
 ```bash
-~/.local/bin/cwf -> ~/repos/dotfiles/scripts/cwf.sh
-~/.local/bin/gwf -> ~/repos/dotfiles/scripts/gwf.sh
+~/.local/bin/cwf -> ~/repos/dotfiles/bin/cwf
+~/.local/bin/gwf -> ~/repos/dotfiles/bin/gwf
 ```
 
 Shell completion is configured using lazy-loading (Zsh) or immediate-loading (Bash) patterns. See **[docs/completion-setup.md](docs/completion-setup.md)** for detailed setup and cross-platform configuration.

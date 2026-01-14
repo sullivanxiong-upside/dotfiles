@@ -68,8 +68,8 @@ source ~/.zprofile
 **For CLI tools (cwf & gwf) and Claude Code:**
 ```bash
 mkdir -p ~/.local/bin ~/.claude
-ln -sf ~/repos/dotfiles/scripts/cwf.sh ~/.local/bin/cwf
-ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
+ln -sf ~/repos/dotfiles/bin/cwf ~/.local/bin/cwf
+ln -sf ~/repos/dotfiles/bin/gwf ~/.local/bin/gwf
 ln -sf ~/repos/dotfiles/home/.config/cwf ~/.config/cwf
 ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
 ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
@@ -252,8 +252,8 @@ ln -sf ~/repos/dotfiles/.tmux.conf ~/.tmux.conf
 
 # CLI tools
 mkdir -p ~/.local/bin
-ln -sf ~/repos/dotfiles/scripts/cwf.sh ~/.local/bin/cwf
-ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
+ln -sf ~/repos/dotfiles/bin/cwf ~/.local/bin/cwf
+ln -sf ~/repos/dotfiles/bin/gwf ~/.local/bin/gwf
 
 # Neovim
 ln -sf ~/repos/dotfiles/home/.config/nvim ~/.config/nvim

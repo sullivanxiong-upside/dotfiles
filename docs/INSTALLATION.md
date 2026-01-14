@@ -130,8 +130,8 @@ Two powerful CLI tools for workflow automation:
 mkdir -p ~/.local/bin
 
 # Symlink the scripts
-ln -sf ~/repos/dotfiles/scripts/cwf.sh ~/.local/bin/cwf
-ln -sf ~/repos/dotfiles/scripts/gwf.sh ~/.local/bin/gwf
+ln -sf ~/repos/dotfiles/bin/cwf ~/.local/bin/cwf
+ln -sf ~/repos/dotfiles/bin/gwf ~/.local/bin/gwf
 
 # Make executable
 chmod +x ~/.local/bin/cwf ~/.local/bin/gwf
@@ -482,10 +482,7 @@ yay -S matugen hyprpicker-git
 #### Installation
 
 ```bash
-# Symlink entire .config directory (includes all desktop configs)
-ln -sf ~/repos/dotfiles/.config ~/.config
-
-# Or selectively symlink specific configs:
+# Selectively symlink specific configs:
 ln -sf ~/repos/dotfiles/home/.config/hypr ~/.config/hypr
 ln -sf ~/repos/dotfiles/home/.config/waybar ~/.config/waybar
 ln -sf ~/repos/dotfiles/home/.config/kitty ~/.config/kitty
@@ -652,11 +649,11 @@ exec $SHELL
 **Solution**:
 ```bash
 # Make scripts executable
-chmod +x ~/repos/dotfiles/scripts/*.sh
+chmod +x ~/repos/dotfiles/bin/*.sh
 chmod +x ~/.local/bin/cwf ~/.local/bin/gwf
 
 # If symlinks are correct, chmod the source files
-chmod +x ~/repos/dotfiles/scripts/{cwf.sh,gwf.sh}
+chmod +x ~/repos/dotfiles/bin/{cwf,gwf}
 ```
 
 ### Hyprland Won't Start (Linux)
@@ -702,11 +699,11 @@ cp -r ~/.dotfiles_backup_20231223_120000/* ~/
 
 ## Additional Resources
 
-- **cwf Documentation**: `~/repos/dotfiles/scripts/docs/cwf-meta-commands.md`
-- **gwf Documentation**: `~/repos/dotfiles/scripts/docs/gwf.md`
-- **Completion Setup**: `~/repos/dotfiles/scripts/docs/completion-setup.md`
+- **cwf Documentation**: `~/repos/dotfiles/docs/cwf-meta-commands.md`
+- **gwf Documentation**: `~/repos/dotfiles/docs/gwf.md`
+- **Completion Setup**: `~/repos/dotfiles/docs/completion-setup.md`
 - **Main README**: `~/repos/dotfiles/README.md`
-- **Scripts README**: `~/repos/dotfiles/scripts/README.md`
+- **Scripts README**: `~/repos/dotfiles/README.md`
 
 ---
 
