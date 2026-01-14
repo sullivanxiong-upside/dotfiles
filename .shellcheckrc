@@ -42,3 +42,13 @@ disable=SC2002
 # SC2164: Use 'cd ... || exit' or 'cd ... || return'
 # Directory changes are safe in these contexts
 disable=SC2164
+
+# SC2016: Expressions don't expand in single quotes
+# Single quotes are intentional for literal strings
+disable=SC2016
+
+# SC2030: Modification of variable is local (to subshell caused by pipeline)
+# SC2031: Variable was modified in a subshell, change might be lost
+# Subshell behavior is understood and intentional
+disable=SC2030
+disable=SC2031
