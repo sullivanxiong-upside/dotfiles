@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Debug logging (set CLAUDE_TMUX_STATUS_DEBUG=1 to enable)
+DEBUG_LOG="/tmp/claude-tmux-hook-debug.log"
+if [ "${CLAUDE_TMUX_STATUS_DEBUG:-0}" = "1" ]; then
+  echo "[$(date +%H:%M:%S.%3N)] Hook called: $*" >> "$DEBUG_LOG"
+  echo "  TMUX_PANE=$TMUX_PANE" >> "$DEBUG_LOG"
+fi
+
 # Usage: tmux-claude-status-hook.sh <EventName>
 # Reads JSON from stdin (Claude Code hook input), but we only need it optionally.
 EVENT="${1:-}"
@@ -9,6 +16,7 @@ INPUT="$(cat || true)"
 # Must be running inside tmux for per-pane mapping
 PANE_ID="${TMUX_PANE:-}"
 if [[ -z "$PANE_ID" ]]; then
+  [ "${CLAUDE_TMUX_STATUS_DEBUG:-0}" = "1" ] && echo "  ERROR: No TMUX_PANE" >> "$DEBUG_LOG"
   exit 0
 fi
 
@@ -35,11 +43,13 @@ case "$EVENT" in
   Stop)              status="ready"   ;;
   Notification)      status="ready"   ;;  # optional: treat as ready/waiting
   SessionEnd)
+    [ "${CLAUDE_TMUX_STATUS_DEBUG:-0}" = "1" ] && echo "  SessionEnd: deleting $STATE_FILE" >> "$DEBUG_LOG"
     rm -f "$STATE_FILE"
     exit 0
     ;;
   *)
     # Unknown event: do nothing
+    [ "${CLAUDE_TMUX_STATUS_DEBUG:-0}" = "1" ] && echo "  Unknown event: $EVENT" >> "$DEBUG_LOG"
     exit 0
     ;;
 esac
@@ -55,6 +65,8 @@ cat > "$tmp" <<EOF
 {"pane_id":"$PANE_ID","status":"$status","event":"$EVENT","session_id":"$session_id","updated":$NOW}
 EOF
 mv "$tmp" "$STATE_FILE"
+
+[ "${CLAUDE_TMUX_STATUS_DEBUG:-0}" = "1" ] && echo "  SUCCESS: wrote $status to $STATE_FILE" >> "$DEBUG_LOG"
 
 # Optional: force faster UI update in tmux (safe if unsupported)
 tmux refresh-client -S 2>/dev/null || true
