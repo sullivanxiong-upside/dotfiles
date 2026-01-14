@@ -81,35 +81,35 @@ git restore .claude/settings.json
 
 ## tmux-claude-status Plugin
 
-This repo includes a custom tmux plugin for displaying Claude Code status.
+This repo uses the `tmux-claude-status` plugin for displaying Claude Code status in tmux window tabs.
 
-### Key Files
-- `tmux-plugins/tmux-claude-status/` - Plugin directory
-- `hooks/tmux-claude-status-hook.sh` - Hook script that tracks Claude state
-- `.claude/settings.json` - Contains hooks configuration
+### Installation
 
-### Development Notes
-
-**v3.0 Architecture**: Uses Claude Code's official hooks system (not statusline polling)
-- Hooks fire on events: UserPromptSubmit, Stop, SessionEnd, etc.
-- State cached in `~/.cache/tmux-claude-status/`
-- No visible UI in Claude (hooks are silent)
-
-**Testing Changes**:
+The plugin is installed via TPM (Tmux Plugin Manager). See `.tmux.conf`:
 ```bash
-# After editing hook script, restart Claude to reload
-# Use CLAUDE_TMUX_STATUS_DEBUG=1 for debug logging
-export CLAUDE_TMUX_STATUS_DEBUG=1
-claude
-
-# Watch debug log in another pane
-tail -f /tmp/claude-tmux-hook-debug.log
+set -g @plugin 'SullivanXiong/tmux-claude-status'
 ```
 
-**Important**: Hooks are loaded when Claude starts. After changing `.claude/settings.json`, you must:
-1. Exit Claude (Ctrl+D)
-2. Start fresh: `claude` (not `claude --resume`)
-3. Verify: `/hooks` should show tmux-claude-status hooks
+### Plugin Repository
+
+**Location**: https://github.com/SullivanXiong/tmux-claude-status
+
+The plugin is now a separate repository and installed via TPM, not bundled with dotfiles.
+
+### Hook Configuration
+
+The plugin requires hooks in `.claude/settings.json` to track Claude Code state:
+- `SessionStart`, `UserPromptSubmit`, `Stop`, `Notification`, `SessionEnd`
+- Hook paths reference: `~/.tmux/plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh`
+
+See the [plugin's README](https://github.com/SullivanXiong/tmux-claude-status) for full setup instructions.
+
+### Key Points
+
+- **v3.0 Architecture**: Uses Claude Code's official hooks API (not statusline polling)
+- **State caching**: `~/.cache/tmux-claude-status/` (auto-generated)
+- **Hook reload**: Restart Claude (not `--resume`) after changing `.claude/settings.json`
+- **Verification**: Run `/hooks` in Claude to verify tmux-claude-status hooks are loaded
 
 ## Git Workflow
 
@@ -173,11 +173,11 @@ gwf wt cleanup my-feature-name
 ### tmux Plugin Changes
 
 ```bash
-# Reload tmux config
+# Reload tmux config (will reload all TPM plugins)
 tmux source-file ~/.tmux.conf
 
-# Or reload plugin specifically
-~/repos/dotfiles/tmux-plugins/tmux-claude-status/tmux-claude-status.tmux
+# To update tmux-claude-status plugin to latest version:
+# In tmux: Ctrl+A then U (capital u) to update plugins
 ```
 
 ### Claude Settings Changes
@@ -208,16 +208,13 @@ dotfiles/
 ├── .config/
 │   └── zsh/
 │       └── user.zsh               # Shell config (symlinked)
-├── tmux-plugins/
-│   └── tmux-claude-status/        # tmux status plugin
-│       ├── hooks/                 # Hook scripts
-│       ├── scripts/               # State readers
-│       └── tmux-claude-status.tmux
 ├── scripts/                       # Utility scripts
 ├── .tmux.conf                     # tmux config (symlinked)
 ├── INSTALLATION.md                # Setup instructions
 └── README.md                      # Overview
 ```
+
+**Note**: `tmux-claude-status` plugin is now a separate repository installed via TPM to `~/.tmux/plugins/tmux-claude-status/`
 
 ## Key Takeaways
 

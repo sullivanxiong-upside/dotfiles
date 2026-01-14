@@ -135,10 +135,10 @@ claude mcp add --transport stdio --scope user grafana-prod -- uv run --directory
 
 - **`tmux-claude-status`**: Custom tmux plugin for real-time Claude Code monitoring
   - Displays Claude status in window tabs (`...` = processing, `✔` = ready)
-  - Token-based state detection (no flashing!)
-  - Integrates with Claude Code's `/statusline` API
-  - Per-window status tracking
-  - Full documentation: [`tmux-plugins/tmux-claude-status/README.md`](tmux-plugins/tmux-claude-status/README.md)
+  - Event-driven state tracking using Claude Code's official hooks API
+  - Per-window status tracking with instant updates
+  - Installed via TPM (Tmux Plugin Manager)
+  - Repository: [SullivanXiong/tmux-claude-status](https://github.com/SullivanXiong/tmux-claude-status)
 
 #### Text Editor
 - **`.config/nvim/`**: Neovim configuration with:
@@ -301,12 +301,6 @@ ln -sf ~/repos/dotfiles/.config/waybar ~/.config/waybar
 │   ├── mermaid-utility.sh       # Diagram generation
 │   ├── docs/                    # Tool documentation
 │   └── README.md                # Scripts documentation
-├── tmux-plugins/                # Custom tmux plugins
-│   └── tmux-claude-status/      # Claude Code status monitor
-│       ├── tmux-claude-status.tmux  # Plugin entry point
-│       ├── scripts/             # Plugin scripts
-│       ├── extras/              # Statusline script for Claude
-│       └── README.md            # Plugin documentation
 ├── Library/                     # macOS preferences
 ├── wallpapers/                  # Desktop wallpapers
 ├── README.md                    # This file
