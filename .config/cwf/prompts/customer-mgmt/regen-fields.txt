@@ -29,7 +29,7 @@ WHERE qualified_api_name = 'Field__c'
 
 If you run:
 ```bash
-uv run python -m src.libraries.salesforce_formulas.cli.cli generate-sql --customer-org-id <customer_org_id> Account > debug2.txt 2>&1
+uv run python -m upside.core.salesforce_formulas.cli.cli generate-sql --customer-org-id <customer_org_id> Account > debug2.txt 2>&1
 ```
 
 That will write debugging output to a text file, and then you can look for the fields to see what the reported errors are.
