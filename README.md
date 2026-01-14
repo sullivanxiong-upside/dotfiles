@@ -50,7 +50,26 @@ git clone <your-repo-url> ~/repos/dotfiles
 cd ~/repos/dotfiles
 ```
 
-### 2. Install Components
+### 2. Configure Secrets
+
+**IMPORTANT**: Set up your secret environment variables before using MCP servers that require API keys.
+
+```bash
+# Copy the template
+cp ~/repos/dotfiles/home/.config/zsh/secret.template.zsh ~/.config/zsh/secret.zsh
+
+# Edit and add your actual API keys
+vim ~/.config/zsh/secret.zsh
+
+# The file is automatically gitignored - never commit it!
+```
+
+**Required secrets for MCP servers:**
+- `FIREFLIES_API_KEY` - Get from https://fireflies.ai/api
+
+See the **[Secret Management](#secret-management)** section below for details.
+
+### 3. Install Components
 
 See **[INSTALLATION.md](INSTALLATION.md)** for detailed installation instructions.
 
@@ -232,6 +251,104 @@ gwf pr push "Add new feature"
 ```
 
 Full documentation: [`scripts/docs/gwf.md`](scripts/docs/gwf.md)
+
+## Secret Management
+
+### Overview
+
+API keys and credentials are managed through `~/.config/zsh/secret.zsh`, which is automatically loaded by your shell configuration and **gitignored** to prevent accidental commits.
+
+### Setup
+
+1. **Copy the template:**
+   ```bash
+   cp ~/repos/dotfiles/home/.config/zsh/secret.template.zsh ~/.config/zsh/secret.zsh
+   ```
+
+2. **Edit with your actual secrets:**
+   ```bash
+   vim ~/.config/zsh/secret.zsh
+   ```
+
+3. **Add your API keys:**
+   ```bash
+   export FIREFLIES_API_KEY="your-actual-api-key"
+   export OPENAI_API_KEY="your-openai-key"
+   # ... other secrets
+   ```
+
+4. **Reload your shell:**
+   ```bash
+   source ~/.zshrc  # or restart your terminal
+   ```
+
+### How It Works
+
+- **`secret.zsh`** (not in repo): Contains your actual secrets
+  - Location: `~/.config/zsh/secret.zsh`
+  - **Gitignored** via `.gitignore` pattern: `*secret*`
+  - Automatically sourced by `.zshrc`
+
+- **`secret.template.zsh`** (in repo): Template for reference
+  - Location: `~/repos/dotfiles/home/.config/zsh/secret.template.zsh`
+  - Contains placeholder values and documentation
+  - Safe to commit and share
+
+### MCP Server Integration
+
+MCP servers reference secrets via environment variables:
+
+```json
+// .claude/mcp.json
+"fireflies": {
+  "command": "npx",
+  "args": [
+    "mcp-remote",
+    "https://api.fireflies.ai/mcp",
+    "--header",
+    "Authorization: Bearer ${FIREFLIES_API_KEY}"
+  ]
+}
+```
+
+The `${FIREFLIES_API_KEY}` is automatically expanded from your `secret.zsh` when Claude Code starts.
+
+### Security Best Practices
+
+✅ **DO:**
+- Keep `secret.zsh` in `~/.config/zsh/` only (never in repo)
+- Set restrictive permissions: `chmod 600 ~/.config/zsh/secret.zsh`
+- Rotate API keys periodically
+- Use environment variables for all secrets in configs
+
+❌ **DON'T:**
+- Commit `secret.zsh` to git
+- Hardcode API keys in `mcp.json` or other config files
+- Share your `secret.zsh` file with others
+- Store secrets in version-controlled files
+
+### Required Secrets by Component
+
+| Service | Environment Variable | Where to Get It |
+|---------|---------------------|-----------------|
+| Fireflies | `FIREFLIES_API_KEY` | https://fireflies.ai/api |
+| Linear | (OAuth) | Authenticated via browser |
+| Notion | (OAuth) | Authenticated via browser |
+| GitHub | (CLI) | `gh auth login` |
+| Grafana | (AWS credentials) | AWS IAM / `~/.aws/` |
+
+### Troubleshooting
+
+**MCP server fails with authentication error:**
+1. Check `secret.zsh` exists: `ls -la ~/.config/zsh/secret.zsh`
+2. Verify variable is set: `echo $FIREFLIES_API_KEY`
+3. Restart Claude Code (not just `--resume`)
+4. Check MCP logs: `claude mcp logs fireflies`
+
+**Variable not found:**
+- Ensure `.zshrc` sources `secret.zsh` (it should automatically)
+- Check shell: `echo $SHELL` (should be `/bin/zsh`)
+- Manual load: `source ~/.config/zsh/secret.zsh`
 
 ## Installation
 

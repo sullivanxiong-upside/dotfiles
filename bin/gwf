@@ -319,7 +319,19 @@ function load_repo_configs() {
 function copy_worktree_configs() {
   local worktree_path="$1"
   local repo_name="$2"
+  local main_repo_path="$3"
 
+  # First, copy universal configs (applicable to all repos)
+  if [ -n "$main_repo_path" ] && [ -d "$main_repo_path" ]; then
+    # Copy Claude Code permissions to avoid re-approving commands
+    if [ -f "$main_repo_path/.claude/settings.local.json" ]; then
+      echo ""
+      echo "Copying Claude Code permissions..."
+      copy_config_file "$main_repo_path/.claude/settings.local.json" "$worktree_path/.claude/settings.local.json" ".claude/settings.local.json"
+    fi
+  fi
+
+  # Then, copy repo-specific configs
   case "$repo_name" in
     data-pipelines)
       if [ -z "$MAIN_DP" ]; then
@@ -456,7 +468,7 @@ function create_worktree() {
   if [ $? -eq 0 ]; then
     echo ""
     echo "✓ Worktree created successfully!"
-    copy_worktree_configs "$worktree_path" "$repo_name"
+    copy_worktree_configs "$worktree_path" "$repo_name" "$main_repo_path"
     echo "Navigate with: cd $worktree_path"
   else
     echo "Error: Failed to create worktree" >&2
@@ -665,7 +677,7 @@ function cmd_pr_checkout() {
 
   echo ""
   echo "✓ PR worktree created!"
-  copy_worktree_configs "$worktree_path" "$repo_name"
+  copy_worktree_configs "$worktree_path" "$repo_name" "$main_repo_path"
   echo "Navigate with: cd $worktree_path"
 }
 

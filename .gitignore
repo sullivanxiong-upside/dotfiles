@@ -92,7 +92,14 @@ Thumbs.db
 # Logs
 *.log
 
+# Personal scripts and work directories
+scripts/
+
 # Sensitive (broad patterns to catch secrets)
+# Exclude template files (*.template.*) from these patterns
 *secret*
+!*.template*
 *token*
+!*.template*
 *key*.txt
+!*.template*
