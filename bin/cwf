@@ -32,13 +32,9 @@ declare -A COMMAND_REGISTRY=(
   ["agent:chat"]="agent/chat.txt"
   ["agent:orchestrate"]="agent/orchestrate.txt"
   ["prepare-release:__main__"]="prepare-release.txt"
-  ["new:add-shared"]="new/add-shared.txt"
-  ["new:add-top-rule"]="new/add-top-rule.txt"
-  ["new:add-top-command"]="new/add-top-command.txt"
-  ["new:add-sub-command"]="new/add-sub-command.txt"
+  ["notion:__main__"]="notion.txt"
   ["new:improve-rules"]="new/improve-rules.txt"
   ["new:improve-workflows"]="new/improve-workflows.txt"
-  ["new:improve-claude-auto-enable"]="new/improve-claude-auto-enable.txt"
 )
 
 # Category descriptions
@@ -48,6 +44,7 @@ declare -A CATEGORY_DESC=(
   ["feature"]="Feature development"
   ["agent"]="Research and learning"
   ["prepare-release"]="Generate release notes"
+  ["notion"]="Generate daily standup updates"
   ["new"]="Create new prompts"
   ["completion"]="Shell completion"
 )
@@ -68,19 +65,14 @@ declare -A SUBCOMMAND_DESC=(
   ["agent:chat"]="Research and learn about specific topics with expert guidance"
   ["agent:orchestrate"]="Orchestrate complex tasks by spawning and managing sub-agents"
   ["prepare-release:__main__"]="Generate release notes from prod to main"
-  ["new:add-shared"]="Interactively add a new shared prompt fragment"
-  ["new:add-top-rule"]="Interactively add rules for a category"
-  ["new:add-top-command"]="Interactively create a new top-level category"
-  ["new:add-sub-command"]="Interactively add a subcommand to a category"
+  ["notion:__main__"]="Generate daily standup update from yesterday's activity"
   ["new:improve-rules"]="Analyze and improve all rule files"
   ["new:improve-workflows"]="Improve the cwf/gwf workflow tools themselves"
-  ["new:improve-claude-auto-enable"]="Manage Claude Code auto-approval permissions list"
 )
 
 # Commands that require extra arguments
 declare -A REQUIRED_ARGS=(
-  ["new:add-top-rule"]="category"
-  ["new:add-sub-command"]="category"
+  # No "new" commands require extra arguments anymore
 )
 
 # ============================================================================
@@ -175,6 +167,7 @@ function load_all_shared_fragments() {
     ["WORKTREE_WORKFLOW"]="worktree-workflow.txt"
     ["GITHUB_CONTEXT"]="github-context.txt"
     ["UPSIDE_STANDARDS"]="upside.txt"
+    ["WRITING_STYLE"]="writing-style.txt"
   )
 
   # Load each fragment that's referenced in the prompt
@@ -316,7 +309,7 @@ Categories and Subcommands:
 EOF
 
   # Generate category and subcommand list from metadata
-  for category in review customer-mgmt feature agent prepare-release new completion; do
+  for category in review customer-mgmt feature agent prepare-release notion new completion; do
     local desc="${CATEGORY_DESC[$category]:-}"
     echo "  $category"
     [ -n "$desc" ] && echo "    # $desc"
@@ -341,6 +334,10 @@ EOF
       local key="prepare-release:__main__"
       local desc="${SUBCOMMAND_DESC[$key]:-Generate release notes}"
       printf "    %-30s %s\n" "[context]" "$desc"
+    elif [ "$category" = "notion" ]; then
+      local key="notion:__main__"
+      local desc="${SUBCOMMAND_DESC[$key]:-Generate standup update}"
+      printf "    %-30s %s\n" "[context]" "$desc"
     fi
     echo ""
   done
@@ -352,6 +349,7 @@ Examples:
   cwf feature dp "Add new metric aggregation"
   cwf --debug feature dp "Show caching stats"
   cwf prepare-release
+  cwf notion
 
 EOF
 }
@@ -380,7 +378,7 @@ function resolve_prompt_file() {
   # Check if category exists
   if ! category_exists "$category" && [ "$category" != "completion" ]; then
     echo "Error: Unknown category '$category'" >&2
-    echo "Valid categories: review, customer-mgmt, feature, agent, prepare-release, new, completion" >&2
+    echo "Valid categories: review, customer-mgmt, feature, agent, prepare-release, notion, new, completion" >&2
     return 1
   fi
 
@@ -393,6 +391,13 @@ function resolve_prompt_file() {
   # Handle prepare-release (no real subcommands)
   if [ "$category" = "prepare-release" ]; then
     local key="prepare-release:__main__"
+    echo "$PROMPT_DIR/${COMMAND_REGISTRY[$key]}"
+    return 0
+  fi
+
+  # Handle notion (no real subcommands)
+  if [ "$category" = "notion" ]; then
+    local key="notion:__main__"
     echo "$PROMPT_DIR/${COMMAND_REGISTRY[$key]}"
     return 0
   fi
@@ -557,7 +562,7 @@ _claude_wf_completion() {
 
   # Complete categories (first argument)
   if [ $cword -eq 1 ]; then
-    COMPREPLY=($(compgen -W "review customer-mgmt feature agent prepare-release new completion help" -- "$cur"))
+    COMPREPLY=($(compgen -W "review customer-mgmt feature agent prepare-release notion new completion help" -- "$cur"))
     return 0
   fi
 
@@ -577,12 +582,12 @@ _claude_wf_completion() {
         COMPREPLY=($(compgen -W "chat" -- "$cur"))
         ;;
       new)
-        COMPREPLY=($(compgen -W "add-shared add-top-rule add-top-command add-sub-command improve-rules improve-workflows improve-claude-auto-enable" -- "$cur"))
+        COMPREPLY=($(compgen -W "improve-rules improve-workflows" -- "$cur"))
         ;;
       completion)
         COMPREPLY=($(compgen -W "bash zsh install" -- "$cur"))
         ;;
-      prepare-release)
+      prepare-release|notion)
         # No subcommands, allow any text as context
         return 0
         ;;
@@ -590,12 +595,10 @@ _claude_wf_completion() {
     return 0
   fi
 
-  # For third argument and beyond, complete with categories for add-top-rule and add-sub-command
+  # For third argument and beyond, no special completion needed for "new" commands
   if [ $cword -eq 3 ]; then
     case "$category:$subcommand" in
-      new:add-top-rule|new:add-sub-command)
-        COMPREPLY=($(compgen -W "review customer-mgmt feature prepare-release" -- "$cur"))
-        ;;
+      # No "new" commands need third argument completion anymore
     esac
     return 0
   fi
@@ -625,6 +628,7 @@ _claude_wf() {
     'feature:Feature development'
     'agent:Research and learning'
     'prepare-release:Generate release notes'
+    'notion:Generate standup updates'
     'new:Create new prompts'
     'completion:Shell completion'
     'help:Show help'
@@ -660,7 +664,7 @@ _claude_wf() {
         return 0
         ;;
       new)
-        subcommands=('add-shared:Add shared prompt fragment' 'add-top-rule:Add category rules' 'add-top-command:Add top-level category' 'add-sub-command:Add subcommand' 'improve-rules:Analyze and improve rule files' 'improve-workflows:Improve cwf/gwf tools' 'improve-claude-auto-enable:Manage Claude Code auto-approval permissions')
+        subcommands=('improve-rules:Analyze and improve rule files' 'improve-workflows:Improve cwf/gwf tools')
         _describe -t subcommands 'subcommand' subcommands
         return 0
         ;;
@@ -669,7 +673,7 @@ _claude_wf() {
         _describe -t subcommands 'subcommand' subcommands
         return 0
         ;;
-      prepare-release)
+      prepare-release|notion)
         # No subcommands, just return to allow freeform text
         return 0
         ;;
@@ -681,12 +685,7 @@ _claude_wf() {
     local subcommand=$words[3]
 
     case "$category:$subcommand" in
-      new:add-top-rule|new:add-sub-command)
-        local -a target_categories
-        target_categories=('review' 'customer-mgmt' 'feature' 'prepare-release')
-        _describe -t categories 'category' target_categories
-        return 0
-        ;;
+      # No "new" commands need fourth argument completion anymore
     esac
 
     # No completion for other cases
@@ -843,12 +842,12 @@ function main() {
     esac
   fi
 
-  # Check for subcommand (or extra context for prepare-release)
+  # Check for subcommand (or extra context for prepare-release/notion)
   local subcommand="${1:-}"
   local extra_context=""
 
-  if [ "$category" = "prepare-release" ]; then
-    # prepare-release doesn't have real subcommands, everything is context
+  if [ "$category" = "prepare-release" ] || [ "$category" = "notion" ]; then
+    # prepare-release and notion don't have real subcommands, everything is context
     extra_context="$*"
   else
     if [ -z "$subcommand" ]; then

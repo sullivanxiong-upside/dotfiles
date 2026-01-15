@@ -8,3 +8,28 @@ Before any git operations (add, commit, push, pull, merge, rebase):
 - For push operations: verify you're not force-pushing to protected branches (main/master)
 
 This ensures you understand the full context before making potentially irreversible changes.
+
+## Maintaining Good Git History
+
+**Use `git mv` for file and directory moves** instead of deleting and recreating:
+
+When restructuring directories or moving files:
+- ✅ `git mv old/path/file.py new/path/file.py` - Preserves file history
+- ❌ `rm old/path/file.py && cp new/path/file.py && git add .` - Breaks history
+
+Git tracks file moves when you use `git mv`, making it easier to trace changes over time with `git log --follow`.
+
+**For directory restructures:**
+```bash
+# Moving multiple files
+git mv src/old_package/* src/new_package/
+
+# Renaming a directory
+git mv old_directory/ new_directory/
+```
+
+**Why this matters:**
+- Preserves `git blame` history across file moves
+- Makes `git log --follow <file>` work correctly
+- Helps reviewers understand what changed vs. what moved
+- Keeps git history clean and traceable

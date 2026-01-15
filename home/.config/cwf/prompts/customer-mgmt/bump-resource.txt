@@ -3,6 +3,8 @@ Resource Bump Workflow for OOM Alerts
 
 {{GIT_SAFETY}}
 
+{{WRITING_STYLE}}
+
 You will receive OOM alerts in this format:
 :fire:[FIRING:1]Smart Retry - OOM Resource Level Progression Detected Airflow Alerts
 (oom_retry_progression org_<ID> <environment>_<customer>_datahub_generation <current_level> warning <task_name> <target_level>)
