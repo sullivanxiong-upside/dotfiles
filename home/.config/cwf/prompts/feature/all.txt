@@ -8,6 +8,8 @@
 
 {{GIT_SAFETY}}
 
+{{WRITING_STYLE}}
+
 This is a feature that spans multiple repositories: data-pipelines, customer-dashboard, and sql-core-migrations.
 
 For each repository involved:

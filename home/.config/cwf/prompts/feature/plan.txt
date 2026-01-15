@@ -10,6 +10,8 @@
 
 {{PLANNING_GUIDELINES}}
 
+{{WRITING_STYLE}}
+
 You should help me plan the implementation of a feature. Use EnterPlanMode to thoroughly explore the codebase and design an implementation approach.
 
 ## Planning Process

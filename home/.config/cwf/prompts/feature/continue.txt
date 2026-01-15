@@ -8,6 +8,8 @@ I need to understand the current state of this feature branch and create a plan 
 
 {{GIT_SAFETY}}
 
+{{WRITING_STYLE}}
+
 ## Analysis Phase
 
 First, analyze the current branch thoroughly:
