@@ -341,6 +341,7 @@ return {
 					"--column",
 					"--smart-case",
 					"--hidden",
+					"--no-ignore-vcs", -- Show .gitignore files
 					"--glob=!.git/",
 					"--glob=!node_modules/",
 					"--glob=!.cache/",
@@ -353,7 +354,7 @@ return {
 			},
 			pickers = {
 				find_files = {
-					find_command = { "rg", "--files", "--hidden", "--glob=!.git/", "--glob=!node_modules/" },
+					find_command = { "rg", "--files", "--hidden", "--no-ignore-vcs", "--glob=!.git/", "--glob=!node_modules/" },
 				},
 			},
 		},
