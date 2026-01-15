@@ -94,7 +94,8 @@ ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
 ln -sf ~/repos/dotfiles/home/.claude/settings.json ~/.claude/settings.json
 
 # Configure MCP servers - merge template into ~/.claude.json
-# IMPORTANT: MCP servers are read from ~/.claude.json, NOT from a separate mcp.json file
+# IMPORTANT: Claude Code reads MCP servers from ~/.claude.json, NOT from a separate mcp.json file.
+# The mcp.json.template file in this repo is ONLY a template - it must be merged into ~/.claude.json.
 jq --argjson mcp "$(cat ~/repos/dotfiles/home/.claude/mcp.json.template | jq .)" \
    '. + $mcp' ~/.claude.json > ~/.claude.json.tmp && \
    mv ~/.claude.json.tmp ~/.claude.json
@@ -318,7 +319,22 @@ MCP servers reference secrets via environment variables. MCP configuration lives
 
 The `${FIREFLIES_API_KEY}` is automatically expanded from your `secret.zsh` when Claude Code starts.
 
-**Note:** The `home/.claude/mcp.json.template` file in this repo is a template that gets merged into `~/.claude.json` during installation. See Quick Start for setup instructions.
+### MCP Configuration with Templates
+
+**IMPORTANT**: Claude Code reads MCP servers from `~/.claude.json`, NOT from a separate `mcp.json` file.
+
+The `home/.claude/mcp.json.template` file in this repository is:
+- ✅ **A template only** - version-controlled reference for MCP server configurations
+- ❌ **NOT used directly** - Claude Code never reads this file
+- 🔄 **Merged during setup** - Content is merged into `~/.claude.json` using the jq command shown in Quick Start
+
+**Why this approach?**
+- `~/.claude.json` contains both configuration (MCP servers) AND runtime state (session data, onboarding flags, OAuth tokens)
+- Claude Code actively manages `~/.claude.json` during normal operation
+- Template merging separates version-controlled config from runtime state
+- Allows portable MCP setup across machines without exposing session data
+
+See Quick Start section for the merge command.
 
 ### Security Best Practices
 
@@ -388,8 +404,10 @@ ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
 
 # Claude Code settings
 mkdir -p ~/.claude
-ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
-# MCP servers: See .claude/README.md for setup instructions
+ln -sf ~/repos/dotfiles/home/.claude/settings.json ~/.claude/settings.json
+
+# MCP servers: Must be merged into ~/.claude.json (NOT symlinked)
+# See Quick Start section above for the jq merge command
 
 # Linux only: Desktop environment
 ln -sf ~/repos/dotfiles/home/.config/hypr ~/.config/hypr
@@ -407,7 +425,7 @@ ln -sf ~/repos/dotfiles/home/.config/waybar ~/.config/waybar
 ├── home/                            # Files that go in ~/
 │   ├── .claude/                     # Claude Code settings
 │   │   ├── settings.json            # Hooks & permissions (symlinked)
-│   │   └── mcp.json.template        # MCP template (merged to ~/.claude.json)
+│   │   └── mcp.json.template        # MCP template (NOT used directly - merged to ~/.claude.json)
 │   └── .config/                     # Application configs
 │       ├── nvim/                    # Neovim (cross-platform)
 │       ├── cwf/                     # cwf CLI config (cross-platform)
@@ -474,7 +492,7 @@ brew install bash tmux neovim ripgrep fd gh node
 ## Documentation
 
 - **[INSTALLATION.md](INSTALLATION.md)**: Comprehensive installation guide with platform-specific instructions
-- **[.claude/README.md](.claude/README.md)**: Claude Code MCP server configuration and management
+- **[home/.claude/README.md](home/.claude/README.md)**: Claude Code MCP server configuration and management
 - **[scripts/README.md](scripts/README.md)**: CLI tools overview and quick reference
 - **[scripts/docs/cwf-meta-commands.md](scripts/docs/cwf-meta-commands.md)**: cwf meta-commands for self-extension
 - **[scripts/docs/gwf.md](scripts/docs/gwf.md)**: gwf complete usage guide
