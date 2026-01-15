@@ -79,9 +79,10 @@ install-tools:
 	@echo "  ✓ Config directories linked"
 	@echo ""
 	@echo "  NOTE: ~/.claude must remain a directory (not a symlink) for Claude Code runtime data."
-	@echo "  To use dotfiles settings, manually symlink the config files:"
-	@echo "    ln -sf $(PWD)/home/.claude/settings.json ~/.claude/settings.json"
-	@echo "    ln -sf $(PWD)/home/.claude/mcp.json ~/.claude/mcp.json"
+	@echo "  To use dotfiles settings:"
+	@echo "    1. Symlink settings: ln -sf $(PWD)/home/.claude/settings.json ~/.claude/settings.json"
+	@echo "    2. Merge MCP template: jq --argjson mcp \"\$$(cat $(PWD)/home/.claude/mcp.json.template | jq .)\" '. + \$$mcp' ~/.claude.json > ~/.claude.json.tmp && mv ~/.claude.json.tmp ~/.claude.json"
+	@echo "    3. Verify MCP: claude mcp list"
 	@echo ""
 	@echo "  ⚠ Ensure ~/.local/bin is in your PATH"
 

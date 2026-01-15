@@ -16,25 +16,50 @@ find ~ -maxdepth 3 -type l ! -exec test -e {} \; -print 2>/dev/null
 
 ### Common Broken Symlinks
 
-#### ~/.claude/settings.json and ~/.claude/mcp.json
+#### ~/.claude/settings.json
 
-**Problem**: These symlinks point to old paths that no longer exist after reorganization:
+**Problem**: This symlink points to old path that no longer exists after reorganization:
 - Old: `~/repos/dotfiles/.claude/settings.json`
 - New: `~/repos/dotfiles/home/.claude/settings.json`
 
 **Fix**:
 
 ```bash
-# Remove broken symlinks
+# Remove broken symlink
 rm ~/.claude/settings.json
-rm ~/.claude/mcp.json
 
-# Create new symlinks to correct location
+# Create new symlink to correct location
 ln -sf ~/repos/dotfiles/home/.claude/settings.json ~/.claude/settings.json
-ln -sf ~/repos/dotfiles/home/.claude/mcp.json ~/.claude/mcp.json
 ```
 
 **Note**: Ensure `~/.claude` is a **directory**, not a symlink. Claude Code needs it to be a real directory for runtime data (history, cache, projects, etc.).
+
+#### MCP Server Configuration (mcp.json)
+
+**Problem**: You may have had `~/.claude/mcp.json` symlinked, but Claude Code doesn't read from this file.
+
+**Reality**: Claude Code reads MCP servers from `~/.claude.json` (not a separate `mcp.json` file). The dotfiles repo provides a template at `home/.claude/mcp.json.template` that must be merged into `~/.claude.json`.
+
+**Fix**:
+
+```bash
+# Remove old mcp.json symlink if it exists
+rm ~/.claude/mcp.json 2>/dev/null
+
+# Merge template into ~/.claude.json
+jq --argjson mcp "$(cat ~/repos/dotfiles/home/.claude/mcp.json.template | jq .)" \
+   '. + $mcp' ~/.claude.json > ~/.claude.json.tmp && \
+   mv ~/.claude.json.tmp ~/.claude.json
+
+# Verify MCP servers loaded
+claude mcp list
+```
+
+**Why merge instead of symlink?**
+- `~/.claude.json` contains both configuration AND runtime state (session data, OAuth tokens, feature flags)
+- Claude Code actively writes to this file during operation
+- Symlinking would lose your session state or create conflicts
+- Template merging separates version-controlled config from runtime state
 
 #### ~/.claude/commands/debug-ci.md and ~/.cursor/commands/debug-ci.md
 
@@ -68,7 +93,7 @@ Should return empty output if all symlinks are valid.
 
 **Why**: Claude Code stores runtime data in `~/.claude/` (history, cache, debug logs, projects, etc.). If you symlink the entire directory, you'll lose this data or create conflicts.
 
-**Solution**: Keep `~/.claude` as a regular directory and symlink only the configuration files:
+**Solution**: Keep `~/.claude` as a regular directory and configure settings properly:
 
 ```bash
 # Ensure ~/.claude is a directory (not a symlink)
@@ -77,9 +102,16 @@ if [[ -L ~/.claude ]]; then
     mkdir -p ~/.claude
 fi
 
-# Symlink individual config files
+# Symlink settings.json only
 ln -sf ~/repos/dotfiles/home/.claude/settings.json ~/.claude/settings.json
-ln -sf ~/repos/dotfiles/home/.claude/mcp.json ~/.claude/mcp.json
+
+# Merge MCP template into ~/.claude.json (do NOT symlink)
+jq --argjson mcp "$(cat ~/repos/dotfiles/home/.claude/mcp.json.template | jq .)" \
+   '. + $mcp' ~/.claude.json > ~/.claude.json.tmp && \
+   mv ~/.claude.json.tmp ~/.claude.json
+
+# Verify
+claude mcp list
 ```
 
 ### work/ Scripts Not Found
