@@ -74,10 +74,16 @@ install-tools:
 	@ln -sf $(PWD)/home/.config/gwf ~/.config/gwf
 	@ln -sf $(PWD)/home/.config/cursor ~/.config/cursor
 	@ln -sf $(PWD)/home/.config/kitty ~/.config/kitty
-	@ln -sfn $(PWD)/home/.claude ~/.claude
 	@ln -sfn $(PWD)/home/.cursor ~/.cursor
 	@echo "  ✓ cwf and gwf installed to ~/.local/bin"
 	@echo "  ✓ Config directories linked"
+	@echo ""
+	@echo "  NOTE: ~/.claude must remain a directory (not a symlink) for Claude Code runtime data."
+	@echo "  To use dotfiles settings:"
+	@echo "    1. Symlink settings: ln -sf $(PWD)/home/.claude/settings.json ~/.claude/settings.json"
+	@echo "    2. Merge MCP template: jq --argjson mcp \"\$$(cat $(PWD)/home/.claude/mcp.json.template | jq .)\" '. + \$$mcp' ~/.claude.json > ~/.claude.json.tmp && mv ~/.claude.json.tmp ~/.claude.json"
+	@echo "    3. Verify MCP: claude mcp list"
+	@echo ""
 	@echo "  ⚠ Ensure ~/.local/bin is in your PATH"
 
 # Linux desktop environment (Linux only)

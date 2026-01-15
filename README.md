@@ -50,7 +50,26 @@ git clone <your-repo-url> ~/repos/dotfiles
 cd ~/repos/dotfiles
 ```
 
-### 2. Install Components
+### 2. Configure Secrets
+
+**IMPORTANT**: Set up your secret environment variables before using MCP servers that require API keys.
+
+```bash
+# Copy the template
+cp ~/repos/dotfiles/home/.config/zsh/secret.template.zsh ~/.config/zsh/secret.zsh
+
+# Edit and add your actual API keys
+vim ~/.config/zsh/secret.zsh
+
+# The file is automatically gitignored - never commit it!
+```
+
+**Required secrets for MCP servers:**
+- `FIREFLIES_API_KEY` - Get from https://fireflies.ai/api
+
+See the **[Secret Management](#secret-management)** section below for details.
+
+### 3. Install Components
 
 See **[INSTALLATION.md](INSTALLATION.md)** for detailed installation instructions.
 
@@ -72,15 +91,17 @@ ln -sf ~/repos/dotfiles/bin/cwf ~/.local/bin/cwf
 ln -sf ~/repos/dotfiles/bin/gwf ~/.local/bin/gwf
 ln -sf ~/repos/dotfiles/home/.config/cwf ~/.config/cwf
 ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
-ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
+ln -sf ~/repos/dotfiles/home/.claude/settings.json ~/.claude/settings.json
 
-# Configure MCP servers (see .claude/README.md for details)
-claude mcp add --transport stdio --scope user playwright -- npx -y @playwright/mcp@latest
-claude mcp add --transport sse --scope user linear https://mcp.linear.app/sse
-claude mcp add --transport http --scope user notion https://mcp.notion.com/mcp
-claude mcp add --transport stdio --scope user github -- npx -y @modelcontextprotocol/server-github
-claude mcp add --transport stdio --scope user grafana-staging -- uv run --directory ~/repos/data-pipelines scripts/grafana_mcp_server/server.py --environment stage
-claude mcp add --transport stdio --scope user grafana-prod -- uv run --directory ~/repos/data-pipelines scripts/grafana_mcp_server/server.py --environment prod
+# Configure MCP servers - merge template into ~/.claude.json
+# IMPORTANT: Claude Code reads MCP servers from ~/.claude.json, NOT from a separate mcp.json file.
+# The mcp.json.template file in this repo is ONLY a template - it must be merged into ~/.claude.json.
+jq --argjson mcp "$(cat ~/repos/dotfiles/home/.claude/mcp.json.template | jq .)" \
+   '. + $mcp' ~/.claude.json > ~/.claude.json.tmp && \
+   mv ~/.claude.json.tmp ~/.claude.json
+
+# Verify MCP servers loaded
+claude mcp list
 ```
 
 **For full installation**, see **[INSTALLATION.md](INSTALLATION.md)**.
@@ -233,6 +254,125 @@ gwf pr push "Add new feature"
 
 Full documentation: [`scripts/docs/gwf.md`](scripts/docs/gwf.md)
 
+## Secret Management
+
+### Overview
+
+API keys and credentials are managed through `~/.config/zsh/secret.zsh`, which is automatically loaded by your shell configuration and **gitignored** to prevent accidental commits.
+
+### Setup
+
+1. **Copy the template:**
+   ```bash
+   cp ~/repos/dotfiles/home/.config/zsh/secret.template.zsh ~/.config/zsh/secret.zsh
+   ```
+
+2. **Edit with your actual secrets:**
+   ```bash
+   vim ~/.config/zsh/secret.zsh
+   ```
+
+3. **Add your API keys:**
+   ```bash
+   export FIREFLIES_API_KEY="your-actual-api-key"
+   export OPENAI_API_KEY="your-openai-key"
+   # ... other secrets
+   ```
+
+4. **Reload your shell:**
+   ```bash
+   source ~/.zshrc  # or restart your terminal
+   ```
+
+### How It Works
+
+- **`secret.zsh`** (not in repo): Contains your actual secrets
+  - Location: `~/.config/zsh/secret.zsh`
+  - **Gitignored** via `.gitignore` pattern: `*secret*`
+  - Automatically sourced by `.zshrc`
+
+- **`secret.template.zsh`** (in repo): Template for reference
+  - Location: `~/repos/dotfiles/home/.config/zsh/secret.template.zsh`
+  - Contains placeholder values and documentation
+  - Safe to commit and share
+
+### MCP Server Integration
+
+MCP servers reference secrets via environment variables. MCP configuration lives in `~/.claude.json` (managed by Claude Code):
+
+```json
+// ~/.claude.json (excerpt)
+{
+  "mcpServers": {
+    "fireflies": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://api.fireflies.ai/mcp",
+        "--header",
+        "Authorization: Bearer ${FIREFLIES_API_KEY}"
+      ]
+    }
+  }
+}
+```
+
+The `${FIREFLIES_API_KEY}` is automatically expanded from your `secret.zsh` when Claude Code starts.
+
+### MCP Configuration with Templates
+
+**IMPORTANT**: Claude Code reads MCP servers from `~/.claude.json`, NOT from a separate `mcp.json` file.
+
+The `home/.claude/mcp.json.template` file in this repository is:
+- ✅ **A template only** - version-controlled reference for MCP server configurations
+- ❌ **NOT used directly** - Claude Code never reads this file
+- 🔄 **Merged during setup** - Content is merged into `~/.claude.json` using the jq command shown in Quick Start
+
+**Why this approach?**
+- `~/.claude.json` contains both configuration (MCP servers) AND runtime state (session data, onboarding flags, OAuth tokens)
+- Claude Code actively manages `~/.claude.json` during normal operation
+- Template merging separates version-controlled config from runtime state
+- Allows portable MCP setup across machines without exposing session data
+
+See Quick Start section for the merge command.
+
+### Security Best Practices
+
+✅ **DO:**
+- Keep `secret.zsh` in `~/.config/zsh/` only (never in repo)
+- Set restrictive permissions: `chmod 600 ~/.config/zsh/secret.zsh`
+- Rotate API keys periodically
+- Use environment variables for all secrets in configs
+
+❌ **DON'T:**
+- Commit `secret.zsh` to git
+- Hardcode API keys in `mcp.json` or other config files
+- Share your `secret.zsh` file with others
+- Store secrets in version-controlled files
+
+### Required Secrets by Component
+
+| Service | Environment Variable | Where to Get It |
+|---------|---------------------|-----------------|
+| Fireflies | `FIREFLIES_API_KEY` | https://fireflies.ai/api |
+| Linear | (OAuth) | Authenticated via browser |
+| Notion | (OAuth) | Authenticated via browser |
+| GitHub | (CLI) | `gh auth login` |
+| Grafana | (AWS credentials) | AWS IAM / `~/.aws/` |
+
+### Troubleshooting
+
+**MCP server fails with authentication error:**
+1. Check `secret.zsh` exists: `ls -la ~/.config/zsh/secret.zsh`
+2. Verify variable is set: `echo $FIREFLIES_API_KEY`
+3. Restart Claude Code (not just `--resume`)
+4. Check MCP logs: `claude mcp logs fireflies`
+
+**Variable not found:**
+- Ensure `.zshrc` sources `secret.zsh` (it should automatically)
+- Check shell: `echo $SHELL` (should be `/bin/zsh`)
+- Manual load: `source ~/.config/zsh/secret.zsh`
+
 ## Installation
 
 **Detailed Instructions**: See **[INSTALLATION.md](INSTALLATION.md)** for:
@@ -264,8 +404,10 @@ ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
 
 # Claude Code settings
 mkdir -p ~/.claude
-ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
-# MCP servers: See .claude/README.md for setup instructions
+ln -sf ~/repos/dotfiles/home/.claude/settings.json ~/.claude/settings.json
+
+# MCP servers: Must be merged into ~/.claude.json (NOT symlinked)
+# See Quick Start section above for the jq merge command
 
 # Linux only: Desktop environment
 ln -sf ~/repos/dotfiles/home/.config/hypr ~/.config/hypr
@@ -277,35 +419,35 @@ ln -sf ~/repos/dotfiles/home/.config/waybar ~/.config/waybar
 
 ```
 ~/repos/dotfiles/
-├── .bashrc                      # Bash configuration
-├── .zprofile                    # Zsh configuration
-├── .tmux.conf                   # TMUX configuration
-├── .claude/                     # Claude Code settings
-│   ├── settings.json            # Claude Code configuration
-│   └── mcp.json                 # MCP server configuration
-├── .config/                     # Application configs
-│   ├── nvim/                    # Neovim (cross-platform)
-│   ├── cwf/               # cwf CLI config (cross-platform)
-│   ├── gwf/                     # gwf CLI config (cross-platform)
-│   ├── hypr/                    # Hyprland (Linux only)
-│   ├── waybar/                  # Waybar (Linux only)
-│   ├── rofi/                    # Rofi (Linux only)
-│   ├── kitty/                   # Kitty terminal
-│   └── ...                      # Many more configs
-├── scripts/                     # Utility scripts
-│   ├── cwf.sh                   # Claude Workflow CLI
-│   ├── gwf.sh                   # Git Workflow CLI
-│   ├── git-aliases.sh           # Git utilities
-│   ├── grep-recursive.sh        # Search utilities
-│   ├── python-utility.sh        # Python helpers
-│   ├── mermaid-utility.sh       # Diagram generation
-│   ├── docs/                    # Tool documentation
-│   └── README.md                # Scripts documentation
-├── Library/                     # macOS preferences
-├── wallpapers/                  # Desktop wallpapers
-├── README.md                    # This file
-├── INSTALLATION.md              # Detailed installation guide
-└── PACKAGE_MANAGEMENT.md        # Package management guide
+├── .bashrc                          # Bash configuration
+├── .zprofile                        # Zsh configuration
+├── .tmux.conf                       # TMUX configuration
+├── home/                            # Files that go in ~/
+│   ├── .claude/                     # Claude Code settings
+│   │   ├── settings.json            # Hooks & permissions (symlinked)
+│   │   └── mcp.json.template        # MCP template (NOT used directly - merged to ~/.claude.json)
+│   └── .config/                     # Application configs
+│       ├── nvim/                    # Neovim (cross-platform)
+│       ├── cwf/                     # cwf CLI config (cross-platform)
+│       ├── gwf/                     # gwf CLI config (cross-platform)
+│       ├── zsh/                     # Zsh configuration files
+│       │   └── secret.template.zsh  # API keys template
+│       ├── hypr/                    # Hyprland (Linux only)
+│       ├── waybar/                  # Waybar (Linux only)
+│       ├── rofi/                    # Rofi (Linux only)
+│       ├── kitty/                   # Kitty terminal
+│       └── ...                      # Many more configs
+├── bin/                             # Utility scripts
+│   ├── cwf                          # Claude Workflow CLI
+│   ├── gwf                          # Git Workflow CLI
+│   ├── git-aliases                  # Git utilities
+│   ├── grep-recursive               # Search utilities
+│   └── ...                          # More utilities
+├── Library/                         # macOS preferences
+├── wallpapers/                      # Desktop wallpapers
+├── README.md                        # This file
+├── INSTALLATION.md                  # Detailed installation guide
+└── PACKAGE_MANAGEMENT.md            # Package management guide
 ```
 
 ## Dependencies
@@ -350,7 +492,7 @@ brew install bash tmux neovim ripgrep fd gh node
 ## Documentation
 
 - **[INSTALLATION.md](INSTALLATION.md)**: Comprehensive installation guide with platform-specific instructions
-- **[.claude/README.md](.claude/README.md)**: Claude Code MCP server configuration and management
+- **[home/.claude/README.md](home/.claude/README.md)**: Claude Code MCP server configuration and management
 - **[scripts/README.md](scripts/README.md)**: CLI tools overview and quick reference
 - **[scripts/docs/cwf-meta-commands.md](scripts/docs/cwf-meta-commands.md)**: cwf meta-commands for self-extension
 - **[scripts/docs/gwf.md](scripts/docs/gwf.md)**: gwf complete usage guide
