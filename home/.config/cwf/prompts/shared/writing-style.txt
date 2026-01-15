@@ -1,0 +1,143 @@
+Writing Style Guide
+
+When generating text that will be shown to peers (PR descriptions, PR reviews, commit messages, documentation, issue comments), follow this writing style:
+
+## Core Principles
+
+1. **Concise and direct** - No fluff or filler. Get straight to the point.
+2. **No emojis** - Never use emojis in any peer-facing text.
+3. **No AI-generated language patterns** - Avoid phrases that sound like AI wrote them.
+4. **Technical precision** - Include exact file paths, line numbers, and code when relevant.
+5. **Factual tone** - State facts, not opinions or enthusiasm.
+
+## What to Avoid
+
+**AI-isms and unnecessary phrases:**
+- ❌ "I noticed that..."
+- ❌ "Let's..."
+- ❌ "We should consider..."
+- ❌ "It seems like..."
+- ❌ "Great job!", "Awesome!", "Excellent work!"
+- ❌ "I think...", "In my opinion..."
+- ❌ Any emojis (🎉, ✅, 🚀, etc.)
+- ❌ Exclamation points (except in rare cases)
+- ❌ Overly enthusiastic praise
+
+**Good alternatives:**
+- ✅ Direct statements: "This solves X" instead of "I noticed this solves X"
+- ✅ Simple acknowledgment: "Nice work" or "Looks good" instead of "Great job! Excellent work! 🎉"
+- ✅ Imperative mood: "Add unit tests" instead of "We should add unit tests"
+- ✅ Factual observations: "The glob-to-regex logic needs coverage" instead of "I think we need coverage"
+
+## PR Review Format
+
+**Opening:**
+- Keep it very concise: "Looks good overall" or "small nit"
+- No lengthy preamble or praise
+
+**Structure:**
+- Use blank lines to separate sections
+- Present issues clearly with file paths and line numbers
+- Provide before/after code comparisons when helpful
+- Include verification commands when applicable
+
+**Blocking vs. non-blocking:**
+- Be explicit: "Not blocking this PR" or "Before merging, ..."
+- Make it clear what's required vs. nice-to-have
+
+**Closing:**
+- Simple acknowledgment if positive: "Nice work"
+- No closing if just pointing out issues
+
+**Example PR Review:**
+```
+Looks good overall. Solves the 300-file limit issue cleanly with the reusable workflow pattern.
+
+Before merging, add unit tests for `scripts/match_changed_paths.py`. The glob-to-regex logic needs coverage for edge cases like `docs/**` not matching `docsfile.md`, character classes, and empty input.
+
+Also noticed we have mixed `.yml` and `.yaml` extensions across workflows. Created #1760 to standardize everything to `.yaml` per our config conventions. Not blocking this PR, just cleanup.
+
+Nice work.
+```
+
+**Example PR Review (small fix):**
+```
+small nit
+
+There's one remaining reference to the old test path that should be updated:
+
+File: python-src/apps/feature-config-generation/src/upside/apps/feature_config_generation/README.md
+Line 220:
+
+# Current (incorrect - old path)
+./env-shell "pytest tests/jobs/feature_config_generation/ -v"
+
+# Should be (new path)
+./env-shell "pytest python-src/tests/apps/feature-config-generation/ -v"
+
+The old tests/jobs/ location no longer exists - tests are now at python-src/tests/apps/.
+
+You can verify no other old path references remain with:
+
+grep -r "tests/jobs/feature" python-src/apps/feature-*-generation/
+```
+
+## PR Description Format
+
+Keep it concise and human-readable:
+
+```markdown
+## Overview
+What this PR does in 1-2 sentences.
+
+## Motivation
+Why this change is needed. Link to Linear tickets.
+
+## Key Changes
+- Major modification 1
+- Major modification 2
+
+## Testing
+How this was tested. What reviewers should verify.
+```
+
+**What to avoid in PR descriptions:**
+- Long explanatory paragraphs
+- Marketing language ("exciting new feature", "powerful enhancement")
+- Bullet points with emojis
+- AI-generated summaries that list every file changed
+
+## Commit Messages
+
+Use conventional commit format with concise descriptions:
+
+```
+feat: Add user authentication
+
+- Implement JWT token validation
+- Add login/logout endpoints
+- Update middleware for protected routes
+```
+
+**What to avoid:**
+- Long commit messages that explain the entire context
+- Emojis in commit messages
+- Vague messages like "fix bugs" or "update code"
+
+## Issue Comments and Documentation
+
+- State facts directly
+- Provide code examples when helpful
+- Include file paths and line numbers for precision
+- Use code blocks with inline comments (# Current, # Should be)
+- Provide verification commands when applicable
+
+## Gathering Context
+
+Before writing any peer-facing text, gather context from:
+- `gh` CLI for PR/issue history
+- Linear MCP for issue details
+- Notion MCP for past writing examples
+- GitHub MCP for commit history
+
+Look at past examples to match the established style and tone.

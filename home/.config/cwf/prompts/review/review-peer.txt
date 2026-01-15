@@ -4,6 +4,8 @@
 
 {{UPSIDE_STANDARDS}}
 
+{{WRITING_STYLE}}
+
 We added/modified files in this PR for this branch. Help me review every file thoroughly and provide specific, actionable feedback that I can share with my peers.
 
 ## Review Objectives
@@ -143,3 +145,10 @@ Provide your review in the following markdown format:
 - Balance criticism with positive feedback on what's done well
 - Consider the context - not every issue needs to be fixed immediately
 - Focus on issues that impact functionality, security, performance, or maintainability
+
+**When posting to GitHub:** This comprehensive format is for internal analysis. When posting actual PR comments, adapt the feedback to match the concise writing style (see {{WRITING_STYLE}}):
+- Remove emojis and star ratings
+- Keep it direct and factual
+- Focus on specific issues with file:line references
+- Provide before/after code examples when helpful
+- Be explicit about what's blocking vs. non-blocking

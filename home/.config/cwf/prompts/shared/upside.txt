@@ -1039,6 +1039,8 @@ Use Linear "magic branch names" for automatic ticket linking:
    How was this tested? What should reviewers verify?
    ```
 
+   **Writing Style:** Keep PR descriptions concise and human-readable. No emojis, no AI-generated language patterns, no marketing fluff. See `{{WRITING_STYLE}}` for comprehensive guidance on writing style for all peer-facing text.
+
 **Merge Strategy:**
 - **Feature branches → main:** Always use **squash merge** (keeps main history clean)
 - **main → prod (releases):** Use **regular merge** (keeps prod history linear and matching main)

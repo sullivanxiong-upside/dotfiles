@@ -8,6 +8,8 @@ This is a general feature or update that may be outside the main work repositori
 
 {{GIT_SAFETY}}
 
+{{WRITING_STYLE}}
+
 First, identify the repository or codebase we're working in and understand its structure.
 
 If documentation exists:
