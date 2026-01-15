@@ -91,15 +91,16 @@ ln -sf ~/repos/dotfiles/bin/cwf ~/.local/bin/cwf
 ln -sf ~/repos/dotfiles/bin/gwf ~/.local/bin/gwf
 ln -sf ~/repos/dotfiles/home/.config/cwf ~/.config/cwf
 ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
-ln -sf ~/repos/dotfiles/.claude/settings.json ~/.claude/settings.json
+ln -sf ~/repos/dotfiles/home/.claude/settings.json ~/.claude/settings.json
 
-# Configure MCP servers (see .claude/README.md for details)
-claude mcp add --transport stdio --scope user playwright -- npx -y @playwright/mcp@latest
-claude mcp add --transport sse --scope user linear https://mcp.linear.app/sse
-claude mcp add --transport http --scope user notion https://mcp.notion.com/mcp
-claude mcp add --transport stdio --scope user github -- npx -y @modelcontextprotocol/server-github
-claude mcp add --transport stdio --scope user grafana-staging -- uv run --directory ~/repos/data-pipelines scripts/grafana_mcp_server/server.py --environment stage
-claude mcp add --transport stdio --scope user grafana-prod -- uv run --directory ~/repos/data-pipelines scripts/grafana_mcp_server/server.py --environment prod
+# Configure MCP servers - merge template into ~/.claude.json
+# IMPORTANT: MCP servers are read from ~/.claude.json, NOT from a separate mcp.json file
+jq --argjson mcp "$(cat ~/repos/dotfiles/home/.claude/mcp.json.template | jq .)" \
+   '. + $mcp' ~/.claude.json > ~/.claude.json.tmp && \
+   mv ~/.claude.json.tmp ~/.claude.json
+
+# Verify MCP servers loaded
+claude mcp list
 ```
 
 **For full installation**, see **[INSTALLATION.md](INSTALLATION.md)**.
@@ -296,22 +297,28 @@ API keys and credentials are managed through `~/.config/zsh/secret.zsh`, which i
 
 ### MCP Server Integration
 
-MCP servers reference secrets via environment variables:
+MCP servers reference secrets via environment variables. MCP configuration lives in `~/.claude.json` (managed by Claude Code):
 
 ```json
-// .claude/mcp.json
-"fireflies": {
-  "command": "npx",
-  "args": [
-    "mcp-remote",
-    "https://api.fireflies.ai/mcp",
-    "--header",
-    "Authorization: Bearer ${FIREFLIES_API_KEY}"
-  ]
+// ~/.claude.json (excerpt)
+{
+  "mcpServers": {
+    "fireflies": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://api.fireflies.ai/mcp",
+        "--header",
+        "Authorization: Bearer ${FIREFLIES_API_KEY}"
+      ]
+    }
+  }
 }
 ```
 
 The `${FIREFLIES_API_KEY}` is automatically expanded from your `secret.zsh` when Claude Code starts.
+
+**Note:** The `home/.claude/mcp.json.template` file in this repo is a template that gets merged into `~/.claude.json` during installation. See Quick Start for setup instructions.
 
 ### Security Best Practices
 
@@ -394,35 +401,35 @@ ln -sf ~/repos/dotfiles/home/.config/waybar ~/.config/waybar
 
 ```
 ~/repos/dotfiles/
-├── .bashrc                      # Bash configuration
-├── .zprofile                    # Zsh configuration
-├── .tmux.conf                   # TMUX configuration
-├── .claude/                     # Claude Code settings
-│   ├── settings.json            # Claude Code configuration
-│   └── mcp.json                 # MCP server configuration
-├── .config/                     # Application configs
-│   ├── nvim/                    # Neovim (cross-platform)
-│   ├── cwf/               # cwf CLI config (cross-platform)
-│   ├── gwf/                     # gwf CLI config (cross-platform)
-│   ├── hypr/                    # Hyprland (Linux only)
-│   ├── waybar/                  # Waybar (Linux only)
-│   ├── rofi/                    # Rofi (Linux only)
-│   ├── kitty/                   # Kitty terminal
-│   └── ...                      # Many more configs
-├── scripts/                     # Utility scripts
-│   ├── cwf.sh                   # Claude Workflow CLI
-│   ├── gwf.sh                   # Git Workflow CLI
-│   ├── git-aliases.sh           # Git utilities
-│   ├── grep-recursive.sh        # Search utilities
-│   ├── python-utility.sh        # Python helpers
-│   ├── mermaid-utility.sh       # Diagram generation
-│   ├── docs/                    # Tool documentation
-│   └── README.md                # Scripts documentation
-├── Library/                     # macOS preferences
-├── wallpapers/                  # Desktop wallpapers
-├── README.md                    # This file
-├── INSTALLATION.md              # Detailed installation guide
-└── PACKAGE_MANAGEMENT.md        # Package management guide
+├── .bashrc                          # Bash configuration
+├── .zprofile                        # Zsh configuration
+├── .tmux.conf                       # TMUX configuration
+├── home/                            # Files that go in ~/
+│   ├── .claude/                     # Claude Code settings
+│   │   ├── settings.json            # Hooks & permissions (symlinked)
+│   │   └── mcp.json.template        # MCP template (merged to ~/.claude.json)
+│   └── .config/                     # Application configs
+│       ├── nvim/                    # Neovim (cross-platform)
+│       ├── cwf/                     # cwf CLI config (cross-platform)
+│       ├── gwf/                     # gwf CLI config (cross-platform)
+│       ├── zsh/                     # Zsh configuration files
+│       │   └── secret.template.zsh  # API keys template
+│       ├── hypr/                    # Hyprland (Linux only)
+│       ├── waybar/                  # Waybar (Linux only)
+│       ├── rofi/                    # Rofi (Linux only)
+│       ├── kitty/                   # Kitty terminal
+│       └── ...                      # Many more configs
+├── bin/                             # Utility scripts
+│   ├── cwf                          # Claude Workflow CLI
+│   ├── gwf                          # Git Workflow CLI
+│   ├── git-aliases                  # Git utilities
+│   ├── grep-recursive               # Search utilities
+│   └── ...                          # More utilities
+├── Library/                         # macOS preferences
+├── wallpapers/                      # Desktop wallpapers
+├── README.md                        # This file
+├── INSTALLATION.md                  # Detailed installation guide
+└── PACKAGE_MANAGEMENT.md            # Package management guide
 ```
 
 ## Dependencies

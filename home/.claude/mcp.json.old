@@ -1,0 +1,57 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "linear": {
+      "type": "sse",
+      "url": "https://mcp.linear.app/sse",
+      "headers": {}
+    },
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp",
+      "headers": {}
+    },
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    },
+    "grafana-staging": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "~/repos/data-pipelines",
+        "scripts/grafana_mcp_server/server.py",
+        "--environment",
+        "stage"
+      ]
+    },
+    "grafana-prod": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "~/repos/data-pipelines",
+        "scripts/grafana_mcp_server/server.py",
+        "--environment",
+        "prod"
+      ]
+    },
+    "fireflies": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://api.fireflies.ai/mcp",
+        "--header",
+        "Authorization: Bearer ${FIREFLIES_API_KEY}"
+      ]
+    }
+  }
+}

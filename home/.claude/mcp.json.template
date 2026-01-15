@@ -1,0 +1,84 @@
+# MCP Server Configuration Template
+#
+# IMPORTANT: This file is a TEMPLATE and REFERENCE ONLY.
+# Claude Code reads MCP servers from ~/.claude.json, NOT from a separate mcp.json file.
+#
+# SETUP INSTRUCTIONS:
+# 1. This file needs to be merged into ~/.claude.json (not used directly)
+# 2. Use the provided script or manual merge:
+#
+#    Manual merge:
+#    jq --argjson mcp "$(cat ~/repos/dotfiles/home/.claude/mcp.json.template | jq .)" \
+#       '. + $mcp' ~/.claude.json > ~/.claude.json.tmp && \
+#       mv ~/.claude.json.tmp ~/.claude.json
+#
+#    Or use: claude mcp add <server-name> <command> <args>
+#
+# 3. Verify with: claude mcp list
+#
+# WHY THIS FILE EXISTS:
+# - Version control your MCP server configurations
+# - Share MCP setup across machines via dotfiles
+# - Document which MCP servers you use
+#
+# NOTE: ~/.claude.json is managed by Claude Code and contains session state,
+# so we can't symlink it directly from dotfiles. This template approach allows
+# you to version control your MCP configuration while respecting Claude's file management.
+
+{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "linear": {
+      "type": "sse",
+      "url": "https://mcp.linear.app/sse",
+      "headers": {}
+    },
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp",
+      "headers": {}
+    },
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    },
+    "grafana-staging": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "~/repos/data-pipelines",
+        "scripts/grafana_mcp_server/server.py",
+        "--environment",
+        "stage"
+      ]
+    },
+    "grafana-prod": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "~/repos/data-pipelines",
+        "scripts/grafana_mcp_server/server.py",
+        "--environment",
+        "prod"
+      ]
+    },
+    "fireflies": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://api.fireflies.ai/mcp",
+        "--header",
+        "Authorization: Bearer ${FIREFLIES_API_KEY}"
+      ]
+    }
+  }
+}
