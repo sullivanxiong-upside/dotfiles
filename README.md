@@ -228,8 +228,9 @@ cwf feature all "Add user activity tracking"
 # Research and learn
 cwf agent chat "How do I implement distributed caching?"
 
-# Self-extend: Add new commands
-cwf new add-sub-command feature
+# Improve workflows and rules
+cwf new improve-workflows
+cwf new improve-rules
 ```
 
 Full documentation: [`scripts/README.md`](scripts/README.md) and [`scripts/docs/cwf-meta-commands.md`](scripts/docs/cwf-meta-commands.md)
