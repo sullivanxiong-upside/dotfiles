@@ -231,6 +231,9 @@ cwf agent chat "How do I implement distributed caching?"
 # Improve workflows and rules
 cwf new improve-workflows
 cwf new improve-rules
+
+# Add/improve personal repo operational knowledge
+cwf new improve-repo-knowledge
 ```
 
 Full documentation: [`scripts/README.md`](scripts/README.md) and [`scripts/docs/cwf-meta-commands.md`](scripts/docs/cwf-meta-commands.md)

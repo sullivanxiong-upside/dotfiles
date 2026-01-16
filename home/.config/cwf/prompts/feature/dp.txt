@@ -1,5 +1,7 @@
 @~/repos/data-pipelines
 
+{{REPO_CONTEXT_INDEX}}
+
 {{WORKTREE_WORKFLOW}}
 
 {{GITHUB_CONTEXT}}
