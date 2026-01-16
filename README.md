@@ -86,12 +86,15 @@ source ~/.zprofile
 
 **For CLI tools (cwf & gwf) and Claude Code:**
 ```bash
-mkdir -p ~/.local/bin ~/.claude
+mkdir -p ~/.local/bin ~/.claude ~/.claude/commands
 ln -sf ~/repos/dotfiles/bin/cwf ~/.local/bin/cwf
 ln -sf ~/repos/dotfiles/bin/gwf ~/.local/bin/gwf
 ln -sf ~/repos/dotfiles/home/.config/cwf ~/.config/cwf
 ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
 ln -sf ~/repos/dotfiles/home/.claude/settings.json ~/.claude/settings.json
+
+# Symlink Claude Code skills
+ln -sf ~/repos/dotfiles/home/.claude/commands/capture-knowledge.md ~/.claude/commands/capture-knowledge.md
 
 # Configure MCP servers - merge template into ~/.claude.json
 # IMPORTANT: Claude Code reads MCP servers from ~/.claude.json, NOT from a separate mcp.json file.
