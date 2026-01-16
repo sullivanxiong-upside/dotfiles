@@ -36,6 +36,7 @@ declare -A COMMAND_REGISTRY=(
   ["new:improve-rules"]="new/improve-rules.txt"
   ["new:improve-workflows"]="new/improve-workflows.txt"
   ["new:improve-repo-knowledge"]="new/improve-repo-knowledge.txt"
+  ["new:add-skill"]="new/add-skill.txt"
 )
 
 # Category descriptions
@@ -70,6 +71,7 @@ declare -A SUBCOMMAND_DESC=(
   ["new:improve-rules"]="Analyze and improve all rule files"
   ["new:improve-workflows"]="Improve the cwf/gwf workflow tools themselves"
   ["new:improve-repo-knowledge"]="Add or improve personal operational knowledge for a repository"
+  ["new:add-skill"]="Create a new Claude Code skill from stdin content"
 )
 
 # Commands that require extra arguments
@@ -740,7 +742,7 @@ _claude_wf_completion() {
         COMPREPLY=($(compgen -W "chat" -- "$cur"))
         ;;
       new)
-        COMPREPLY=($(compgen -W "improve-rules improve-workflows improve-repo-knowledge" -- "$cur"))
+        COMPREPLY=($(compgen -W "improve-rules improve-workflows improve-repo-knowledge add-skill" -- "$cur"))
         ;;
       completion)
         COMPREPLY=($(compgen -W "bash zsh install" -- "$cur"))
@@ -822,7 +824,7 @@ _claude_wf() {
         return 0
         ;;
       new)
-        subcommands=('improve-rules:Analyze and improve rule files' 'improve-workflows:Improve cwf/gwf tools' 'improve-repo-knowledge:Add or improve repo operational knowledge')
+        subcommands=('improve-rules:Analyze and improve rule files' 'improve-workflows:Improve cwf/gwf tools' 'improve-repo-knowledge:Add or improve repo operational knowledge' 'add-skill:Create new Claude Code skill')
         _describe -t subcommands 'subcommand' subcommands
         return 0
         ;;
