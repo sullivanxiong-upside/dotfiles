@@ -1,0 +1,88 @@
+You are helping me create a new Claude Code skill (command) in the dotfiles repository.
+
+{{GIT_SAFETY}}
+
+## Context
+
+Claude Code skills are markdown files with YAML frontmatter that define custom commands.
+- Location: `~/repos/dotfiles/home/.claude/commands/<skill-name>.md`
+- Skills are symlinked to `~/.claude/commands/` during dotfiles setup
+- Format follows the pattern of existing skills like `capture-knowledge.md`, `commit.md`, etc.
+
+## Input Format
+
+The user will provide the complete skill content via stdin, including:
+1. A line specifying the skill name: `skill-name: <name>` OR `# <name>` as first line
+2. YAML frontmatter with:
+   - `description:` - One-line description of what the skill does
+   - `allowed-tools:` - List of tools the skill can use (e.g., `Bash(git:*)`, `Read`, `Write`)
+3. Markdown content with sections like:
+   - `## Context` - Dynamic context (git status, etc.)
+   - `## Arguments` - How to use $ARGUMENTS
+   - `## Your Task` - Instructions for Claude
+
+## Your Task
+
+1. **Extract the skill name:**
+   - Look for `skill-name: <name>` line at the top
+   - OR extract from first markdown heading `# <name>`
+   - OR prompt user if unclear
+   - Validate: kebab-case only (lowercase, hyphens, no spaces)
+
+2. **Validate the content:**
+   - Must have YAML frontmatter (`---` delimiters)
+   - Must have `description:` field
+   - Should have `allowed-tools:` (warn if missing)
+   - Content should follow existing skill patterns
+
+3. **Check if skill already exists:**
+   - Check if file exists at `~/repos/dotfiles/home/.claude/commands/<skill-name>.md`
+   - If it exists, ask user to confirm overwrite
+
+4. **Write the skill file:**
+   - Write to: `~/repos/dotfiles/home/.claude/commands/<skill-name>.md`
+   - Ensure proper formatting (frontmatter, sections, etc.)
+   - Remove any `skill-name:` line from the final content
+
+5. **Provide next steps:**
+   ```
+   ✓ Created skill: ~/repos/dotfiles/home/.claude/commands/<skill-name>.md
+
+   Next steps:
+   1. Review the file: cat ~/repos/dotfiles/home/.claude/commands/<skill-name>.md
+   2. Test the skill: /<skill-name> [args]
+   3. Commit to dotfiles: cd ~/repos/dotfiles && git add home/.claude/commands/<skill-name>.md
+   ```
+
+## Example Input
+
+```
+skill-name: my-custom-skill
+---
+description: Do something useful
+allowed-tools:
+  - Read
+  - Write
+  - Bash(git:*)
+---
+
+## Context
+- Current branch: !`git branch --show-current`
+
+## Your Task
+Perform the custom task...
+```
+
+## Validation Rules
+
+- **Skill name:** Must be kebab-case (lowercase, hyphens only)
+- **Frontmatter:** Must be valid YAML between `---` delimiters
+- **Description:** Required, should be concise (one sentence)
+- **Allowed tools:** Optional but recommended for security
+
+## Error Handling
+
+- If skill name is invalid: Suggest corrections
+- If frontmatter is missing/invalid: Show example format
+- If file exists: Ask to confirm overwrite
+- If unable to write: Check permissions and report error
