@@ -35,6 +35,7 @@ declare -A COMMAND_REGISTRY=(
   ["notion:__main__"]="notion.txt"
   ["new:improve-rules"]="new/improve-rules.txt"
   ["new:improve-workflows"]="new/improve-workflows.txt"
+  ["new:improve-repo-knowledge"]="new/improve-repo-knowledge.txt"
 )
 
 # Category descriptions
@@ -68,6 +69,7 @@ declare -A SUBCOMMAND_DESC=(
   ["notion:__main__"]="Generate daily standup update from yesterday's activity"
   ["new:improve-rules"]="Analyze and improve all rule files"
   ["new:improve-workflows"]="Improve the cwf/gwf workflow tools themselves"
+  ["new:improve-repo-knowledge"]="Add or improve personal operational knowledge for a repository"
 )
 
 # Commands that require extra arguments
@@ -126,6 +128,148 @@ function load_file() {
       return 1
     fi
     echo ""
+  fi
+}
+
+# Get current repository name from git remote
+function get_current_repo_name() {
+  # Check if we're in a git repository
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo ""
+    return
+  fi
+
+  # Get the remote URL
+  local remote_url=$(git remote get-url origin 2>/dev/null)
+  if [ -z "$remote_url" ]; then
+    echo ""
+    return
+  fi
+
+  # Extract repo name from URL (handles both SSH and HTTPS, with or without .git)
+  # Examples:
+  #   git@github.com:UpsideLabs/data-pipelines.git -> data-pipelines
+  #   git@github.com:UpsideLabs/data-pipelines -> data-pipelines
+  #   https://github.com/UpsideLabs/customer-dashboard.git -> customer-dashboard
+  #   https://github.com/UpsideLabs/customer-dashboard -> customer-dashboard
+  local repo_name=$(echo "$remote_url" | sed -E 's#.*/##' | sed -E 's#.*:##' | sed -E 's#\.git$##')
+  echo "$repo_name"
+}
+
+# Build an index of available repo context files
+function get_repo_context_index() {
+  local current_repo=$(get_current_repo_name)
+  local context_dir="$HOME/.claude/context"
+  local index=""
+
+  # Check if context directory exists
+  if [ ! -d "$context_dir" ]; then
+    return
+  fi
+
+  # Header
+  index="## Available Repository Knowledge
+
+You have access to personal operational knowledge files at \`~/.claude/context/\`.
+
+"
+
+  # Current repository section
+  if [ -n "$current_repo" ]; then
+    index="${index}**Current repository:** \`$current_repo\`
+
+"
+
+    # Check for single file or directory structure
+    if [ -f "$context_dir/${current_repo}.md" ]; then
+      index="${index}Available context:
+- \`~/.claude/context/${current_repo}.md\`
+
+"
+    elif [ -d "$context_dir/$current_repo" ]; then
+      index="${index}Available context files:
+"
+      # List all .md files in the repo directory recursively
+      while IFS= read -r file; do
+        local relative_path="${file#"$context_dir"/}"
+        index="${index}- \`~/.claude/context/${relative_path}\`
+"
+      done < <(find "$context_dir/$current_repo" -name "*.md" -type f | sort)
+
+      index="${index}
+"
+    fi
+  fi
+
+  # Other repositories section
+  index="${index}**Other repositories:**
+"
+
+  local found_other=false
+  # List other single-file repos
+  for file in "$context_dir"/*.md; do
+    [ -f "$file" ] || continue
+    local basename_file=$(basename "$file")
+    local repo_from_file="${basename_file%.md}"
+
+    # Skip README and current repo
+    [ "$basename_file" = "README.md" ] && continue
+    [ "$repo_from_file" = "$current_repo" ] && continue
+
+    found_other=true
+    index="${index}- \`~/.claude/context/${basename_file}\`
+"
+  done
+
+  # List other directory-based repos
+  for dir in "$context_dir"/*/; do
+    [ -d "$dir" ] || continue
+    local repo_from_dir=$(basename "$dir")
+
+    # Skip current repo
+    [ "$repo_from_dir" = "$current_repo" ] && continue
+
+    found_other=true
+    index="${index}- \`~/.claude/context/${repo_from_dir}/\` (directory - use Read tool to explore)
+"
+  done
+
+  if [ "$found_other" = false ]; then
+    index="${index}(None)
+
+"
+  fi
+
+  index="${index}
+**Instructions:** Before starting work, use the Read tool to load relevant context files based on the task at hand. Only read what you need to avoid wasting tokens."
+
+  echo "$index"
+}
+
+# Get info about the repo context file for the prompt
+function get_repo_context_file_info() {
+  local repo_name=$(get_current_repo_name)
+  local context_dir="$HOME/.claude/context"
+
+  if [ -z "$repo_name" ]; then
+    echo "**Not in a git repository** - cannot auto-detect repository name."
+    echo ""
+    echo "You can manually specify a repository name if needed."
+    return
+  fi
+
+  local context_file="$context_dir/${repo_name}.md"
+
+  if [ -f "$context_file" ]; then
+    echo "**Current repository:** \`$repo_name\`"
+    echo "**Context file:** \`$context_file\` (exists)"
+    echo ""
+    echo "The context file already exists. You can read it and help the user improve it."
+  else
+    echo "**Current repository:** \`$repo_name\`"
+    echo "**Context file:** \`$context_file\` (does not exist yet)"
+    echo ""
+    echo "The context file does not exist yet. Help the user create it."
   fi
 }
 
@@ -233,6 +377,16 @@ function replace_templates() {
   local worktree_workflow=$(load_fragment_if_needed "$prompt" "WORKTREE_WORKFLOW" "worktree-workflow.txt")
   local github_context=$(load_fragment_if_needed "$prompt" "GITHUB_CONTEXT" "github-context.txt")
 
+  # Build repo context index (special handling - not a shared fragment)
+  local repo_context_index=""
+  local repo_context_file_info=""
+  if echo "$prompt" | grep -q "{{REPO_CONTEXT_INDEX}}"; then
+    repo_context_index=$(get_repo_context_index)
+  fi
+  if echo "$prompt" | grep -q "{{REPO_CONTEXT_FILE_INFO}}"; then
+    repo_context_file_info=$(get_repo_context_file_info)
+  fi
+
   # Replace each template variable
   prompt="${prompt//\{\{DESIGN_PATTERNS\}\}/$design_pat}"
   prompt="${prompt//\{\{API_PROTO_CHECK\}\}/$api_check}"
@@ -249,6 +403,8 @@ function replace_templates() {
   prompt="${prompt//\{\{PROJECT_RULES\}\}/$project_rules}"
   prompt="${prompt//\{\{WORKTREE_WORKFLOW\}\}/$worktree_workflow}"
   prompt="${prompt//\{\{GITHUB_CONTEXT\}\}/$github_context}"
+  prompt="${prompt//\{\{REPO_CONTEXT_INDEX\}\}/$repo_context_index}"
+  prompt="${prompt//\{\{REPO_CONTEXT_FILE_INFO\}\}/$repo_context_file_info}"
 
   # Replace {{CATEGORY}} with actual category name
   prompt="${prompt//\{\{CATEGORY\}\}/$category}"
@@ -285,6 +441,8 @@ function remove_template_placeholders() {
   prompt="${prompt//\{\{PROJECT_RULES\}\}/}"
   prompt="${prompt//\{\{WORKTREE_WORKFLOW\}\}/}"
   prompt="${prompt//\{\{GITHUB_CONTEXT\}\}/}"
+  prompt="${prompt//\{\{REPO_CONTEXT_INDEX\}\}/}"
+  prompt="${prompt//\{\{REPO_CONTEXT_FILE_INFO\}\}/}"
   prompt="${prompt//\{\{CUSTOM_RULES\}\}/}"
   prompt="${prompt//\{\{CATEGORY_RULES\}\}/}"
 
@@ -582,7 +740,7 @@ _claude_wf_completion() {
         COMPREPLY=($(compgen -W "chat" -- "$cur"))
         ;;
       new)
-        COMPREPLY=($(compgen -W "improve-rules improve-workflows" -- "$cur"))
+        COMPREPLY=($(compgen -W "improve-rules improve-workflows improve-repo-knowledge" -- "$cur"))
         ;;
       completion)
         COMPREPLY=($(compgen -W "bash zsh install" -- "$cur"))
@@ -664,7 +822,7 @@ _claude_wf() {
         return 0
         ;;
       new)
-        subcommands=('improve-rules:Analyze and improve rule files' 'improve-workflows:Improve cwf/gwf tools')
+        subcommands=('improve-rules:Analyze and improve rule files' 'improve-workflows:Improve cwf/gwf tools' 'improve-repo-knowledge:Add or improve repo operational knowledge')
         _describe -t subcommands 'subcommand' subcommands
         return 0
         ;;

@@ -1,5 +1,7 @@
 @~/repos/data-pipelines @~/repos/customer-dashboard @~/repos/sql-core-migrations
 
+{{REPO_CONTEXT_INDEX}}
+
 {{WORKTREE_WORKFLOW}}
 
 {{GITHUB_CONTEXT}}

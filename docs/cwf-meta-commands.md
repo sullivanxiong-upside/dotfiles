@@ -57,6 +57,45 @@ cwf new improve-workflows "Simplify the completion script generation"
 cwf new improve-workflows "Add examples to the completion-setup.md"
 ```
 
+### 3. Improve Repository Knowledge
+```bash
+cwf new improve-repo-knowledge [repo-name]
+```
+
+**Purpose:** Add or improve personal operational knowledge for repositories you work with.
+
+**What it does:**
+- Auto-detects current repository from git remote
+- Helps document deployment patterns, workflows, and gotchas
+- Stores context in `~/.claude/context/{repo-name}/` (hierarchical) or `{repo-name}.md` (single file)
+- Provides an index via `{{REPO_CONTEXT_INDEX}}` template variable - Claude reads only what it needs
+- Keeps personal knowledge separate from shared repository documentation
+
+**What to document:**
+- Deployment architecture and workflows (CI/CD patterns, release process)
+- Temporary vs permanent configuration changes
+- Emergency procedures (scaling, hotfixes, rollbacks)
+- Non-obvious gotchas and quirks
+- Integration points with other systems
+- Personal workflow tips specific to your work
+
+**Examples:**
+```bash
+# In data-pipelines repo - auto-detects "data-pipelines"
+cwf new improve-repo-knowledge
+
+# Explicitly specify a repo
+cwf new improve-repo-knowledge argocd-application-manifests
+```
+
+**Context file location:** `~/.claude/context/{repo-name}/` or `~/.claude/context/{repo-name}.md`
+
+**How it's used:**
+- Prompts with `{{REPO_CONTEXT_INDEX}}` show an index of available context files
+- Claude reads only the files it needs for the task (token efficient)
+- Helps cwf understand deployment patterns, gotchas, and workflows specific to each repo
+- Personal to you - not shared in team repositories
+
 ## Category-Specific Rules System
 
 ### How It Works
@@ -106,6 +145,7 @@ claude-review-add-rule "Ensure all public APIs are documented"
 
 ✓ **Rule optimization** - Analyze and improve all rule files for better performance
 ✓ **Workflow improvement** - Improve cwf/gwf tools through guided conversations with Claude
+✓ **Repository knowledge** - Document and auto-load personal operational knowledge per repository
 ✓ **Guided implementation** - Claude asks questions to understand requirements and proposes detailed plans
 ✓ **Category-specific rules** - Each category can have its own guidelines
 ✓ **Safety** - All meta-commands ask for confirmation before making changes
@@ -127,6 +167,7 @@ claude-review-add-rule "Ensure all public APIs are documented"
 3. **Prompt Files**
    - `~/.config/cwf/prompts/new/improve-rules.txt`
    - `~/.config/cwf/prompts/new/improve-workflows.txt`
+   - `~/.config/cwf/prompts/new/improve-repo-knowledge.txt`
 
 4. **Documentation Updated**
    - CLAUDE-WORK-README.md - Added meta-commands section

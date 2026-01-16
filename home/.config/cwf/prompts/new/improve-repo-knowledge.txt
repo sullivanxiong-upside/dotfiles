@@ -1,0 +1,195 @@
+# Improve Repository Knowledge Context
+
+You are helping the user add or improve their **personal operational knowledge** for a specific repository.
+
+## Context
+
+The user has a personal repo context system at `~/.claude/context/` that stores operational knowledge for repositories they work with. These context files are automatically loaded by cwf when working in a repository.
+
+## Your Task
+
+Help the user document operational knowledge that is:
+- **Personal and niche**: Deployment patterns, gotchas, workflow tips specific to their work
+- **Not in official docs**: Information that doesn't belong in shared repository documentation
+- **Immediately useful**: Helps cwf understand how to work effectively with the repository
+
+## Repository Detection
+
+{{REPO_CONTEXT_FILE_INFO}}
+
+## What to Document
+
+**Good examples of operational knowledge:**
+- Deployment architecture and workflows (how releases happen, CI/CD patterns)
+- Temporary vs permanent configuration changes
+- Emergency procedures (scaling resources, hotfixes, rollbacks)
+- Non-obvious gotchas and quirks
+- Integration points with other systems
+- Repository-specific conventions not in official docs
+- Personal workflow tips and shortcuts
+
+**Bad examples (don't include these):**
+- Information that belongs in official repository documentation
+- Secrets or credentials (use `~/.config/zsh/secret.zsh` instead)
+- General coding standards (use `.cursor/rules/` in the repo instead)
+- Detailed code explanations (use inline comments instead)
+
+## File Organization
+
+### Simple Repositories
+For simple repos with limited scope, use a **single file**:
+```
+~/.claude/context/{repo-name}.md
+```
+
+### Complex Repositories
+For repos with multiple services, jobs, or domains, use a **hierarchical structure**:
+```
+~/.claude/context/{repo-name}/
+├── overview.md              # General repo info (always read first)
+├── services/
+│   ├── service-1.md
+│   └── service-2.md
+├── jobs/
+│   └── batch-processing.md
+└── deployment/
+    ├── argocd-application-manifests.md
+    ├── helm-charts.md
+    └── dockerfiles.md
+```
+
+**Benefits of hierarchical:**
+- Claude reads only what's needed for the task (token efficient)
+- Easier to maintain and update specific areas
+- Clear organization by domain/service
+- Scales to large repositories
+
+### Choosing Structure
+
+**Single file** when:
+- Repo has <5 distinct areas of knowledge
+- Context fits comfortably in one file
+- Example: `argocd-application-manifests` (deployment infrastructure only)
+
+**Hierarchical** when:
+- Repo has 5+ services or distinct domains
+- Different areas require separate context
+- Example: `data-pipelines` (10+ services, multiple job types, deployment)
+
+## Context File Format
+
+### For Single Files
+```markdown
+# {repository-name}
+
+## Purpose
+One-line description of what this repository is for.
+
+## Key Insight
+What's the most important thing to know when working with this repo?
+
+## Architecture/Workflow Patterns
+Describe how deployments, CI/CD, or key workflows function.
+
+## Gotchas and Quirks
+Non-obvious things that trip people up.
+
+## Emergency Procedures
+If something breaks, what do you do?
+
+## Integration Points
+How does this repo interact with other systems?
+```
+
+### For Hierarchical Files
+Each file should be **focused and specific** to its domain:
+
+**overview.md:**
+- Repository purpose and high-level architecture
+- Key concepts and terminology
+- General conventions
+- Links to other context files
+
+**services/{service-name}.md:**
+- Service-specific architecture
+- Dependencies and integrations
+- Deployment patterns
+- Gotchas specific to this service
+
+**deployment/{aspect}.md:**
+- One file per deployment concept (Helm, Docker, CI/CD, ArgoCD)
+- Focused on that specific aspect
+- Cross-reference related files
+
+## Your Approach
+
+1. **If the context file doesn't exist yet:**
+   - Ask the user what operational knowledge they want to document
+   - Guide them through the key sections
+   - Help organize their knowledge clearly and concisely
+   - Write the context file
+
+2. **If the context file already exists:**
+   - Read the existing context file
+   - Ask what they want to add or improve
+   - Suggest improvements to organization or clarity
+   - Update the context file
+
+3. **Best practices:**
+   - Keep it concise - this is reference material, not a novel
+   - Use bullet points and sections for scannability
+   - Include specific examples where helpful
+   - Link to related resources (Slack threads, PRs, docs)
+   - Focus on the "why" and "how", not just the "what"
+
+## Example
+
+Here's an example of a good context file:
+
+```markdown
+# argocd-application-manifests
+
+## Purpose
+
+This repository contains **rendered Kubernetes configurations**, not source configurations. It acts as the deployment manifest repository that ArgoCD syncs from.
+
+## Key Insight
+
+**IMPORTANT:** This repo is automatically updated on every deployment from `data-pipelines` and `customer-dashboard`.
+
+- ✅ **Temporary changes are possible** (e.g., scaling worker replicas for emergency batch jobs)
+- ⚠️ **Changes get overwritten** on the next deployment from source repos
+- ❌ **Don't make permanent changes here** - they won't persist
+
+## How It Works
+
+1. Source configs live in `data-pipelines` and `customer-dashboard` repositories (Helm charts, K8s manifests)
+2. When you deploy from either source repo:
+   - CI/CD renders the configurations (updates Docker image tags, env vars, etc.)
+   - Commits the rendered configs to this repo (`argocd-application-manifests`)
+3. ArgoCD pulls from this repo and syncs to the cluster
+
+## Example Workflow: Temporary Worker Scaling
+
+**Scenario:** Need to process 500+ tasks quickly, normally takes until tomorrow morning.
+
+**Steps:**
+1. Create branch in `argocd-application-manifests`
+2. Edit deployment YAML (e.g., increase LLM worker replicas from 3 to 15)
+3. Create PR and merge
+4. ArgoCD syncs immediately → workers scale up
+5. Batch job completes faster
+6. **Next deployment from source repo** → worker count resets to original value (3)
+
+**No manual cleanup needed** - the next deployment automatically resets to source configuration.
+
+## Source of Truth
+
+- **data-pipelines:** Helm charts, Kubernetes manifests, CI/CD configs
+- **customer-dashboard:** Helm charts, Kubernetes manifests, CI/CD configs
+- **argocd-application-manifests:** Generated output (temporary changes only)
+```
+
+## Getting Started
+
+Start by understanding what the user wants to document, then help them create or improve their repository context file.

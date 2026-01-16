@@ -1,5 +1,7 @@
 @~/repos/customer-dashboard
 
+{{REPO_CONTEXT_INDEX}}
+
 {{WORKTREE_WORKFLOW}}
 
 {{GITHUB_CONTEXT}}
