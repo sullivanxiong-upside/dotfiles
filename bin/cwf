@@ -670,6 +670,8 @@ function execute_prompt() {
   local user_prompt="$1"
   local system_additions="$2"
   local debug_mode="${3:-0}"
+  local stdin_was_terminal="${4:-1}"
+  local tty_device="${5:-/dev/tty}"
 
   # Check if claude command exists
   if ! command -v claude &> /dev/null; then
@@ -685,20 +687,25 @@ function execute_prompt() {
     echo "  ${#system_additions} chars (~$((${#system_additions} / 4)) tokens)" >&2
     echo "User prompt:" >&2
     echo "  ${#user_prompt} chars (~$((${#user_prompt} / 4)) tokens)" >&2
+    echo "TTY device: $tty_device" >&2
     echo "===================" >&2
     echo "" >&2
   fi
 
+  # If cwf read from stdin (pipe/heredoc), we need to reconnect stdin to the terminal
+  # so Claude can interact with the user
+  if [ "$stdin_was_terminal" = "0" ]; then
+    exec <"$tty_device"
+  fi
+
   # Execute with system additions for caching (if any)
-  # Redirect stdin to /dev/tty so claude CLI can use interactive terminal
-  # even if cwf read from stdin via heredoc/pipe
   if [ -n "$system_additions" ]; then
     # Use --append-system-prompt to add rules to Claude's system prompt
     # This enables automatic caching by Claude CLI
-    claude --append-system-prompt "$system_additions" "$user_prompt" < /dev/tty
+    claude --append-system-prompt "$system_additions" "$user_prompt"
   else
     # No system additions, execute normally
-    claude "$user_prompt" < /dev/tty
+    claude "$user_prompt"
   fi
 }
 
@@ -1020,8 +1027,23 @@ function main() {
     extra_context="$*"
   fi
 
-  # Read from stdin if available (not a terminal)
+  # Track if stdin is a terminal BEFORE reading from it
+  # Also save the actual TTY device path for later reconnection
+  local stdin_was_terminal=1
+  local tty_device=""
   if [ ! -t 0 ]; then
+    stdin_was_terminal=0
+    # Get the actual TTY device path
+    # In tmux, use tmux to get the pane's tty device
+    if [ -n "${TMUX:-}" ]; then
+      tty_device=$(tmux display-message -p '#{pane_tty}' 2>/dev/null || echo "/dev/tty")
+    else
+      tty_device=$(tty 2>/dev/null || echo "/dev/tty")
+    fi
+  fi
+
+  # Read from stdin if available (not a terminal)
+  if [ "$stdin_was_terminal" = "0" ]; then
     local stdin_content=$(cat)
     if [ -n "$stdin_content" ]; then
       if [ -n "$extra_context" ]; then
@@ -1053,7 +1075,8 @@ $stdin_content"
 
   # Execute with claude using optimized caching
   # Rules are in system prompt (cached), user prompt is separate
-  execute_prompt "$user_prompt" "$system_additions" "$debug_mode"
+  # Pass stdin_was_terminal flag and tty_device so execute_prompt knows how to handle stdin
+  execute_prompt "$user_prompt" "$system_additions" "$debug_mode" "$stdin_was_terminal" "$tty_device"
 }
 
 # Export function for use as a command
