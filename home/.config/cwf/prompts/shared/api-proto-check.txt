@@ -1,1 +1,40 @@
-IMPORTANT: If this feature involves API changes (endpoints, request/response formats, data contracts), also check the proto/ directory to see if protobuf definitions need to be updated or created.
+## Protobuf Definition Updates (customer-dashboard only)
+
+IMPORTANT: If working in customer-dashboard and this feature involves API changes, check if protobuf definitions need updating.
+
+### When to Update Proto Definitions
+
+✅ **MUST UPDATE** if you're:
+- Adding new Django REST endpoints (new RPC in proto service)
+- Adding/changing DRF serializer fields (add/update message fields)
+- Changing API request/response structure (update proto messages)
+- Adding new error codes or status enums (update proto enums)
+- Renaming API endpoints or fields (breaking change - update proto)
+
+❌ **NO UPDATE NEEDED** for:
+- Pure frontend changes (UI, components, routing)
+- Backend implementation details (query optimization, refactoring)
+- Django model fields NOT exposed in API
+- Documentation or comment changes
+
+### Quick Decision Rule
+
+**Update proto when the API contract between Django backend and React frontend changes.**
+
+If the JSON structure sent/received changes → Proto must change too.
+
+### After Updating Proto
+
+1. Run code generation: `buf generate` or `make buf-generate-if-needed`
+2. Check TypeScript types compile: `pnpm run typecheck`
+3. Run breaking change check: `buf breaking --against .git#branch=main`
+
+### Context Files for Details
+
+For comprehensive guidelines:
+- `~/.claude/context/customer-dashboard/api-contracts/protobuf-usage.md` - When/why to update
+- `~/.claude/context/customer-dashboard/architecture/service-communication.md` - Architecture patterns
+
+### Note on data-pipelines
+
+data-pipelines does NOT use protobuf. It uses Pydantic models for API contracts. No proto updates needed for data-pipelines work.
