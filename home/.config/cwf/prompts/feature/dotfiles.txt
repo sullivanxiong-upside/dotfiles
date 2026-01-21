@@ -14,6 +14,71 @@
 
 {{PLANNING_GUIDELINES}}
 
+# Repository Overview
+
+This is a personal dotfiles repository containing configuration files, scripts, and development environment setup for cross-platform use (Linux & macOS).
+
+## What This Repo Contains
+
+**Core configurations:**
+- Shell: `.config/zsh/user.zsh` - Personal shell customizations
+- tmux: `.tmux.conf` - Terminal multiplexer with tmux-claude-status integration
+- NeoVim: `.config/nvim/` - Editor configuration with lazy.nvim
+- Claude Code: `.claude/settings.json` - Hooks and MCP server configuration
+
+**CLI workflow tools:**
+- `bin/cwf` - Claude Workflow CLI (this tool you're using)
+- `bin/gwf` - Git Workflow CLI for worktree and PR management
+- Both have built-in bash/zsh completion
+
+**Directory structure:**
+```
+dotfiles/
+├── .claude/              # Claude Code configuration
+├── .config/              # XDG config directory
+│   ├── zsh/             # Shell configuration
+│   ├── nvim/            # NeoVim configuration
+│   └── cwf/prompts/     # cwf workflow prompts
+├── bin/                 # Executable scripts (cwf, gwf, etc.)
+├── scripts/             # Utility scripts
+├── home/                # Files to be symlinked to ~/
+└── .tmux.conf           # tmux configuration
+```
+
+## IMPORTANT: Read Documentation First
+
+Before making changes, read the repository documentation:
+- `CLAUDE.md` - Detailed guidance for working with this repo (symlink gotchas!)
+- `README.md` - Overview, features, and installation instructions
+- `INSTALLATION.md` - Setup and symlink procedures
+
+## Key Areas to Know
+
+**Shell configuration (`home/.config/zsh/`):**
+- Modular sourcing of scripts
+- User customizations in `user.zsh`
+- Secrets in `secret.zsh` (gitignored)
+
+**tmux configuration (`.tmux.conf`):**
+- Uses TPM (Tmux Plugin Manager)
+- Includes tmux-claude-status plugin (external, installed via TPM)
+- Custom keybindings with Ctrl+A prefix
+
+**NeoVim configuration (`home/.config/nvim/`):**
+- Uses lazy.nvim plugin manager (NOT LazyVim distribution)
+- Plugin configs in `lua/plugins/`
+- Keymaps in `lua/config/keymaps.lua`
+
+**Claude Code settings (`.claude/settings.json`):**
+- Hooks for tmux-claude-status integration
+- MCP server configurations
+- Permissions and settings
+
+**Workflow tools (`bin/`):**
+- `cwf` - Claude workflow management
+- `gwf` - Git worktree and PR operations
+- Both scripts have embedded bash/zsh completion
+
 # CRITICAL: Symlink Editing in Worktrees
 
 **THE #1 GOTCHA**: When working in feature worktrees, DO NOT edit files through their symlinks.

@@ -18,6 +18,94 @@
 
 {{PLANNING_GUIDELINES}}
 
+# Repository Overview
+
+Gnoixus is a multi-tool browser extension built with TypeScript, providing developer and productivity tools directly in the browser.
+
+## What This Extension Provides
+
+**Features:**
+- Dark Mode: Customizable dark theme for any website
+- Code Formatter: Auto-format code blocks on web pages
+- GitHub Search: Quick search for users and repositories
+- Password Manager: Encrypted password storage (demo)
+
+**Architecture:**
+- Modular design where each feature is independent
+- TypeScript codebase with webpack bundling
+- Supports both Manifest V3 (Chrome) and V2 (Firefox)
+
+## IMPORTANT: Read Documentation First
+
+Before making changes, read:
+- `README.md` - Architecture, features, and setup instructions
+- `BUILD.md` - Build process and development workflow
+- Check existing code patterns in `src/features/` for consistency
+
+## Directory Structure
+
+```
+gnoixus/
+├── src/
+│   ├── background.ts       # Background service worker
+│   ├── content.ts          # Content script injected into pages
+│   ├── popup.ts/html/css   # Extension popup UI
+│   ├── types.ts            # TypeScript type definitions
+│   ├── utils.ts            # Shared utilities
+│   └── features/           # Feature modules
+│       ├── darkmode/
+│       ├── formatter/
+│       ├── github-search/
+│       └── password-manager/
+├── manifest.json           # Manifest V3 (Chrome/Edge)
+├── manifest.v2.json        # Manifest V2 (Firefox)
+├── package.json            # NPM dependencies and scripts
+├── webpack.config.js       # Build configuration
+└── dist/                   # Built extension (generated)
+```
+
+## Key Architectural Patterns
+
+**Feature Interface:**
+Each feature module implements:
+```typescript
+interface Feature {
+  name: string;
+  enabled: boolean;
+  init(): void;
+  toggle(enable: boolean): void;
+  cleanup?(): void;
+  getPopupContent?(): string;
+}
+```
+
+**Message Passing:**
+- Content scripts communicate with background via `chrome.runtime.sendMessage()`
+- Background responds to messages from content scripts
+- Storage uses `chrome.storage.local` API
+
+**Code Organization:**
+- Background logic: `src/background.ts`
+- Content script: `src/content.ts`
+- Feature modules: `src/features/<feature-name>/`
+- Shared utilities: `src/utils.ts`
+- Types: `src/types.ts`
+
+## Development Workflow
+
+**Build commands:**
+- `npm run build` - Production build
+- `npm run dev` - Development build with watch mode
+- `npm run lint` - ESLint
+- `npm run format` - Prettier formatting
+- `npm test` - Run Jest tests
+
+**Testing extension:**
+1. Build: `npm run build`
+2. Load in Chrome: chrome://extensions/ → Load unpacked → `dist/`
+3. Test features manually in browser
+4. Check console for errors
+
 # CRITICAL: Version Synchronization
 
 **ALWAYS keep versions synchronized across 3 files:**
