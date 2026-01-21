@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+# claude-notify: Cross-platform notification hook for Claude Code
+# Sends OS notifications when Claude requires input or completes
+
+set -euo pipefail
+
+EVENT="${1:-}"
+
+# Get script directory for OS detection
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Get tmux window name if running in tmux
+get_tmux_window() {
+  if [ -n "${TMUX:-}" ]; then
+    tmux display-message -p '#W' 2>/dev/null || echo ""
+  else
+    echo ""
+  fi
+}
+
+# Function to send notification (cross-platform)
+send_notification() {
+  local title="$1"
+  local message="$2"
+  local window_name
+
+  window_name=$(get_tmux_window)
+
+  # Append window name to message if available
+  if [ -n "$window_name" ]; then
+    message="$message [$window_name]"
+  fi
+
+  if "$SCRIPT_DIR/is-macos"; then
+    # macOS: Use osascript
+    osascript -e "display notification \"$message\" with title \"$title\"" 2>/dev/null || true
+  elif "$SCRIPT_DIR/is-linux"; then
+    # Linux: Use notify-send
+    notify-send "$title" "$message" 2>/dev/null || true
+  fi
+}
+
+case "$EVENT" in
+  Stop)
+    # Claude has finished processing and is waiting for user input
+    send_notification "Claude Code" "Waiting for input"
+    ;;
+
+  SessionEnd)
+    # Claude session has ended
+    send_notification "Claude Code" "Session ended"
+    ;;
+
+  *)
+    # Unknown event, ignore silently
+    ;;
+esac

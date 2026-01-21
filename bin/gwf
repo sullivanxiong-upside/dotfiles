@@ -384,7 +384,7 @@ function copy_worktree_configs() {
       local configs=$(load_repo_configs "$repo_name")
       if [ -z "$configs" ]; then
         # Fallback to hardcoded defaults
-        configs=(".env.local")
+        configs=("server/.env")
       fi
 
       for config in "${configs[@]:-}"; do
