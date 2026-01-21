@@ -143,12 +143,12 @@ claude-review-add-rule "Ensure all public APIs are documented"
 
 ## Benefits
 
-✓ **Rule optimization** - Analyze and improve all rule files for better performance
-✓ **Workflow improvement** - Improve cwf/gwf tools through guided conversations with Claude
-✓ **Repository knowledge** - Document and auto-load personal operational knowledge per repository
-✓ **Guided implementation** - Claude asks questions to understand requirements and proposes detailed plans
-✓ **Category-specific rules** - Each category can have its own guidelines
-✓ **Safety** - All meta-commands ask for confirmation before making changes
+**Rule optimization** - Analyze and improve all rule files for better performance
+**Workflow improvement** - Improve cwf/gwf tools through guided conversations with Claude
+**Repository knowledge** - Document and auto-load personal operational knowledge per repository
+**Guided implementation** - Claude asks questions to understand requirements and proposes detailed plans
+**Category-specific rules** - Each category can have its own guidelines
+**Safety** - All meta-commands ask for confirmation before making changes
 
 ## Technical Details
 

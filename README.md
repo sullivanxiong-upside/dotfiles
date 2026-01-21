@@ -8,22 +8,24 @@ This repository contains configuration files and scripts for productive developm
 
 ## Key Features
 
-### 🔧 Core Shell Configuration (Linux & macOS)
+### Core Shell Configuration (Linux & macOS)
 - **Bash & Zsh** configurations with modular script sourcing
 - **TMUX** with Dracula theme, OS-specific clipboard integration, and persistent sessions
 - **Git aliases** and workflow utilities
 
-### 🚀 CLI Workflow Tools (Linux & macOS)
+### CLI Workflow Tools (Linux & macOS)
 - **cwf** (Claude Workflow CLI): Organize Claude-powered workflows with categories and templates
 - **gwf** (Git Workflow CLI): Git operations with intelligent worktree management and PR support
+- **Built-in shell completion** for both tools (Bash & Zsh)
+  - Run `gwf completion install` and `cwf completion install` after copying to ~/.local/bin
+  - Completion scripts are dynamically generated - no separate files needed
 - **Claude Code MCP Integration**: Pre-configured MCP servers
   - Playwright (browser automation)
   - Linear & Notion (workspace integration)
   - GitHub (repository operations)
   - Grafana (AWS Managed Grafana queries, PromQL, CloudWatch Logs)
-- **Comprehensive shell completion** for both tools (Bash & Zsh)
 
-### ✏️ Development Environment (Linux & macOS)
+### Development Environment (Linux & macOS)
 - **Neovim** with Lazy.nvim plugin manager
   - LSP support with mason.nvim
   - Format-on-save with conform.nvim
@@ -31,7 +33,7 @@ This repository contains configuration files and scripts for productive developm
   - Todo-comments highlighting
   - Enhanced tab management
 
-### 🖥️ Linux Desktop Environment (Linux Only)
+### Linux Desktop Environment (Linux Only)
 - **Hyprland** Wayland compositor with modular configuration
 - **Waybar** status bar with custom modules
 - **Rofi** application launcher
@@ -87,10 +89,21 @@ source ~/.zprofile
 **For CLI tools (cwf & gwf) and Claude Code:**
 ```bash
 mkdir -p ~/.local/bin ~/.claude ~/.claude/commands
+
+# CLI tools (symlink to bin/ in dotfiles repo)
 ln -sf ~/repos/dotfiles/bin/cwf ~/.local/bin/cwf
 ln -sf ~/repos/dotfiles/bin/gwf ~/.local/bin/gwf
+
+# CLI tool configs
 ln -sf ~/repos/dotfiles/home/.config/cwf ~/.config/cwf
 ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
+
+# Install shell completion (auto-detects bash/zsh)
+gwf completion install
+cwf completion install
+source ~/.config/zsh/user.zsh  # zsh - or source ~/.bashrc for bash
+
+# Claude Code settings
 ln -sf ~/repos/dotfiles/home/.claude/settings.json ~/.claude/settings.json
 
 # Symlink Claude Code skills
@@ -113,15 +126,15 @@ claude mcp list
 
 | Component | Linux | macOS | Notes |
 |-----------|-------|-------|-------|
-| **Shell configs** (.bashrc, .zprofile) | ✅ | ✅ | Cross-platform |
-| **TMUX** (.tmux.conf) | ✅ | ✅ | OS-specific clipboard auto-detected |
-| **tmux-claude-status** | ✅ | ✅ | Requires jq, Claude Code |
-| **CLI tools** (cwf, gwf) | ✅ | ✅ | Requires Bash 4.0+ |
-| **Neovim** | ✅ | ✅ | Cross-platform |
-| **Scripts** (utilities) | ✅ | ✅ | Most are cross-platform |
-| **Hyprland** (desktop) | ✅ | ❌ | Linux Wayland only |
-| **Waybar, Rofi, etc.** | ✅ | ❌ | Linux desktop tools |
-| **Kitty terminal** | ✅ | ✅ | Better support on macOS |
+| **Shell configs** (.bashrc, .zprofile) | Yes | Yes | Cross-platform |
+| **TMUX** (.tmux.conf) | Yes | Yes | OS-specific clipboard auto-detected |
+| **tmux-claude-status** | Yes | Yes | Requires jq, Claude Code |
+| **CLI tools** (cwf, gwf) | Yes | Yes | Requires Bash 4.0+ |
+| **Neovim** | Yes | Yes | Cross-platform |
+| **Scripts** (utilities) | Yes | Yes | Most are cross-platform |
+| **Hyprland** (desktop) | Yes | No | Linux Wayland only |
+| **Waybar, Rofi, etc.** | Yes | No | Linux desktop tools |
+| **Kitty terminal** | Yes | Yes | Better support on macOS |
 
 ## Component Overview
 
@@ -130,24 +143,27 @@ claude mcp list
 #### Shell Configuration
 - **`.bashrc`**: Bash configuration with modular script sourcing
 - **`.zprofile`**: Zsh configuration with lazy-loading completion
-- **`scripts/`**: Collection of utility scripts
-  - `git-aliases.sh`: Enhanced git operations with worktree support
-  - `grep-recursive.sh`: Recursive search utilities
-  - `python-utility.sh`: Python environment helpers
-  - `mermaid-utility.sh`: Mermaid diagram generation
+- **`bin/`**: Collection of utility scripts
+  - `git-aliases`: Enhanced git operations with worktree support
+  - `grep-recursive`: Recursive search utilities
+  - `cursor-agent`: Wrapper for cursor-agent with .cursor/rules support
+  - Various utilities for platform detection and package management
 
 #### CLI Tools
 - **`cwf`** (Claude Workflow CLI)
   - Category-based command organization (review, feature, customer-mgmt, etc.)
   - Lazy-loaded template system for performance
   - Self-extending with meta-commands
-  - Full documentation: [`scripts/docs/cwf-meta-commands.md`](scripts/docs/cwf-meta-commands.md)
+  - Built-in shell completion (run `cwf completion install`)
+  - Full documentation: [`docs/cwf-meta-commands.md`](docs/cwf-meta-commands.md)
 
 - **`gwf`** (Git Workflow CLI)
   - Organized categories: local, remote, worktree, pr, inspect
   - Intelligent worktree creation with branch auto-detection
   - Repository-specific config file copying
-  - Full documentation: [`scripts/docs/gwf.md`](scripts/docs/gwf.md)
+  - Built-in shell completion (run `gwf completion install`)
+  - Full documentation: [`docs/gwf.md`](docs/gwf.md)
+  - Sharing guide: [`docs/GWF_SHARING_GUIDE.md`](docs/GWF_SHARING_GUIDE.md)
 
 #### Terminal Multiplexer
 - **`.tmux.conf`**: TMUX configuration with:
@@ -165,7 +181,7 @@ claude mcp list
   - Repository: [SullivanXiong/tmux-claude-status](https://github.com/SullivanXiong/tmux-claude-status)
 
 #### Text Editor
-- **`.config/nvim/`**: Neovim configuration with:
+- **`home/.config/nvim/`**: Neovim configuration with:
   - Lazy.nvim plugin manager
   - LSP with mason.nvim for language servers
   - Conform.nvim for formatting (format-on-save)
@@ -237,9 +253,14 @@ cwf new improve-rules
 
 # Add/improve personal repo operational knowledge
 cwf new improve-repo-knowledge
+
+# Install shell completion
+cwf completion install
 ```
 
-Full documentation: [`scripts/README.md`](scripts/README.md) and [`scripts/docs/cwf-meta-commands.md`](scripts/docs/cwf-meta-commands.md)
+**Installation**: Copy `bin/cwf` to `~/.local/bin/cwf`, then run `cwf completion install`
+
+Full documentation: [`docs/cwf-meta-commands.md`](docs/cwf-meta-commands.md)
 
 ### gwf (Git Workflow CLI)
 
@@ -257,9 +278,16 @@ gwf l a && gwf l c "Fix bug" && gwf r ps
 
 # Create and push PR
 gwf pr push "Add new feature"
+
+# Install shell completion
+gwf completion install
 ```
 
-Full documentation: [`scripts/docs/gwf.md`](scripts/docs/gwf.md)
+**Installation**: Copy `bin/gwf` to `~/.local/bin/gwf`, then run `gwf completion install`
+
+Full documentation:
+- [`docs/gwf.md`](docs/gwf.md) - Complete command reference
+- [`docs/GWF_SHARING_GUIDE.md`](docs/GWF_SHARING_GUIDE.md) - Sharing guide for coworkers
 
 ## Secret Management
 
@@ -331,9 +359,9 @@ The `${FIREFLIES_API_KEY}` is automatically expanded from your `secret.zsh` when
 **IMPORTANT**: Claude Code reads MCP servers from `~/.claude.json`, NOT from a separate `mcp.json` file.
 
 The `home/.claude/mcp.json.template` file in this repository is:
-- ✅ **A template only** - version-controlled reference for MCP server configurations
-- ❌ **NOT used directly** - Claude Code never reads this file
-- 🔄 **Merged during setup** - Content is merged into `~/.claude.json` using the jq command shown in Quick Start
+- **A template only** - version-controlled reference for MCP server configurations
+- **NOT used directly** - Claude Code never reads this file
+- **Merged during setup** - Content is merged into `~/.claude.json` using the jq command shown in Quick Start
 
 **Why this approach?**
 - `~/.claude.json` contains both configuration (MCP servers) AND runtime state (session data, onboarding flags, OAuth tokens)
@@ -345,13 +373,13 @@ See Quick Start section for the merge command.
 
 ### Security Best Practices
 
-✅ **DO:**
+**DO:**
 - Keep `secret.zsh` in `~/.config/zsh/` only (never in repo)
 - Set restrictive permissions: `chmod 600 ~/.config/zsh/secret.zsh`
 - Rotate API keys periodically
 - Use environment variables for all secrets in configs
 
-❌ **DON'T:**
+**DON'T:**
 - Commit `secret.zsh` to git
 - Hardcode API keys in `mcp.json` or other config files
 - Share your `secret.zsh` file with others
@@ -500,11 +528,10 @@ brew install bash tmux neovim ripgrep fd gh node
 
 - **[INSTALLATION.md](INSTALLATION.md)**: Comprehensive installation guide with platform-specific instructions
 - **[home/.claude/README.md](home/.claude/README.md)**: Claude Code MCP server configuration and management
-- **[scripts/README.md](scripts/README.md)**: CLI tools overview and quick reference
-- **[scripts/docs/cwf-meta-commands.md](scripts/docs/cwf-meta-commands.md)**: cwf meta-commands for self-extension
-- **[scripts/docs/gwf.md](scripts/docs/gwf.md)**: gwf complete usage guide
-- **[scripts/docs/completion-setup.md](scripts/docs/completion-setup.md)**: Shell completion setup
-- **[scripts/docs/workflow-commands.md](scripts/docs/workflow-commands.md)**: Mid-session mode switching
+- **[docs/cwf-meta-commands.md](docs/cwf-meta-commands.md)**: cwf meta-commands for self-extension
+- **[docs/gwf.md](docs/gwf.md)**: gwf complete usage guide and command reference
+- **[docs/GWF_SHARING_GUIDE.md](docs/GWF_SHARING_GUIDE.md)**: gwf sharing guide for coworkers
+- **[docs/gwf-quick-reference.md](docs/gwf-quick-reference.md)**: gwf quick reference card
 - **[PACKAGE_MANAGEMENT.md](PACKAGE_MANAGEMENT.md)**: Package management across systems
 
 ## Features Highlight

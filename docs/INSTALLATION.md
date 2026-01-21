@@ -53,7 +53,7 @@ cd ~/repos/dotfiles
 Follow the [Component Installation](#component-installation) sections below to install only what you need.
 
 **Option B: Use Install Script (Legacy, Linux-focused)**
-> ⚠️ **Note**: The `install.sh` script is primarily designed for Linux and creates symlinks for ALL components. For cross-platform usage or selective installation, manual installation is recommended.
+> **Note**: The `install.sh` script is primarily designed for Linux and creates symlinks for ALL components. For cross-platform usage or selective installation, manual installation is recommended.
 
 ```bash
 ./install.sh
@@ -460,7 +460,7 @@ nvim
 
 ### Linux Desktop Environment (Linux Only)
 
-> ⚠️ **Linux Only**: These components are designed for Linux desktop environments, primarily Hyprland on Wayland.
+> **Linux Only**: These components are designed for Linux desktop environments, primarily Hyprland on Wayland.
 
 #### Dependencies
 
@@ -528,7 +528,7 @@ open -a Kitty
 ln -sf ~/repos/dotfiles/Library ~/Library
 ```
 
-> ⚠️ **Caution**: This may override existing application preferences. Review the contents of `Library/` before symlinking.
+> **Caution**: This may override existing application preferences. Review the contents of `Library/` before symlinking.
 
 ---
 

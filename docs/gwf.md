@@ -79,13 +79,13 @@ gwf wt list                             # List all worktrees
 ```
 
 **Worktree Features:**
-- ✓ Naming convention: `<repo>-review-<name>` and `<repo>-feature-<name>`
-- ✓ Works from any location (main repo or any worktree)
-- ✓ Auto-detects main repository location
-- ✓ Can cleanup worktree even when inside it
-- ✓ Supports `--from=branch` to specify base branch
-- ✓ Intelligently checks for existing remote branches before creating new ones
-- ✓ Automatically sets up tracking for remote branches
+- Naming convention: `<repo>-review-<name>` and `<repo>-feature-<name>`
+- Works from any location (main repo or any worktree)
+- Auto-detects main repository location
+- Can cleanup worktree even when inside it
+- Supports `--from=branch` to specify base branch
+- Intelligently checks for existing remote branches before creating new ones
+- Automatically sets up tracking for remote branches
 
 **Examples:**
 ```bash
@@ -183,7 +183,7 @@ gwf wt feature colleague-branch
 # → Fetches latest refs
 # → Detects origin/colleague-branch exists
 # → Creates local tracking branch: git worktree add ... -b colleague-branch --track origin/colleague-branch
-# → Result: Your local branch tracks the remote, no divergence!
+# → Result: Your local branch tracks the remote, no divergence
 
 # Scenario 2: Only local branch exists
 gwf wt feature my-local-work
@@ -268,7 +268,7 @@ gwf l d                  # Diff
 gwf r ps                 # Push
 gwf r r                  # Pull and rebase
 gwf wt review branch     # Create review worktree
-gwf wt cleanup name      # Cleanup worktree (works from anywhere!)
+gwf wt cleanup name      # Cleanup worktree (works from anywhere)
 ```
 
 ## Configuration
