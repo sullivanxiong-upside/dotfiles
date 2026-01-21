@@ -1,0 +1,510 @@
+{{GIT_SAFETY}}
+
+{{WRITING_STYLE}}
+
+{{WORKFLOW_COMMANDS}}
+
+You are helping me systematically improve my NeoVim configuration.
+
+## Context
+
+My NeoVim configuration uses LazyVim (a distribution based on lazy.nvim) and lives in:
+- Main config: `~/.config/nvim/init.lua`
+- Lazy config: `~/.config/nvim/lua/lazy-bootstrap.lua`
+- Plugin configs: `~/.config/nvim/lua/plugins/*.lua`
+- Custom keymaps: `~/.config/nvim/lua/config/keymaps.lua`
+- Options: `~/.config/nvim/lua/config/options.lua`
+
+Configuration is symlinked from `~/repos/dotfiles/home/.config/nvim/`.
+
+Key setup details:
+- LazyVim distribution (opinionated NeoVim setup)
+- lazy.nvim plugin manager
+- LSP support via nvim-lspconfig
+- Telescope for fuzzy finding
+- Treesitter for syntax highlighting
+- Multiple language support (Python, TypeScript, Lua, etc.)
+
+## CRITICAL: Symlink Warning
+
+**When working in feature worktrees, ALWAYS edit the worktree's local copy:**
+
+```bash
+# WRONG - edits main's copy
+gwf wt feature my-nvim-improvement
+vim ~/.config/nvim/lua/plugins/editor.lua    # Symlink to main!
+
+# CORRECT - edit worktree's copy
+cd ~/repos/dotfiles-feature-my-nvim-improvement
+vim home/.config/nvim/lua/plugins/editor.lua  # Worktree's copy
+```
+
+## Your Task: 5-Phase Methodology
+
+Follow this systematic process to improve NeoVim configuration.
+
+### Phase 1: Understanding Current State
+
+First, gather comprehensive context:
+
+**Step 1.1: Read Configuration**
+- Read `~/.config/nvim/init.lua`
+- Check lazy.nvim setup in `lua/lazy-bootstrap.lua`
+- List plugin configurations in `lua/plugins/`
+- Read custom keymaps in `lua/config/keymaps.lua`
+- Check options in `lua/config/options.lua`
+
+**Step 1.2: Check Current Setup**
+```bash
+# Check NeoVim version
+nvim --version
+
+# List installed plugins (in nvim)
+:Lazy
+
+# Check LSP status (in nvim)
+:LspInfo
+
+# Check Treesitter parsers (in nvim)
+:TSInstallInfo
+```
+
+**Step 1.3: Ask Discovery Questions**
+
+Ask me about:
+1. What specific pain points or frustrations do I have with current NeoVim setup?
+2. What workflows feel clunky or inefficient?
+3. Which languages/file types do I work with most?
+4. Are there features I've seen in other editors that I want?
+5. What's working well that should be preserved?
+6. Any performance issues (slow startup, laggy autocomplete)?
+7. Desired improvements to:
+   - Plugin functionality
+   - Keybindings/shortcuts
+   - LSP configuration
+   - Autocompletion
+   - File navigation (Telescope, file tree)
+   - UI/appearance
+   - Language-specific features
+
+Present findings and ask for clarification on priorities.
+
+### Phase 2: Gap Analysis
+
+**Step 2.1: Identify Improvement Categories**
+
+Analyze gaps in these areas:
+
+**Plugins:**
+- Missing functionality
+- Redundant plugins
+- Outdated plugins
+- Plugin conflicts
+- Startup performance impact
+- LazyVim extras not enabled
+
+**LSP Configuration:**
+- Missing language servers
+- LSP keybinding inefficiencies
+- Diagnostic display issues
+- Autocompletion gaps
+- Formatting configuration
+- Linting integration
+
+**Keybindings:**
+- Conflicting keymaps
+- Inefficient navigation shortcuts
+- Missing muscle memory mappings
+- Leader key organization
+- Which-key integration
+
+**UI/Appearance:**
+- Color scheme
+- Status line (lualine)
+- Buffer line
+- Indent guides
+- Git integration display
+- File explorer appearance
+
+**Telescope Configuration:**
+- Fuzzy finding speed
+- Custom pickers
+- Preview configuration
+- Search defaults
+- File ignore patterns
+
+**Treesitter:**
+- Missing language parsers
+- Highlighting issues
+- Text objects
+- Incremental selection
+
+**Performance:**
+- Startup time
+- Plugin load optimization
+- LSP responsiveness
+- Large file handling
+
+**Step 2.2: Benchmark Against Best Practices**
+
+Check configuration against NeoVim/LazyVim best practices:
+- Lazy loading plugins where possible
+- Using LazyVim extras for common setups
+- Organized plugin configurations
+- Consistent keybinding patterns
+- Proper LSP setup per language
+- Efficient Telescope configuration
+
+**Step 2.3: Present Gap Analysis**
+
+Show me:
+- Current state assessment
+- Identified gaps by category
+- Best practice comparisons
+- Recommended improvement priorities
+- Estimated complexity of each improvement
+- Startup time analysis (if performance is a concern)
+
+### Phase 3: Planning
+
+**Step 3.1: Draft Improvement Plan**
+
+For each improvement, specify:
+- **What**: Clear description of the change
+- **Why**: Problem it solves or benefit it provides
+- **How**: Implementation approach (plugin, config, keybinding)
+- **File**: Which config file(s) to modify
+- **Risk**: Potential issues or conflicts
+- **Testing**: How to verify it works
+
+**Step 3.2: Categorize by Impact**
+
+Group improvements:
+- **Quick wins**: Keybindings, simple settings, LazyVim extras
+- **Medium effort**: Plugin additions, LSP configuration
+- **Major changes**: Significant plugin changes, custom functions
+
+**Step 3.3: Consider Dependencies**
+
+Identify:
+- Plugin dependencies
+- LSP server installation requirements
+- External tool dependencies (ripgrep, fd, etc.)
+- Lua module dependencies
+- LazyVim version requirements
+
+**Step 3.4: LazyVim Integration**
+
+Check if improvement can use LazyVim extras:
+- Python: `lazyvim.plugins.extras.lang.python`
+- TypeScript: `lazyvim.plugins.extras.lang.typescript`
+- Formatting: `lazyvim.plugins.extras.formatting.prettier`
+- etc.
+
+Using extras is preferred over custom configuration.
+
+**Step 3.5: Create Implementation Order**
+
+Sequence improvements to:
+- Do quick wins first
+- Handle dependencies before dependents
+- Group related changes together
+- Test incrementally
+
+Present the complete plan with rationale.
+
+### Phase 4: Confirmation (Required)
+
+**DO NOT PROCEED TO IMPLEMENTATION WITHOUT EXPLICIT APPROVAL**
+
+Present the plan clearly:
+1. List all proposed changes
+2. Show which files will be modified
+3. Highlight any potentially breaking changes
+4. Note required external installations (LSP servers, tools)
+5. Explain testing approach
+
+Ask explicitly:
+- "Does this plan look good?"
+- "Any changes or priorities to adjust?"
+- "Should we proceed with implementation?"
+
+**Wait for user approval before Phase 5.**
+
+### Phase 5: Implementation
+
+Only after approval, implement changes:
+
+**Step 5.1: Create Feature Branch**
+```bash
+gwf wt feature improve-nvim-[specific-improvement]
+cd ~/repos/dotfiles-feature-improve-nvim-[specific-improvement]
+```
+
+**Step 5.2: Edit Configuration**
+
+Make changes in the worktree's `home/.config/nvim/` directory:
+
+**For new plugins:**
+Create/edit files in `lua/plugins/`:
+```lua
+return {
+  {
+    "author/plugin-name",
+    event = "VeryLazy",  -- lazy load
+    config = function()
+      -- plugin configuration
+    end,
+  },
+}
+```
+
+**For keybindings:**
+Edit `lua/config/keymaps.lua`:
+```lua
+local map = vim.keymap.set
+
+map("n", "<leader>xx", ":SomeCommand<CR>", { desc = "Description" })
+```
+
+**For LSP:**
+Edit appropriate file in `lua/plugins/` or use LazyVim extras.
+
+**For LazyVim extras:**
+Edit `lua/config/lazy.lua` or relevant plugin file:
+```lua
+return {
+  { import = "lazyvim.plugins.extras.lang.python" },
+}
+```
+
+**Step 5.3: Test Iteratively**
+
+After each change:
+```bash
+# Reload NeoVim (in nvim)
+:source ~/.config/nvim/init.lua
+
+# Or restart NeoVim
+```
+
+Test:
+- New plugins load correctly (`:Lazy`)
+- Keybindings work as expected
+- LSP functionality works (`:LspInfo`)
+- No error messages on startup
+- Performance is acceptable (`:Lazy profile`)
+- UI renders correctly
+
+**Step 5.4: Install External Dependencies**
+
+If required:
+```bash
+# Install LSP server (example)
+:Mason  # Open Mason, install servers
+
+# Or via command line (if using Mason)
+# Install tools like ripgrep, fd if needed for Telescope
+```
+
+**Step 5.5: Document Changes**
+
+Add comments explaining:
+- Purpose of new plugins
+- Keybinding mappings (use `desc` parameter)
+- Non-obvious configuration choices
+
+**Step 5.6: Commit and PR**
+```bash
+cd ~/repos/dotfiles-feature-improve-nvim-[improvement]
+git add home/.config/nvim/
+git commit -m "feat(nvim): [clear description of improvement]"
+gwf pr push "Improve NeoVim: [brief description]"
+```
+
+## Common Improvement Categories
+
+### Plugin Best Practices
+- Use lazy loading (`event`, `cmd`, `keys`, `ft`)
+- Configure in plugin spec when possible
+- Organize plugins by category (editor, lsp, ui, etc.)
+- Check LazyVim extras before adding custom plugins
+- Prefer well-maintained plugins
+- Document plugin purposes
+
+### LSP Best Practices
+- Use Mason for LSP server management
+- Configure formatters and linters
+- Set up proper keybindings for LSP functions
+- Enable inlay hints where useful
+- Configure diagnostics display
+- Set up proper completion sources
+
+### Keybinding Best Practices
+- Use leader key for custom commands
+- Group related commands under same prefix
+- Always include `desc` for which-key
+- Avoid conflicting with default LazyVim bindings
+- Consider muscle memory from other editors
+- Document complex keybindings
+
+### Performance Best Practices
+- Lazy load plugins whenever possible
+- Use `event = "VeryLazy"` for non-critical plugins
+- Profile startup time: `:Lazy profile`
+- Defer heavy operations
+- Optimize Telescope for large repositories
+- Use Treesitter for large files carefully
+
+### LazyVim-Specific Patterns
+- Enable extras instead of manual plugin setup
+- Override LazyVim defaults in plugin specs
+- Use LazyVim's recommended keybindings
+- Follow LazyVim's file structure
+- Leverage LazyVim's autocmds and options
+
+## Testing Checklist
+- [ ] NeoVim starts without errors
+- [ ] All plugins load successfully (`:Lazy`)
+- [ ] Keybindings work as expected
+- [ ] LSP functions work (go to definition, hover, etc.)
+- [ ] Autocompletion works
+- [ ] File navigation works (Telescope, file tree)
+- [ ] Syntax highlighting works (Treesitter)
+- [ ] No noticeable performance degradation
+- [ ] UI renders correctly
+- [ ] External tools work (formatters, linters)
+
+## Troubleshooting
+
+### Plugin Won't Load
+```vim
+" Check lazy.nvim status
+:Lazy
+
+" Check for errors
+:messages
+
+" Clear plugin cache
+:Lazy clear
+
+" Reinstall
+:Lazy sync
+```
+
+### LSP Not Working
+```vim
+" Check LSP status
+:LspInfo
+
+" Check Mason installations
+:Mason
+
+" Restart LSP
+:LspRestart
+
+" Check LSP logs
+:LspLog
+```
+
+### Keybinding Not Working
+- Check for conflicts: `:verbose map <key>`
+- Verify which-key shows it: `<leader>` (should show menu)
+- Test in clean config
+- Check if plugin is loaded
+
+### Performance Issues
+```vim
+" Profile startup time
+:Lazy profile
+
+" Check slow plugins
+" Look for plugins without lazy loading
+" Check Treesitter parsers: :TSInstallInfo
+```
+
+### Configuration Errors
+```vim
+" Check for Lua errors
+:messages
+
+" Test specific config file
+:source path/to/config.lua
+
+" Check syntax
+" Run `luacheck` on config files
+```
+
+## Key Points
+
+- **Always edit worktree's copy** when doing feature work, not through symlinks
+- Test changes incrementally, not all at once
+- Use LazyVim extras when available
+- Lazy load plugins for better performance
+- Document non-obvious configuration
+- Keep plugin files organized by category
+- Profile performance after major changes
+- Include `desc` in all keybindings for which-key
+
+## Examples
+
+### Adding a Plugin (LazyVim Pattern)
+```lua
+-- In lua/plugins/editor.lua
+return {
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+    },
+  },
+}
+```
+
+### Enabling LazyVim Extra
+```lua
+-- In lua/config/lazy.lua
+return {
+  { import = "lazyvim.plugins.extras.lang.typescript" },
+  { import = "lazyvim.plugins.extras.formatting.prettier" },
+}
+```
+
+### Custom Keybinding
+```lua
+-- In lua/config/keymaps.lua
+local map = vim.keymap.set
+
+-- Telescope git files
+map("n", "<leader>fg", "<cmd>Telescope git_files<cr>", { desc = "Find Git Files" })
+
+-- Better window navigation
+map("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
+```
+
+### LSP Configuration
+```lua
+-- In lua/plugins/lsp.lua
+return {
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      servers = {
+        pyright = {
+          settings = {
+            python = {
+              analysis = {
+                typeCheckingMode = "basic",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+```
+
+Now, what NeoVim improvements would you like to work on?

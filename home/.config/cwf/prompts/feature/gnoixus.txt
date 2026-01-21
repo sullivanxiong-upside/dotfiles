@@ -1,0 +1,85 @@
+@~/repos/gnoixus
+
+{{WORKTREE_WORKFLOW}}
+
+{{GITHUB_CONTEXT}}
+
+{{PROJECT_RULES}}
+
+{{GIT_SAFETY}}
+
+{{WRITING_STYLE}}
+
+{{CODE_QUALITY_FUNDAMENTALS}}
+
+{{TESTING_DOCUMENTATION}}
+
+{{WORKFLOW_COMMANDS}}
+
+{{PLANNING_GUIDELINES}}
+
+# CRITICAL: Version Synchronization
+
+**ALWAYS keep versions synchronized across 3 files:**
+
+1. `package.json` - `"version": "X.Y.Z"`
+2. `manifest.json` - `"version": "X.Y.Z"` (Manifest V3)
+3. `manifest.v2.json` - `"version": "X.Y.Z"` (Manifest V2)
+
+When bumping version or preparing release, update ALL THREE files.
+
+# Pre-Flight Checklist
+
+Before committing or releasing, run in order:
+
+```bash
+# 1. Run tests
+npm run test
+
+# 2. Lint code
+npm run lint
+
+# 3. Format code
+npm run format
+
+# 4. Build extension
+npm run build
+```
+
+All steps must pass with no errors.
+
+# Feature Isolation Pattern
+
+Each feature should be self-contained:
+- Background scripts in `src/background/`
+- Content scripts in `src/content/`
+- Shared utilities in `src/utils/`
+- Types in `src/types/`
+
+Follow existing patterns for:
+- Message passing between content/background
+- Storage management
+- DOM manipulation
+- Event listeners
+
+# Testing Requirements
+
+**No automated integration tests** - manual browser testing required:
+
+1. Load unpacked extension in Chrome: chrome://extensions/
+2. Test feature functionality manually
+3. Check browser console for errors
+4. Verify manifest permissions are sufficient
+5. Test on real web pages (not just test pages)
+
+# Key Points
+
+- TypeScript codebase with webpack bundling
+- Uses Chrome Extension Manifest V3 (with V2 fallback)
+- Content scripts interact with web pages
+- Background service worker handles coordination
+- Storage uses chrome.storage.local API
+- Follow feature isolation pattern
+- Manual browser testing is essential
+
+Work on the gnoixus feature requested below.

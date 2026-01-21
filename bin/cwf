@@ -29,6 +29,8 @@ declare -A COMMAND_REGISTRY=(
   ["feature:general"]="feature/general.txt"
   ["feature:continue"]="feature/continue.txt"
   ["feature:plan"]="feature/plan.txt"
+  ["feature:dotfiles"]="feature/dotfiles.txt"
+  ["feature:gnoixus"]="feature/gnoixus.txt"
   ["agent:chat"]="agent/chat.txt"
   ["agent:orchestrate"]="agent/orchestrate.txt"
   ["prepare-release:__main__"]="prepare-release.txt"
@@ -37,6 +39,8 @@ declare -A COMMAND_REGISTRY=(
   ["new:improve-workflows"]="new/improve-workflows.txt"
   ["new:improve-repo-knowledge"]="new/improve-repo-knowledge.txt"
   ["new:add-skill"]="new/add-skill.txt"
+  ["new:improve-tmux"]="new/improve-tmux.txt"
+  ["new:improve-nvim"]="new/improve-nvim.txt"
 )
 
 # Category descriptions
@@ -64,6 +68,8 @@ declare -A SUBCOMMAND_DESC=(
   ["feature:general"]="Work on general feature outside main repos"
   ["feature:continue"]="Analyze current branch and plan next steps"
   ["feature:plan"]="Plan feature implementation with detailed exploration"
+  ["feature:dotfiles"]="Work on dotfiles repository features (tmux, nvim, shell config)"
+  ["feature:gnoixus"]="Work on gnoixus browser extension features"
   ["agent:chat"]="Research and learn about specific topics with expert guidance"
   ["agent:orchestrate"]="Orchestrate complex tasks by spawning and managing sub-agents"
   ["prepare-release:__main__"]="Generate release notes from prod to main"
@@ -72,6 +78,8 @@ declare -A SUBCOMMAND_DESC=(
   ["new:improve-workflows"]="Improve the cwf/gwf workflow tools themselves"
   ["new:improve-repo-knowledge"]="Add or improve personal operational knowledge for a repository"
   ["new:add-skill"]="Create a new Claude Code skill from stdin content"
+  ["new:improve-tmux"]="Systematic tmux configuration improvements"
+  ["new:improve-nvim"]="Systematic NeoVim configuration improvements"
 )
 
 # Commands that require extra arguments
@@ -743,13 +751,13 @@ _claude_wf_completion() {
         COMPREPLY=($(compgen -W "bump-resource regen-fields onboard" -- "$cur"))
         ;;
       feature)
-        COMPREPLY=($(compgen -W "dp cd all general continue plan" -- "$cur"))
+        COMPREPLY=($(compgen -W "dp cd all general continue plan dotfiles gnoixus" -- "$cur"))
         ;;
       agent)
         COMPREPLY=($(compgen -W "chat" -- "$cur"))
         ;;
       new)
-        COMPREPLY=($(compgen -W "improve-rules improve-workflows improve-repo-knowledge add-skill" -- "$cur"))
+        COMPREPLY=($(compgen -W "improve-rules improve-workflows improve-repo-knowledge add-skill improve-tmux improve-nvim" -- "$cur"))
         ;;
       completion)
         COMPREPLY=($(compgen -W "bash zsh install" -- "$cur"))
@@ -821,7 +829,7 @@ _claude_wf() {
         return 0
         ;;
       feature)
-        subcommands=('dp:Data-pipelines feature' 'cd:Customer-dashboard feature' 'all:Cross-repo feature' 'general:General feature' 'continue:Continue current work' 'plan:Plan feature implementation')
+        subcommands=('dp:Data-pipelines feature' 'cd:Customer-dashboard feature' 'all:Cross-repo feature' 'general:General feature' 'continue:Continue current work' 'plan:Plan feature implementation' 'dotfiles:Dotfiles repository features' 'gnoixus:Browser extension features')
         _describe -t subcommands 'subcommand' subcommands
         return 0
         ;;
@@ -831,7 +839,7 @@ _claude_wf() {
         return 0
         ;;
       new)
-        subcommands=('improve-rules:Analyze and improve rule files' 'improve-workflows:Improve cwf/gwf tools' 'improve-repo-knowledge:Add or improve repo operational knowledge' 'add-skill:Create new Claude Code skill')
+        subcommands=('improve-rules:Analyze and improve rule files' 'improve-workflows:Improve cwf/gwf tools' 'improve-repo-knowledge:Add or improve repo operational knowledge' 'add-skill:Create new Claude Code skill' 'improve-tmux:Systematic tmux improvements' 'improve-nvim:Systematic NeoVim improvements')
         _describe -t subcommands 'subcommand' subcommands
         return 0
         ;;
