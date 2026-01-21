@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh SessionStart"
+            "command": "~/repos/tmux-claude-status/hooks/tmux-claude-status-hook.sh SessionStart"
           }
         ]
       }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh UserPromptSubmit"
+            "command": "~/repos/tmux-claude-status/hooks/tmux-claude-status-hook.sh UserPromptSubmit"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh Stop"
+            "command": "~/repos/tmux-claude-status/hooks/tmux-claude-status-hook.sh Stop"
           },
           {
             "type": "command",
@@ -40,7 +40,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh Notification"
+            "command": "~/repos/tmux-claude-status/hooks/tmux-claude-status-hook.sh Notification"
           }
         ]
       }
@@ -50,7 +50,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/repos/dotfiles/tmux-plugins/tmux-claude-status/hooks/tmux-claude-status-hook.sh SessionEnd"
+            "command": "~/repos/tmux-claude-status/hooks/tmux-claude-status-hook.sh SessionEnd"
           },
           {
             "type": "command",
