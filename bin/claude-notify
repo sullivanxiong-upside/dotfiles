@@ -44,7 +44,35 @@ send_notification() {
 case "$EVENT" in
   Stop)
     # Claude has finished processing and is waiting for user input
-    send_notification "Claude Code" "Waiting for input"
+    # Suppress notification if previous event was UserPromptSubmit (immediate stop after submit)
+
+    # Get pane ID and state file path
+    PANE_ID="${TMUX_PANE:-}"
+    if [[ -n "$PANE_ID" ]]; then
+      PANE_NUM="${PANE_ID#%}"
+      TMUX_SERVER_PID="unknown"
+      if [[ -n "${TMUX:-}" ]]; then
+        TMUX_SERVER_PID="${TMUX#*,}"
+        TMUX_SERVER_PID="${TMUX_SERVER_PID%%,*}"
+      fi
+
+      CACHE_DIR="${CLAUDE_TMUX_STATUS_CACHE_DIR:-$HOME/.cache/tmux-claude-status}"
+      STATE_FILE="$CACHE_DIR/tmux-${TMUX_SERVER_PID}-pane-${PANE_NUM}.json"
+
+      # Read previous event from state file
+      prev_event=""
+      if [[ -f "$STATE_FILE" ]] && command -v jq >/dev/null 2>&1; then
+        prev_event=$(jq -r '.event // empty' "$STATE_FILE" 2>/dev/null || true)
+      fi
+
+      # Only notify if not immediately after UserPromptSubmit
+      if [[ "$prev_event" != "UserPromptSubmit" ]]; then
+        send_notification "Claude Code" "Waiting for input"
+      fi
+    else
+      # If no pane ID, send notification anyway (not in tmux)
+      send_notification "Claude Code" "Waiting for input"
+    fi
     ;;
 
   SessionEnd)
