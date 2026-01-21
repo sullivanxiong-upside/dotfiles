@@ -29,7 +29,7 @@ send_notification() {
 
   # Append window name to message if available
   if [ -n "$window_name" ]; then
-    message="$message (window: $window_name)"
+    message="$message [$window_name]"
   fi
 
   if "$SCRIPT_DIR/is-macos"; then

@@ -4,7 +4,7 @@ The `claude-notify` hook sends native OS notifications when:
 - **Stop event**: Claude finishes processing and is waiting for user input
 - **SessionEnd event**: Claude session ends
 
-If running inside tmux, the notification includes the window name (e.g., "Waiting for input (window: my-project)").
+If running inside tmux, the notification includes the window name (e.g., "Waiting for input [my-project]").
 
 ## Cross-Platform Support
 
@@ -66,8 +66,8 @@ The script:
 - "Session ended"
 
 **Inside tmux:**
-- "Waiting for input (window: data-pipelines)"
-- "Session ended (window: my-project)"
+- "Waiting for input [data-pipelines]"
+- "Session ended [my-project]"
 
 ## Troubleshooting
 
