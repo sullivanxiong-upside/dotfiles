@@ -33,7 +33,17 @@ Both tools are available in your PATH via symlinks:
 ~/.local/bin/gwf -> ~/repos/dotfiles/bin/gwf
 ```
 
-Shell completion is configured using lazy-loading (Zsh) or immediate-loading (Bash) patterns. See **[docs/completion-setup.md](docs/completion-setup.md)** for detailed setup and cross-platform configuration.
+### Shell Completion (Recommended)
+
+Install shell completion with one command (auto-detects bash/zsh):
+
+```bash
+gwf completion install
+cwf completion install
+source ~/.zshrc  # or source ~/.bashrc
+```
+
+**Advanced Setup:** For manual configuration with lazy-loading (Zsh) or custom setup, see **[docs/completion-setup.md](docs/completion-setup.md)**.
 
 ## Command Categories
 
@@ -163,11 +173,11 @@ Claude will intelligently use `gh` commands to gather context BEFORE making reco
 
 ### Benefits
 
-✅ **Comprehensive Context**: Claude knows PR status, CI checks, review comments
-✅ **Informed Decisions**: Makes recommendations based on actual GitHub state
-✅ **No Assumptions**: Queries GitHub instead of guessing
-✅ **Linear Integration**: Can extract Linear ticket IDs from branches/PRs
-✅ **Proactive**: Gathers context automatically during review/feature workflows
+**Comprehensive Context**: Claude knows PR status, CI checks, review comments
+**Informed Decisions**: Makes recommendations based on actual GitHub state
+**No Assumptions**: Queries GitHub instead of guessing
+**Linear Integration**: Can extract Linear ticket IDs from branches/PRs
+**Proactive**: Gathers context automatically during review/feature workflows
 
 ### Example Context Gathering
 

@@ -83,7 +83,7 @@ Contains all files that are symlinked to `~/`:
 Executable scripts added to PATH:
 - No `.sh` extensions (cleaner in PATH)
 - Made executable via `chmod +x`
-- Includes completion scripts (`.bash` extension for clarity)
+- Built-in completion (use `gwf completion install` or `cwf completion install`)
 
 ### Platform-Specific Directories
 - `macos/` - macOS-specific configs and Library/ files

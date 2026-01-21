@@ -15,7 +15,7 @@ Many files in this repo are symlinked to their actual locations:
 - `~/.tmux.conf` → `~/repos/dotfiles/.tmux.conf`
 - etc.
 
-### ⚠️ Critical Rule for Worktree Development
+### Critical Rule for Worktree Development
 
 **When working in a feature worktree, ALWAYS edit the worktree's local copy, NOT through symlinks.**
 
@@ -25,16 +25,16 @@ Git worktrees create separate working directories:
 - Main repo: `~/repos/dotfiles/.claude/settings.json`
 - Feature worktree: `~/repos/dotfiles-feature-my-branch/.claude/settings.json`
 
-When you edit `~/.claude/settings.json` (the symlink), changes go to the **main repo's copy**, not the worktree's copy!
+When you edit `~/.claude/settings.json` (the symlink), changes go to the **main repo's copy**, not the worktree's copy.
 
 #### Correct Workflow
 
 ```bash
-# ❌ WRONG - Edits main's copy via symlink
+# WRONG - Edits main's copy via symlink
 gwf wt feature my-feature
-vim ~/.claude/settings.json    # Goes to main repo!
+vim ~/.claude/settings.json    # Goes to main repo
 
-# ✅ CORRECT - Edit worktree's copy directly
+# CORRECT - Edit worktree's copy directly
 gwf wt feature my-feature
 cd ~/repos/dotfiles-feature-my-branch
 vim .claude/settings.json      # Edits worktree's copy
@@ -156,7 +156,7 @@ gwf wt cleanup my-feature-name
 
 ### Claude Configuration
 - `.claude/settings.json` - Hooks, permissions, general settings
-- Remember: Edit worktree's copy when doing feature work!
+- Remember: Edit worktree's copy when doing feature work
 
 ### tmux Configuration
 - `.tmux.conf` - Main tmux config

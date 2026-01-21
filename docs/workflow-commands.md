@@ -165,11 +165,11 @@ The `workflow-commands.txt` prompt teaches Claude to recognize specific trigger 
 
 ## Benefits
 
-✓ **No context loss** - Stay in the same session, keep all context
-✓ **Faster workflow** - No need to exit and restart
-✓ **Natural language** - Just describe what you want to do
-✓ **Maintains quality** - Applies full workflow rules, not shortcuts
-✓ **Flexible** - Can switch modes multiple times in one session
+**No context loss** - Stay in the same session, keep all context
+**Faster workflow** - No need to exit and restart
+**Natural language** - Just describe what you want to do
+**Maintains quality** - Applies full workflow rules, not shortcuts
+**Flexible** - Can switch modes multiple times in one session
 
 ## Adding New Workflow Commands
 
