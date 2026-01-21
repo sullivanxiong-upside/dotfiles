@@ -40,7 +40,7 @@ Install shell completion with one command (auto-detects bash/zsh):
 ```bash
 gwf completion install
 cwf completion install
-source ~/.zshrc  # or source ~/.bashrc
+source ~/.config/zsh/user.zsh  # zsh - or source ~/.bashrc for bash
 ```
 
 **Advanced Setup:** For manual configuration with lazy-loading (Zsh) or custom setup, see **[docs/completion-setup.md](docs/completion-setup.md)**.

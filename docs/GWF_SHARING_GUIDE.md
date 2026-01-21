@@ -108,12 +108,13 @@ For command completion in your shell (auto-detects bash or zsh):
 gwf completion install
 ```
 
-This adds the completion source to your `~/.zshrc` or `~/.bashrc`.
+This adds the completion source to your `~/.config/zsh/user.zsh` (zsh) or `~/.bashrc` (bash).
 
 Then reload your shell:
 
 ```bash
-source ~/.zshrc  # or source ~/.bashrc
+source ~/.config/zsh/user.zsh  # zsh
+source ~/.bashrc               # bash
 ```
 
 **What this does**: Adds a small snippet to your shell config that dynamically loads completion when gwf is available. The completion script is built into gwf - no separate files needed.

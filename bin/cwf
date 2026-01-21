@@ -873,12 +873,12 @@ function cmd_completion_install() {
   # If no config specified, detect it
   if [ -z "$shell_config" ]; then
     if [ -n "${ZSH_VERSION:-}" ]; then
-      shell_config="$HOME/.zshrc"
+      shell_config="$HOME/.config/zsh/user.zsh"
     elif [ -n "${BASH_VERSION:-}" ]; then
       shell_config="$HOME/.bashrc"
     else
       echo "Error: Unknown shell. Please specify config file:"
-      echo "  cwf completion install ~/.zshrc"
+      echo "  cwf completion install ~/.config/zsh/user.zsh"
       echo "  cwf completion install ~/.bashrc"
       echo ""
       echo "Or manually add:"
@@ -905,7 +905,7 @@ function cmd_completion_install() {
 
   # Check if already installed
   if grep -q "cwf completion" "$shell_config" 2>/dev/null; then
-    echo "✓ cwf completion already installed in $shell_config"
+    echo "cwf completion already installed in $shell_config"
     return 0
   fi
 
@@ -933,7 +933,7 @@ function cmd_completion_install() {
     fi
   } >> "$shell_config"
 
-  echo "✓ cwf completion installed to $shell_config"
+  echo "cwf completion installed to $shell_config"
   echo ""
   echo "Reload your shell to activate:"
   echo "  source $shell_config"

@@ -1,6 +1,6 @@
 # Shell Completion Setup for cwf and gwf
 
-> **Quick Setup:** For most users, simply run `gwf completion install` and `cwf completion install` after copying the scripts to `~/.local/bin`. This guide is for advanced/manual setup.
+> **Quick Setup:** For most users, simply run `gwf completion install` and `cwf completion install` after copying the scripts to `~/.local/bin`. This installs to `~/.config/zsh/user.zsh` (zsh) or `~/.bashrc` (bash). This guide is for advanced/manual setup.
 
 This guide explains the elegant, cross-platform completion setup following shell best practices, including performance-optimized lazy loading for Zsh.
 
@@ -52,7 +52,7 @@ which gwf  # Should show: ~/.local/bin/gwf
 
 ### Zsh Setup
 
-Add to your `.zshrc` or sourced config file (e.g., `~/.config/zsh/user.zsh`):
+Add to `~/.config/zsh/user.zsh` (or another sourced config file):
 
 ```bash
 # Lazy load gwf completion

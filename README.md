@@ -101,7 +101,7 @@ ln -sf ~/repos/dotfiles/home/.config/gwf ~/.config/gwf
 # Install shell completion (auto-detects bash/zsh)
 gwf completion install
 cwf completion install
-source ~/.zshrc  # or source ~/.bashrc to activate
+source ~/.config/zsh/user.zsh  # zsh - or source ~/.bashrc for bash
 
 # Claude Code settings
 ln -sf ~/repos/dotfiles/home/.claude/settings.json ~/.claude/settings.json
