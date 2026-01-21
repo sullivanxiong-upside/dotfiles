@@ -4,6 +4,8 @@ The `claude-notify` hook sends native OS notifications when:
 - **Stop event**: Claude finishes processing and is waiting for user input
 - **SessionEnd event**: Claude session ends
 
+If running inside tmux, the notification includes the window name (e.g., "Waiting for input (window: my-project)").
+
 ## Cross-Platform Support
 
 - **macOS**: Uses `osascript` to display notifications
@@ -52,9 +54,20 @@ Available hook events:
 ## How It Works
 
 The script:
-1. Detects the operating system using `is-macos` and `is-linux` helper scripts
-2. Calls the appropriate notification system
-3. Fails silently if the notification system is unavailable
+1. Checks if running inside tmux and gets the window name
+2. Detects the operating system using `is-macos` and `is-linux` helper scripts
+3. Calls the appropriate notification system with the window name appended
+4. Fails silently if the notification system is unavailable
+
+## Example Notifications
+
+**Outside tmux:**
+- "Waiting for input"
+- "Session ended"
+
+**Inside tmux:**
+- "Waiting for input (window: data-pipelines)"
+- "Session ended (window: my-project)"
 
 ## Troubleshooting
 

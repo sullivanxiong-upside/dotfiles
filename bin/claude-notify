@@ -10,10 +10,27 @@ EVENT="${1:-}"
 # Get script directory for OS detection
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Get tmux window name if running in tmux
+get_tmux_window() {
+  if [ -n "${TMUX:-}" ]; then
+    tmux display-message -p '#W' 2>/dev/null || echo ""
+  else
+    echo ""
+  fi
+}
+
 # Function to send notification (cross-platform)
 send_notification() {
   local title="$1"
   local message="$2"
+  local window_name
+
+  window_name=$(get_tmux_window)
+
+  # Append window name to message if available
+  if [ -n "$window_name" ]; then
+    message="$message (window: $window_name)"
+  fi
 
   if "$SCRIPT_DIR/is-macos"; then
     # macOS: Use osascript
