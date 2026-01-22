@@ -50,12 +50,6 @@ This file contains personal context about development preferences, communication
 
 ## Communication Style
 
-**Standups:**
-- Three-section format: "Last business day", "Today", "Need help/FYI"
-- Bullet points only, no prose
-- Includes PR/issue numbers
-- Technical specificity (repo names, feature names)
-
 **Specs:**
 - Starts with Owner, Linear tickets, Status
 - Includes "Key Insight" or "Key Decision" callouts
