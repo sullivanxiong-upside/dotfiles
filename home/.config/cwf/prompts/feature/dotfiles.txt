@@ -1,0 +1,174 @@
+@~/repos/dotfiles
+
+{{WORKTREE_WORKFLOW}}
+
+{{GITHUB_CONTEXT}}
+
+{{PROJECT_RULES}}
+
+{{GIT_SAFETY}}
+
+{{WRITING_STYLE}}
+
+{{WORKFLOW_COMMANDS}}
+
+{{PLANNING_GUIDELINES}}
+
+# Repository Overview
+
+This is a personal dotfiles repository containing configuration files, scripts, and development environment setup for cross-platform use (Linux & macOS).
+
+## What This Repo Contains
+
+**Core configurations:**
+- Shell: `.config/zsh/user.zsh` - Personal shell customizations
+- tmux: `.tmux.conf` - Terminal multiplexer with tmux-claude-status integration
+- NeoVim: `.config/nvim/` - Editor configuration with lazy.nvim
+- Claude Code: `.claude/settings.json` - Hooks and MCP server configuration
+
+**CLI workflow tools:**
+- `bin/cwf` - Claude Workflow CLI (this tool you're using)
+- `bin/gwf` - Git Workflow CLI for worktree and PR management
+- Both have built-in bash/zsh completion
+
+**Directory structure:**
+```
+dotfiles/
+├── .claude/              # Claude Code configuration
+├── .config/              # XDG config directory
+│   ├── zsh/             # Shell configuration
+│   ├── nvim/            # NeoVim configuration
+│   └── cwf/prompts/     # cwf workflow prompts
+├── bin/                 # Executable scripts (cwf, gwf, etc.)
+├── scripts/             # Utility scripts
+├── home/                # Files to be symlinked to ~/
+└── .tmux.conf           # tmux configuration
+```
+
+## IMPORTANT: Read Documentation First
+
+Before making changes, read the repository documentation:
+- `CLAUDE.md` - Detailed guidance for working with this repo (symlink gotchas!)
+- `README.md` - Overview, features, and installation instructions
+- `INSTALLATION.md` - Setup and symlink procedures
+
+## Key Areas to Know
+
+**Shell configuration (`home/.config/zsh/`):**
+- Modular sourcing of scripts
+- User customizations in `user.zsh`
+- Secrets in `secret.zsh` (gitignored)
+
+**tmux configuration (`.tmux.conf`):**
+- Uses TPM (Tmux Plugin Manager)
+- Includes tmux-claude-status plugin (external, installed via TPM)
+- Custom keybindings with Ctrl+A prefix
+
+**NeoVim configuration (`home/.config/nvim/`):**
+- Uses lazy.nvim plugin manager (NOT LazyVim distribution)
+- Plugin configs in `lua/plugins/`
+- Keymaps in `lua/config/keymaps.lua`
+
+**Claude Code settings (`.claude/settings.json`):**
+- Hooks for tmux-claude-status integration
+- MCP server configurations
+- Permissions and settings
+
+**Workflow tools (`bin/`):**
+- `cwf` - Claude workflow management
+- `gwf` - Git worktree and PR operations
+- Both scripts have embedded bash/zsh completion
+
+# CRITICAL: Symlink Editing in Worktrees
+
+**THE #1 GOTCHA**: When working in feature worktrees, DO NOT edit files through their symlinks.
+
+## The Problem
+
+Many files in this repo are symlinked to their actual locations:
+- `~/.claude/settings.json` → `~/repos/dotfiles/.claude/settings.json`
+- `~/.tmux.conf` → `~/repos/dotfiles/.tmux.conf`
+- `~/.config/zsh/user.zsh` → `~/repos/dotfiles/.config/zsh/user.zsh`
+
+Git worktrees create separate working directories:
+- Main repo: `~/repos/dotfiles/.claude/settings.json`
+- Feature worktree: `~/repos/dotfiles-feature-my-branch/.claude/settings.json`
+
+**When you edit through symlinks, changes go to the MAIN branch, NOT the worktree.**
+
+## CORRECT Workflow
+
+```bash
+# WRONG - Edits main's copy via symlink
+gwf wt feature my-feature
+vim ~/.claude/settings.json    # Goes to main repo!
+
+# CORRECT - Edit worktree's copy directly
+gwf wt feature my-feature
+cd ~/repos/dotfiles-feature-my-feature
+vim .claude/settings.json      # Edits worktree's copy
+```
+
+## Recovery Procedure
+
+If you accidentally edited through symlinks:
+
+```bash
+# Save your changes
+cd ~/repos/dotfiles
+git diff .claude/settings.json > /tmp/my-changes.patch
+
+# Apply to worktree
+cd ~/repos/dotfiles-feature-my-branch
+git apply /tmp/my-changes.patch
+
+# Restore main's copy
+cd ~/repos/dotfiles
+git restore .claude/settings.json
+```
+
+# Repository-Specific Testing
+
+Different components require different reload procedures:
+
+## tmux Configuration
+```bash
+# Reload tmux config
+tmux source-file ~/.tmux.conf
+
+# Update plugins (in tmux: Ctrl+A then U)
+# Or restart tmux entirely
+```
+
+## Claude Settings
+```bash
+# MUST restart Claude (not --resume)
+# Exit current session, then start fresh
+claude
+
+# Verify hooks loaded
+/hooks
+```
+
+## Shell Configuration
+```bash
+# Reload shell config
+source ~/.zshrc
+```
+
+## NeoVim Configuration
+```bash
+# In nvim:
+:source ~/.config/nvim/init.lua
+# Or restart nvim
+```
+
+# Key Points
+
+- This repo contains config files, not code - no automated tests
+- Testing is manual: verify the configuration works as expected
+- tmux-claude-status plugin is now external (installed via TPM)
+- Always edit worktree's local copy when doing feature work
+- Check CLAUDE.md in the repo for detailed guidance
+
+Work on the dotfiles feature requested below.

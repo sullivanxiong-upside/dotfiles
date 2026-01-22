@@ -1,0 +1,360 @@
+{{GIT_SAFETY}}
+
+{{WRITING_STYLE}}
+
+{{WORKFLOW_COMMANDS}}
+
+You are helping me systematically improve my tmux configuration.
+
+## Context
+
+My tmux configuration lives in `~/repos/dotfiles/.tmux.conf` and is symlinked to `~/.tmux.conf`.
+
+Key setup details:
+- Uses TPM (Tmux Plugin Manager) for plugins
+- Custom status line with tmux-claude-status plugin
+- Prefix key: `Ctrl+A`
+- Configuration file: `~/.tmux.conf`
+- Plugins directory: `~/.tmux/plugins/`
+
+## CRITICAL: Symlink Warning
+
+**When working in feature worktrees, ALWAYS edit the worktree's local copy:**
+
+```bash
+# WRONG - edits main's copy
+gwf wt feature my-tmux-improvement
+vim ~/.tmux.conf    # This is a symlink to main!
+
+# CORRECT - edit worktree's copy
+cd ~/repos/dotfiles-feature-my-tmux-improvement
+vim .tmux.conf      # Edits worktree's copy
+```
+
+## Your Task: 5-Phase Methodology
+
+Follow this systematic process to improve tmux configuration.
+
+### Phase 1: Understanding Current State
+
+First, gather comprehensive context:
+
+**Step 1.1: Read Configuration**
+- Read `~/.tmux.conf` (or the worktree's copy if in feature branch)
+- Identify current plugins (lines with `set -g @plugin`)
+- Note custom keybindings and settings
+- Check for tmux-claude-status integration
+
+**Step 1.2: Ask Discovery Questions**
+
+Ask me about:
+1. What specific pain points or frustrations do I have with current tmux setup?
+2. What workflows feel clunky or inefficient?
+3. Are there features I've seen in other tmux setups that I want?
+4. What's working well that should be preserved?
+5. Any performance issues (slow startup, laggy status line)?
+6. Desired improvements to:
+   - Window/pane management
+   - Status line appearance/functionality
+   - Navigation/searching
+   - Copy mode
+   - Session management
+   - Plugin functionality
+
+**Step 1.3: Environment Check**
+```bash
+# Check tmux version
+tmux -V
+
+# List currently installed plugins
+ls ~/.tmux/plugins/
+
+# Check if TPM is installed
+ls ~/.tmux/plugins/tpm
+```
+
+Present findings and ask for clarification on priorities.
+
+### Phase 2: Gap Analysis
+
+**Step 2.1: Identify Improvement Categories**
+
+Analyze gaps in these areas:
+
+**Keybindings & Navigation:**
+- Pane navigation efficiency
+- Window switching speed
+- Copy mode ergonomics
+- Search functionality
+- Prefix key conflicts
+
+**Status Line:**
+- Information density vs readability
+- Color scheme effectiveness
+- Update frequency
+- Integration with external tools
+- tmux-claude-status visibility
+
+**Plugins:**
+- Missing functionality
+- Redundant plugins
+- Outdated plugins
+- Plugin conflicts
+- Performance impact
+
+**Window/Pane Management:**
+- Layout automation
+- Smart window naming
+- Pane synchronization
+- Zoom/focus workflows
+
+**Session Management:**
+- Session switching
+- Session persistence
+- Project-specific sessions
+
+**Step 2.2: Benchmark Against Best Practices**
+
+Check configuration against tmux best practices:
+- `set -g mouse on` for mouse support
+- Sensible escape-time settings (`set -s escape-time 0`)
+- Vi mode for copy mode
+- Smart pane splitting (retain current directory)
+- History limits
+- Color scheme for true color support
+
+**Step 2.3: Present Gap Analysis**
+
+Show me:
+- Current state assessment
+- Identified gaps by category
+- Best practice comparisons
+- Recommended improvement priorities
+- Estimated complexity of each improvement
+
+### Phase 3: Planning
+
+**Step 3.1: Draft Improvement Plan**
+
+For each improvement, specify:
+- **What**: Clear description of the change
+- **Why**: Problem it solves or benefit it provides
+- **How**: Implementation approach (keybinding, setting, plugin)
+- **Risk**: Potential issues or conflicts
+- **Testing**: How to verify it works
+
+**Step 3.2: Categorize by Impact**
+
+Group improvements:
+- **Quick wins**: Low effort, high impact (keybindings, simple settings)
+- **Medium effort**: Plugin additions, status line tweaks
+- **Major changes**: Workflow refactoring, significant plugin changes
+
+**Step 3.3: Consider Dependencies**
+
+Identify:
+- Plugin dependencies
+- Setting interdependencies
+- Keybinding conflicts
+- TPM update requirements
+
+**Step 3.4: Create Implementation Order**
+
+Sequence improvements to:
+- Do quick wins first
+- Handle dependencies before dependents
+- Group related changes together
+- Minimize configuration reloads
+
+Present the complete plan with rationale.
+
+### Phase 4: Confirmation (Required)
+
+**DO NOT PROCEED TO IMPLEMENTATION WITHOUT EXPLICIT APPROVAL**
+
+Present the plan clearly:
+1. List all proposed changes
+2. Show before/after for each change
+3. Highlight any potentially breaking changes
+4. Note required plugin installations
+5. Explain testing approach
+
+Ask explicitly:
+- "Does this plan look good?"
+- "Any changes or priorities to adjust?"
+- "Should we proceed with implementation?"
+
+**Wait for user approval before Phase 5.**
+
+### Phase 5: Implementation
+
+Only after approval, implement changes:
+
+**Step 5.1: Create Feature Branch**
+```bash
+gwf wt feature improve-tmux-[specific-improvement]
+cd ~/repos/dotfiles-feature-improve-tmux-[specific-improvement]
+```
+
+**Step 5.2: Edit Configuration**
+
+Make changes to `.tmux.conf` in the worktree:
+- Add/modify settings
+- Add/remove plugins
+- Update keybindings
+- Adjust status line
+
+For plugin additions:
+```bash
+# Add to .tmux.conf
+set -g @plugin 'author/plugin-name'
+
+# Install (after config reload)
+# In tmux: prefix + I
+```
+
+**Step 5.3: Test Iteratively**
+
+After each change:
+```bash
+# Reload config
+tmux source-file ~/.tmux.conf
+
+# Or in tmux: prefix + r (if configured)
+```
+
+Test:
+- New keybindings work
+- Status line renders correctly
+- Plugins load without errors
+- No conflicts with existing setup
+- Performance is acceptable
+
+**Step 5.4: Document Changes**
+
+Add comments in .tmux.conf explaining:
+- Purpose of new settings
+- Keybinding mappings
+- Plugin purposes
+
+**Step 5.5: Commit and PR**
+```bash
+git add .tmux.conf
+git commit -m "feat(tmux): [clear description of improvement]"
+gwf pr push "Improve tmux: [brief description]"
+```
+
+## Common Improvement Categories
+
+### Keybindings Best Practices
+- Use intuitive mnemonics (v for vertical split, h for horizontal)
+- Group related bindings (all pane ops use prefix + arrows/hjkl)
+- Avoid conflicts with shell/vim keybindings
+- Consider ergonomics (frequent actions should be easy to reach)
+
+### Status Line Best Practices
+- Left: Session, window, pane info
+- Right: System info, time, integrations
+- Use color sparingly for highlighting
+- Consider terminal width (don't overflow)
+- Update frequency vs performance tradeoff
+
+### Plugin Best Practices
+- Only install plugins you'll actually use
+- Check plugin maintenance status (last update date)
+- Test plugins individually before committing
+- Document plugin purposes in comments
+- Consider plugin startup performance impact
+
+### Testing Checklist
+- [ ] Config file has no syntax errors
+- [ ] tmux starts without errors
+- [ ] All keybindings work as expected
+- [ ] Status line renders correctly
+- [ ] Plugins load successfully
+- [ ] No noticeable performance degradation
+- [ ] Copy mode works correctly
+- [ ] Pane/window creation works
+- [ ] Mouse support (if enabled) works
+- [ ] tmux-claude-status still functions
+
+## Troubleshooting
+
+### Config Won't Reload
+```bash
+# Kill tmux server and restart
+tmux kill-server
+tmux
+
+# Check for syntax errors
+tmux source-file ~/.tmux.conf
+```
+
+### Plugin Won't Install
+```bash
+# Update TPM itself
+cd ~/.tmux/plugins/tpm
+git pull
+
+# Reinstall plugins (in tmux: prefix + I)
+# Or manually:
+~/.tmux/plugins/tpm/bin/install_plugins
+```
+
+### Keybinding Not Working
+- Check for conflicts with other bindings
+- Verify prefix key is correct
+- Test in fresh tmux session
+- Check if plugin is overriding binding
+
+### Status Line Issues
+- Check for syntax errors in status format
+- Verify color scheme codes are valid
+- Test with shorter status line
+- Check if external command is slow/failing
+
+### tmux-claude-status Issues
+- Verify hooks in `.claude/settings.json` are correct
+- Check hook script path is correct
+- Verify cache directory exists (`~/.cache/tmux-claude-status/`)
+- Test hook script manually
+- Check tmux plugin is up to date
+
+## Key Points
+
+- **Always edit worktree's copy** when doing feature work, not through symlinks
+- Test changes incrementally, not all at once
+- Document non-obvious configuration choices
+- Keep .tmux.conf organized with clear sections
+- Balance functionality with startup performance
+- Consider compatibility across tmux versions
+- Preserve working tmux-claude-status integration
+
+## Examples
+
+### Adding a Plugin
+```tmux
+# Install tmux-resurrect for session persistence
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+
+# Configure it
+set -g @resurrect-capture-pane-contents 'on'
+set -g @resurrect-strategy-vim 'session'
+
+# Reload and install (prefix + I)
+```
+
+### Custom Keybinding
+```tmux
+# Better pane splitting (retain current directory)
+bind v split-window -h -c "#{pane_current_path}"
+bind s split-window -v -c "#{pane_current_path}"
+```
+
+### Status Line Customization
+```tmux
+# Add CPU usage to status line
+set -g status-right '#[fg=green]CPU: #(top -l 1 | grep "CPU usage" | awk \'{print $3}\') #[default]%H:%M %d-%b-%y'
+```
+
+Now, what tmux improvements would you like to work on?
