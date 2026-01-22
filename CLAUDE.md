@@ -152,6 +152,75 @@ gwf pr push "Your PR title"
 gwf wt cleanup my-feature-name
 ```
 
+## Claude Session Management in Worktrees
+
+### Overview
+
+When creating git worktrees, Claude Code sessions are automatically linked to the main repository. This allows `claude --continue` in a worktree to resume your main repository conversation with full context.
+
+### How It Works
+
+Claude Code stores conversations in `~/.claude/projects/{encoded-path}/`. gwf creates a symlink from the worktree's session directory to the main repository's session directory, making all main repo conversations automatically available in worktrees.
+
+### Basic Usage
+
+```bash
+# Normal workflow - automatic linking
+cd ~/repos/dotfiles
+claude  # Start conversation
+gwf wt feature add-tmux-feature
+cd ~/repos/dotfiles-feature-add-tmux-feature
+claude --continue  # Resumes main repo conversation with full context
+```
+
+### Session Commands
+
+**Check linking status:**
+```bash
+gwf session status
+```
+
+**Break link (create independent sessions):**
+```bash
+gwf session unlink
+```
+
+**Re-establish link:**
+```bash
+gwf session relink
+```
+
+### Environment Variables
+
+**Disable automatic linking:**
+```bash
+export GWF_NO_SESSION_LINK=1
+gwf wt feature my-branch  # Creates independent session directory
+```
+
+### Common Scenarios
+
+**Multiple feature branches:**
+All worktrees share conversation history. This is intentional - you can move between features while maintaining context.
+
+**Independent sessions per worktree:**
+Use `gwf session unlink` or set `GWF_NO_SESSION_LINK=1` before creating worktrees.
+
+**No main sessions yet:**
+If you create a worktree before running Claude in main repo, linking is skipped. Run `gwf session relink` after creating main repo sessions.
+
+### Troubleshooting
+
+**"Warning: Worktree has existing sessions"**
+Your worktree has substantial conversations (>100KB). Options:
+- Keep existing: Do nothing, worktree remains independent
+- Force linking: Remove existing sessions and run `gwf session relink`
+
+**Session not continuing in worktree:**
+1. Check status: `gwf session status`
+2. If unlinked: `gwf session relink`
+3. If no main sessions: Create a session in main repo first
+
 ## Common Files to Edit
 
 ### Claude Configuration
