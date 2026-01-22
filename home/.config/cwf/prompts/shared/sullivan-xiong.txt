@@ -1,0 +1,146 @@
+Sullivan Xiong - Personal Context
+
+This file contains personal context about development preferences, communication style, and technical patterns.
+
+## Development Environment
+
+**Operating System**: macOS
+
+**Core Tools:**
+- **Editor**: Cursor (VS Code fork) + Neovim
+- **Shell**: zsh with custom configuration
+- **Terminal**: tmux with custom status line
+- **Python**: Python 3.11+ via Nix (command: `python`, not `python3`)
+- **Package managers**: UV (Python), pnpm (Node.js)
+- **Environment**: Nix Flakes with direnv for automatic activation
+
+**Custom CLI Tools:**
+- **cwf** (Claude Workflow): Manages Claude Code workflows and prompts
+- **gwf** (Git Workflow): Git worktree and PR management
+- **cursor-agent**: Enhanced cursor-agent with .cursor/rules support
+
+**Version Control:**
+- Uses git worktrees for parallel feature development
+- Feature branches: `{repo}-feature-{branch-name}`
+- Review branches: `{repo}-review-{branch-name}`
+- Main development in `~/repos/`
+
+**Cloud/Containers:**
+- Uses Colima for Docker runtime on macOS
+- AWS for cloud infrastructure
+
+## Development Patterns
+
+**Workflow preferences:**
+- Uses Linear for issue tracking
+- Uses Notion for specs, standups, and documentation
+- Commits frequently with conventional commit format
+- Creates PRs with `gwf pr push` command
+- Reviews code with Claude Code and `cwf review` workflows
+
+**Testing approach:**
+- Runs targeted tests rather than full test suites
+- Uses pytest with `@pytest.mark.asyncio` for async tests
+- Prefers unit tests for submethods before integration tests
+
+**Code formatting:**
+- Runs formatting tools before all commits
+- Uses ruff for Python formatting and linting
+- Uses pre-commit hooks where configured
+
+## Communication Style
+
+**Standups:**
+- Three-section format: "Last business day", "Today", "Need help/FYI"
+- Bullet points only, no prose
+- Includes PR/issue numbers
+- Technical specificity (repo names, feature names)
+
+**Specs:**
+- Starts with Owner, Linear tickets, Status
+- Includes "Key Insight" or "Key Decision" callouts
+- Code examples with explanations
+- Documents rationale for decisions
+
+**Issue tracking:**
+- Uses Linear with structured format (Goal, Context, Implementation, Acceptance Criteria)
+- Links related issues and PRs
+- Technical precision, no marketing language
+
+**Code reviews:**
+- Concise opening ("Looks good overall" or "small nit")
+- File paths and line numbers for precision
+- Before/after code comparisons
+- Verification commands when applicable
+- Simple closing ("Nice work") or no closing if just pointing out issues
+
+## Technical Preferences
+
+**Language/Framework choices:**
+- Python 3.11 with type hints
+- Absolute imports from repo root
+- Pandera schemas for data validation
+- pytest for testing
+- FastAPI for APIs
+- React for frontends
+- PostgreSQL and Snowflake for databases
+
+**Infrastructure preferences:**
+- Nix for reproducible environments
+- Terraform for infrastructure as code
+- Kubernetes (EKS) for deployments
+- Airflow for orchestration
+
+**Code organization:**
+- Pure functions with no side effects when possible
+- Dependency injection for testability
+- Mirror source structure in tests
+- Specific file names over generic names (no `utils.py`, `helpers.py`)
+
+## Personal Knowledge System
+
+**Context files:**
+- Repository-specific context in `~/.claude/context/{repo-name}/`
+- General Claude Code knowledge in `~/.claude/context/` (top-level .md files)
+- cwf prompts library in `~/.claude/context/cwf-prompts-library.md`
+
+**Skills:**
+- Custom Claude Code skills in `~/.claude/commands/`
+- `/capture-knowledge`: Extract operational knowledge from conversations
+- `/context-knowledge`: Discover available context files
+- `/summarize-chat`: Generate session summaries
+
+**Dotfiles:**
+- Shell configuration in `~/.config/zsh/`
+- Custom scripts in `~/scripts/` (symlinked from dotfiles)
+- tmux configuration in `~/.tmux.conf`
+- Git aliases and custom commands
+
+## Work Philosophy
+
+**Code quality:**
+- Tests are essential, not optional
+- Format code before commits
+- Type hints for all function signatures
+- Document decisions and rationale
+- Prefer existing shared libraries over reimplementation
+
+**Communication:**
+- Direct and concise
+- No marketing language or enthusiasm
+- Technical precision (file paths, line numbers)
+- State facts, not opinions
+- Bullet points over prose
+
+**Problem solving:**
+- Understand the problem before implementing
+- Test submethods in isolation
+- Run targeted tests, not full suites
+- Gather context before making changes
+- Document gotchas and non-obvious behaviors
+
+**Continuous improvement:**
+- Capture operational knowledge in context files
+- Update cwf prompts when better patterns emerge
+- Share learnings through documentation
+- Standardize patterns across repositories
