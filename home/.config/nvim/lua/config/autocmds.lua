@@ -52,3 +52,31 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 	end,
 	desc = "Format on save with Conform + LSP fallback",
 })
+
+-- Auto-reload files when changed externally
+-- Check for external changes on these events
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+	callback = function()
+		if vim.fn.mode() ~= "c" then -- Don't check in command-line mode
+			vim.cmd("checktime")
+		end
+	end,
+	desc = "Check for external file changes",
+})
+
+-- Additional triggers for tmux environments
+-- WinEnter triggers when switching windows/panes in tmux
+vim.api.nvim_create_autocmd({ "WinEnter", "TabEnter" }, {
+	callback = function()
+		vim.cmd("checktime")
+	end,
+	desc = "Check for changes when entering window/tab",
+})
+
+-- Notify when file is reloaded from disk
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
+	callback = function()
+		vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.INFO)
+	end,
+	desc = "Notify on external file reload",
+})

@@ -58,7 +58,6 @@ end, { desc = "Copy line(s) to Clipboard" })
 vim.keymap.set({ "n", "i" }, "<C-v>", "\"+p", { desc = "Paste from clipboard" })
 
 -- Diagnostics
-vim.keymap.set("n", "<C-f>", ":lua vim.diagnostic.open_float()<CR>", { desc = "Show current line Error" })
 vim.keymap.set("n", "<C-e>", "<C-u>", { desc = "Page up (scroll up)" })
 
 -- nvim-surround will handle all text wrapping functionality
@@ -96,6 +95,8 @@ vim.keymap.set("n", "<A-CR>", function() vim.lsp.buf.definition() end,
 	{ desc = "Go to definition (Alt+Enter)", noremap = true, silent = true })
 vim.keymap.set("n", "<A-S-CR>", function() vim.lsp.buf.declaration() end,
 	{ desc = "Go to declaration (Alt+Shift+Enter)", noremap = true, silent = true })
+vim.keymap.set("n", "<leader><CR>", function() vim.lsp.buf.definition() end,
+	{ desc = "Go to definition (Leader+Enter)", noremap = true, silent = true })
 
 -- Reload configuration with Lazy
 vim.keymap.set("n", "<leader>r", function()
