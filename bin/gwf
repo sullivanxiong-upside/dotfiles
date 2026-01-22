@@ -104,6 +104,12 @@ Categories and Subcommands:
     show [commit]            Show commit (gwf i show)
     blame <file>             Show blame (gwf i blame)
 
+  session
+    status                   Show Claude session linking status
+    unlink                   Break link, create independent sessions
+    relink                   Re-establish link to main repo sessions
+    help                     Show session management help
+
   completion
     bash                     Output bash completion script
     zsh                      Output zsh completion script
@@ -401,6 +407,71 @@ function copy_worktree_configs() {
 }
 
 # ============================================================================
+# Claude Session Management
+# ============================================================================
+
+function link_claude_sessions() {
+  local worktree_path="$1"
+  local main_repo_path="$2"
+
+  # Check opt-out environment variable
+  if [ "${GWF_NO_SESSION_LINK:-}" = "1" ]; then
+    echo ""
+    echo "Note: Claude session linking disabled (GWF_NO_SESSION_LINK=1)"
+    return 0
+  fi
+
+  # Encode paths using Claude's formula: replace / with -
+  local main_encoded=$(echo "$main_repo_path" | tr '/' '-')
+  local worktree_encoded=$(echo "$worktree_path" | tr '/' '-')
+
+  local main_session_dir="$HOME/.claude/projects/$main_encoded"
+  local worktree_session_dir="$HOME/.claude/projects/$worktree_encoded"
+
+  # Check if main repo has sessions
+  if [ ! -d "$main_session_dir" ]; then
+    echo ""
+    echo "Note: No main repo Claude sessions found"
+    echo "      Start a session in main repo with 'claude', then run 'gwf session relink'"
+    return 0
+  fi
+
+  # Handle existing worktree session directory
+  if [ -e "$worktree_session_dir" ]; then
+    # Already linked, nothing to do
+    if [ -L "$worktree_session_dir" ]; then
+      echo ""
+      echo "Note: Worktree session directory already linked"
+      return 0
+    fi
+
+    # Check if worktree has significant sessions (protect user data)
+    local total_size=$(du -sk "$worktree_session_dir" 2>/dev/null | cut -f1)
+    if [ "$total_size" -gt 100 ]; then
+      echo ""
+      echo "Warning: Worktree has existing sessions (${total_size}KB). Not linking."
+      echo "         To link anyway: rm -rf \"$worktree_session_dir\" && gwf session relink"
+      return 0
+    fi
+
+    # Safe to remove (minimal/empty sessions - likely just agent metadata)
+    rm -rf "$worktree_session_dir"
+  fi
+
+  # Create symlink from worktree session dir to main repo session dir
+  ln -s "$main_session_dir" "$worktree_session_dir"
+
+  if [ $? -eq 0 ]; then
+    echo ""
+    echo "✓ Claude sessions linked to main repo"
+    echo "  Run 'claude --continue' in worktree to resume main repo conversation"
+  else
+    echo ""
+    echo "Warning: Failed to link Claude sessions (non-critical)"
+  fi
+}
+
+# ============================================================================
 # Worktree Commands - Refactored
 # ============================================================================
 
@@ -469,6 +540,7 @@ function create_worktree() {
     echo ""
     echo "✓ Worktree created successfully!"
     copy_worktree_configs "$worktree_path" "$repo_name" "$main_repo_path"
+    link_claude_sessions "$worktree_path" "$main_repo_path"
     echo "Navigate with: cd $worktree_path"
   else
     echo "Error: Failed to create worktree" >&2
@@ -534,6 +606,16 @@ function cmd_worktree_cleanup() {
   fi
 
   echo "Removing worktree: $worktree_path"
+
+  # Clean up Claude session symlink if it exists
+  local worktree_encoded=$(echo "$worktree_path" | tr '/' '-')
+  local worktree_session_dir="$HOME/.claude/projects/$worktree_encoded"
+
+  if [ -L "$worktree_session_dir" ]; then
+    echo "Removing linked Claude session directory..."
+    rm "$worktree_session_dir"  # Removes symlink only, not target
+  fi
+
   git worktree remove --force "$worktree_path"
 
   if [ $? -eq 0 ]; then
@@ -678,6 +760,7 @@ function cmd_pr_checkout() {
   echo ""
   echo "✓ PR worktree created!"
   copy_worktree_configs "$worktree_path" "$repo_name" "$main_repo_path"
+  link_claude_sessions "$worktree_path" "$main_repo_path"
   echo "Navigate with: cd $worktree_path"
 }
 
@@ -787,6 +870,89 @@ function cmd_inspect_blame() {
 }
 
 # ============================================================================
+# Session Management Commands
+# ============================================================================
+
+function cmd_session_status() {
+  local current_path=$(pwd)
+  local current_encoded=$(echo "$current_path" | tr '/' '-')
+  local session_dir="$HOME/.claude/projects/$current_encoded"
+
+  echo "Current directory: $current_path"
+  echo ""
+
+  if [ ! -e "$session_dir" ]; then
+    echo "Status: No Claude sessions found"
+  elif [ -L "$session_dir" ]; then
+    local target=$(readlink "$session_dir")
+    local target_decoded=$(echo "$target" | sed "s|$HOME/.claude/projects/||" | tr '-' '/')
+    echo "Status: Linked session directory"
+    echo "Target: $target_decoded"
+
+    # Count sessions in target
+    local num_sessions=$(ls -1 "$session_dir"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')
+    echo "Sessions available: $num_sessions"
+  else
+    local num_sessions=$(ls -1 "$session_dir"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')
+    local total_size=$(du -sh "$session_dir" 2>/dev/null | cut -f1)
+    echo "Status: Independent session directory"
+    echo "Sessions: $num_sessions (${total_size:-0})"
+  fi
+}
+
+function cmd_session_unlink() {
+  local current_path=$(pwd)
+  local current_encoded=$(echo "$current_path" | tr '/' '-')
+  local session_dir="$HOME/.claude/projects/$current_encoded"
+
+  if [ ! -e "$session_dir" ]; then
+    echo "No session directory exists for current location"
+    return 1
+  fi
+
+  if [ ! -L "$session_dir" ]; then
+    echo "Session directory is not linked (already independent)"
+    return 1
+  fi
+
+  local target=$(readlink "$session_dir")
+  rm "$session_dir"
+  mkdir -p "$session_dir"
+
+  echo "✓ Unlinked from: $target"
+  echo "  Worktree now has independent session directory"
+}
+
+function cmd_session_relink() {
+  local worktree_path=$(pwd)
+
+  # Verify we're in a worktree
+  local main_repo_path=$(get_main_repo_path) || {
+    echo "Error: Not in a git worktree"
+    return 1
+  }
+
+  # Don't link main to itself
+  if [ "$worktree_path" = "$main_repo_path" ]; then
+    echo "Error: Already in main repository (cannot link to self)"
+    return 1
+  fi
+
+  link_claude_sessions "$worktree_path" "$main_repo_path"
+}
+
+function cmd_session_help() {
+  echo "Session Management Commands:"
+  echo ""
+  echo "  gwf session status    Show Claude session linking status"
+  echo "  gwf session unlink    Break session link, create independent sessions"
+  echo "  gwf session relink    Re-establish link to main repo sessions"
+  echo ""
+  echo "Environment Variables:"
+  echo "  GWF_NO_SESSION_LINK=1    Disable automatic session linking"
+}
+
+# ============================================================================
 # Completion Commands
 # ============================================================================
 
@@ -816,7 +982,7 @@ _gwf_completion() {
 
   # Complete categories (first argument)
   if [ $cword -eq 1 ]; then
-    COMPREPLY=($(compgen -W "local l remote r worktree wt pr inspect i completion help" -- "$cur"))
+    COMPREPLY=($(compgen -W "local l remote r worktree wt pr inspect i session completion help" -- "$cur"))
     return 0
   fi
 
@@ -845,6 +1011,9 @@ _gwf_completion() {
         ;;
       inspect)
         COMPREPLY=($(compgen -W "diff d log show blame" -- "$cur"))
+        ;;
+      session)
+        COMPREPLY=($(compgen -W "status unlink relink help" -- "$cur"))
         ;;
       completion)
         COMPREPLY=($(compgen -W "bash zsh install" -- "$cur"))
@@ -925,6 +1094,7 @@ _gwf() {
     'pr:Pull request operations'
     'inspect:Inspect repository'
     'i:Inspect repository'
+    'session:Claude session management'
     'completion:Shell completion'
     'help:Show help'
   )
@@ -968,6 +1138,11 @@ _gwf() {
         ;;
       inspect)
         subcommands=('diff:Show diff' 'd:Show diff' 'log:Show log' 'show:Show commit' 'blame:Show blame')
+        _describe -t subcommands 'subcommand' subcommands
+        return 0
+        ;;
+      session)
+        subcommands=('status:Show session linking status' 'unlink:Break session link' 'relink:Re-establish link' 'help:Show session help')
         _describe -t subcommands 'subcommand' subcommands
         return 0
         ;;
@@ -1211,6 +1386,16 @@ function main() {
       esac
       ;;
 
+    session)
+      case "$subcommand" in
+        status) cmd_session_status "$@" ;;
+        unlink) cmd_session_unlink "$@" ;;
+        relink) cmd_session_relink "$@" ;;
+        help) cmd_session_help ;;
+        *) cmd_session_help ;;
+      esac
+      ;;
+
     completion)
       case "$subcommand" in
         bash) cmd_completion_bash "$@" ;;
@@ -1226,7 +1411,7 @@ function main() {
 
     *)
       echo "Error: Unknown category '$category'"
-      echo "Valid categories: local, remote, worktree, pr, inspect, completion"
+      echo "Valid categories: local, remote, worktree, pr, inspect, session, completion"
       echo ""
       show_usage
       return 1
