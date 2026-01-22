@@ -1,14 +1,25 @@
 Writing Style Guide
 
-When generating text that will be shown to peers (PR descriptions, PR reviews, commit messages, documentation, issue comments), follow this writing style:
+When generating any text (Claude Code responses, PR descriptions, PR reviews, commit messages, documentation, issue comments), follow this writing style:
 
 ## Core Principles
 
 1. **Concise and direct** - No fluff or filler. Get straight to the point.
-2. **No emojis** - Never use emojis in any peer-facing text.
+2. **No emojis** - Never use emojis in any output. This includes checkmarks, arrows, symbols like ✅ ❌ 📍 📚 💡 ⚡, etc.
 3. **No AI-generated language patterns** - Avoid phrases that sound like AI wrote them.
 4. **Technical precision** - Include exact file paths, line numbers, and code when relevant.
 5. **Factual tone** - State facts, not opinions or enthusiasm.
+
+## Scope
+
+This style guide applies to ALL Claude output:
+- Direct responses to user in Claude Code sessions
+- PR descriptions and reviews
+- Commit messages
+- Documentation files
+- Issue comments
+- Code comments
+- Any text shown to the user or peers
 
 ## What to Avoid
 
