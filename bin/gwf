@@ -890,10 +890,10 @@ function cmd_session_status() {
     echo "Target: $target_decoded"
 
     # Count sessions in target
-    local num_sessions=$(ls -1 "$session_dir"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')
+    local num_sessions=$(find "$session_dir" -maxdepth 1 -name "*.jsonl" -type f 2>/dev/null | wc -l | tr -d ' ')
     echo "Sessions available: $num_sessions"
   else
-    local num_sessions=$(ls -1 "$session_dir"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')
+    local num_sessions=$(find "$session_dir" -maxdepth 1 -name "*.jsonl" -type f 2>/dev/null | wc -l | tr -d ' ')
     local total_size=$(du -sh "$session_dir" 2>/dev/null | cut -f1)
     echo "Status: Independent session directory"
     echo "Sessions: $num_sessions (${total_size:-0})"
