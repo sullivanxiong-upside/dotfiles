@@ -1260,15 +1260,20 @@ function cmd_completion_install() {
   # Add completion to config with proper guards
   {
     echo ""
-    echo "# gwf completion"
     if [ $is_zsh -eq 1 ]; then
+      # Check if compinit is already initialized in the file
+      if ! grep -q "compinit" "$shell_config" 2>/dev/null; then
+        echo "# Shell completion setup (initialize once)"
+        echo "autoload -Uz compinit 2>/dev/null || true"
+        echo "compinit -C 2>/dev/null || true"
+        echo ""
+      fi
+      echo "# gwf completion"
       echo "if command -v gwf &>/dev/null; then"
-      echo "  # Ensure compinit is loaded"
-      echo "  autoload -Uz compinit 2>/dev/null || true"
-      echo "  compinit -C 2>/dev/null || true"
       echo "  source <(gwf completion zsh)"
       echo "fi"
     else
+      echo "# gwf completion"
       echo "if command -v gwf &>/dev/null; then"
       echo "  source <(gwf completion bash)"
       echo "fi"
