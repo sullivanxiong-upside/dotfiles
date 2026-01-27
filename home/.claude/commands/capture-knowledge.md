@@ -210,9 +210,26 @@ During PR review, you used emojis but shouldn't have.
 
 ## After Creating/Updating Files
 
+**IMPORTANT: Update the context library index**
+
+After creating or updating ANY repository context files, you MUST update the library README:
+
+1. Read `~/.claude/context/README.md`
+2. Update the "Available Repository Context" table:
+   - Add new repositories that don't exist in the table
+   - Update the context files list if structure changed
+   - Update the description if focus areas changed
+3. This ensures `/context-knowledge` can discover available context
+
 **Verify repository context:**
 ```bash
 ls -la ~/.claude/context/{repo-name}/
+```
+
+**Verify library index is updated:**
+```bash
+# Confirm the repository is listed in the README
+grep -A1 "{repo-name}" ~/.claude/context/README.md
 ```
 
 **Verify cwf prompt updates:**

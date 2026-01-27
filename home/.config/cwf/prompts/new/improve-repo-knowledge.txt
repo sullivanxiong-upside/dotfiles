@@ -190,6 +190,28 @@ This repository contains **rendered Kubernetes configurations**, not source conf
 - **argocd-application-manifests:** Generated output (temporary changes only)
 ```
 
+## After Creating/Updating Context Files
+
+**IMPORTANT:** Always update the context library index after changes.
+
+After creating or updating any context files:
+
+1. **Update the library README** at `~/.claude/context/README.md`:
+   - Add new repositories to the "Available Repository Context" table
+   - Update the context files description if structure changed
+   - Keep the table accurate and current
+
+2. **Verify the update:**
+   ```bash
+   # Check the context file exists
+   ls -la ~/.claude/context/{repo-name}/
+
+   # Confirm README lists the repository
+   grep -A1 "{repo-name}" ~/.claude/context/README.md
+   ```
+
+This ensures the context system is discoverable via `/context-knowledge` and other workflows can find available context.
+
 ## Getting Started
 
 Start by understanding what the user wants to document, then help them create or improve their repository context file.
