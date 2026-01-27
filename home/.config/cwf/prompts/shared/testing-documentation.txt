@@ -18,6 +18,31 @@ Testing and Documentation Standards
 - Mock external dependencies (APIs, databases, filesystem)
 - Tests should be deterministic and isolated
 
+## Testing Bundled Resources
+When a library bundles resources (docs, configs, templates, assets):
+- Verify resource discovery works (not just that imports succeed)
+- Test that bundled resources have valid structure/format
+- Include minimum count assertions to catch missing resources
+- Test actual file reading, not just API surface
+
+```python
+# Don't: Only test that API is callable
+def test_whenListDocsCalled_thenReturnsList(self):
+    docs = list_docs()
+    assert isinstance(docs, list)  # Too weak
+
+# Do: Verify bundled resources actually work
+def test_whenListDocsCalled_thenReturnsExpectedDocs(self):
+    docs = list_docs()
+    assert len(docs) >= 15  # Expected minimum
+    for doc in docs:
+        assert "path" in doc
+        assert doc["path"].endswith(".md")
+        # Verify content is readable
+        content = read_doc(doc["path"])
+        assert len(content) > 0
+```
+
 ## Documentation Requirements
 - Public APIs: Document parameters, return types, exceptions
 - Complex logic: Explain the "why", not just the "what"
