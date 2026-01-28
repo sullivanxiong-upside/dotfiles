@@ -1,0 +1,25 @@
+# Documentation Instructions
+
+**Check for repository documentation before starting work:**
+
+1. **Repository-Level Documentation:**
+   - Read `CLAUDE.md` in the repository root for repo-specific guidance
+   - Check `README.md` for setup instructions and architecture overview
+   - Look for `docs/` directory with additional specifications
+
+2. **Feature-Specific Documentation:**
+   - Check for related design documents or specs in `docs/`
+   - Look for architectural decision records (ADRs)
+   - Review any migration guides or planning documents
+
+3. **Code-Level Documentation:**
+   - Read comments and docstrings in files you're modifying
+   - Check for inline TODOs or FIXMEs that might be related
+   - Review test files for expected behavior
+
+4. **When Documentation is Missing:**
+   - Ask the user for clarification on expected behavior
+   - Suggest creating documentation if it would benefit the team
+   - Document your own changes appropriately
+
+**Never skip reading documentation - it prevents rework and ensures consistency with team patterns.**

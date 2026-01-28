@@ -1,0 +1,215 @@
+{{WORKTREE_WORKFLOW}}
+
+{{GITHUB_CONTEXT}}
+
+{{DOCS_INSTRUCTIONS}}
+
+{{DESIGN_PATTERNS}}
+
+{{API_PROTO_CHECK}}
+
+{{SPEC_PR_GUIDELINES}}
+
+{{WRITING_STYLE}}
+
+You should help me write a comprehensive specification document for a feature or change that requires architectural planning and team approval before implementation.
+
+## Specification Writing Process
+
+### 1. Understand the Problem
+
+First, ask clarifying questions:
+- What problem are we solving?
+- Why is this change needed now?
+- What are the success criteria?
+- Who are the stakeholders?
+- Are there any constraints or requirements?
+
+### 2. Research Current State
+
+Use EnterPlanMode to explore:
+- Use Glob to find related files and patterns
+- Use Grep to search for existing implementations
+- Use Read to understand current architecture
+- Identify existing patterns and conventions
+- Quantify the scope (number of files, lines, dependencies)
+
+**Create detection script if applicable:**
+- For migrations: script to identify patterns requiring updates
+- For refactors: script to find affected code
+- Output format: `[OK]`, `[WARNING]`, `[CRITICAL]` with counts
+
+### 3. Design the Solution
+
+Based on exploration, design:
+- Key design decisions with rationale
+- Current state vs target state
+- Architecture overview (use Mermaid diagrams)
+- Implementation approach broken into phases
+- Testing strategy
+- Deployment plan (if applicable)
+
+### 4. Write the Spec Document
+
+Create `docs/FEATURE_NAME_SPEC.md` following this structure:
+
+**Required Sections:**
+1. **Problem Statement**
+   - Current limitations/pain points
+   - Success criteria (measurable)
+
+2. **Key Design Decisions**
+   - Table format: Decision | Choice | Rationale
+   - Document *why* this approach over alternatives
+
+3. **Current State**
+   - Existing architecture/patterns
+   - Code examples showing current approach
+   - Metrics/data (file counts, performance baselines)
+
+4. **Target State**
+   - Desired end state architecture
+   - Code examples showing new patterns
+   - Expected improvements
+
+5. **Architecture Overview**
+   - Mermaid diagrams (flowcharts, sequence diagrams)
+   - Directory trees showing structure
+   - Component descriptions
+
+6. **Implementation Approach**
+   - Break into phases with tasks
+   - Migration strategy (dev and prod environments)
+   - Technical details with code examples
+
+7. **Testing Strategy**
+   - Unit test requirements
+   - Integration test scenarios
+   - Manual validation steps
+
+8. **Known Gaps**
+   - Honest assessment of uncertainties
+   - Impact level: Low/Medium/High
+   - Plan to address each gap
+
+9. **Implementation Checklist**
+   - Files to create/modify
+   - Infrastructure changes
+   - Validation criteria
+
+10. **References**
+    - Related docs, RFCs, Linear issues
+    - Prior art or similar implementations
+
+**Optional but Recommended:**
+- Detection/Analysis section with scan results
+- Available Tooling (codemods, helper scripts)
+- Developer Workflow (step-by-step)
+- Deployment Plan
+- Documentation Updates needed
+- Timeline/Effort Estimate
+
+### 5. Create Detection Script (If Applicable)
+
+Create `scripts/detect-{feature}-issues.sh`:
+```bash
+#!/bin/bash
+# Script to detect patterns requiring attention
+# Output format: [OK], [WARNING], [CRITICAL] with descriptions
+```
+
+### 6. Write PR Description
+
+Use this template:
+
+```markdown
+## Summary
+
+[One paragraph describing what this spec covers]
+
+This is a **specification-only PR**. Implementation work will follow in subsequent PRs tracked under [Linear tickets].
+
+## Context
+
+- **Related Linear issues**: [Links]
+- **Stakeholder approval**: [Who approved]
+- **Implementation plan**: [Estimated scope]
+
+## Key Design Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| [Aspect] | [Option] | [Why this over alternatives] |
+
+## What This Spec Covers
+
+- **[Component 1]**: [Description]
+- **[Component 2]**: [Description]
+
+## What's NOT in This PR
+
+Implementation work to be completed in follow-up PRs:
+- [ ] Actual code implementation
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] Documentation updates
+
+## Known Gaps
+
+1. **[Gap]**: [Description and plan to address]
+
+## Test Plan
+
+**For this PR (spec review):**
+- [ ] Technical accuracy and completeness
+- [ ] Alignment with existing patterns
+- [ ] Feasibility of implementation
+
+**For implementation PRs:**
+- [ ] Unit tests: [Coverage requirements]
+- [ ] Integration tests: [Scenarios]
+```
+
+## Spec Writing Best Practices
+
+**Do:**
+- ✅ Start with *why* not just *what*
+- ✅ Use visual aids (diagrams, trees, tables)
+- ✅ Provide detection scripts to quantify scope
+- ✅ Document design decisions with rationale
+- ✅ Be honest about known gaps
+- ✅ Include code examples showing current vs target patterns
+- ✅ Think about the future implementer who hasn't been in planning discussions
+
+**Don't:**
+- ❌ Include implementation code in spec PR
+- ❌ Leave design decisions undocumented
+- ❌ Assume readers have your context
+- ❌ Skip "What's NOT included" section
+- ❌ Make spec too abstract or overly detailed
+
+## Examples to Reference
+
+**Great spec PRs to learn from:**
+- PR #1831: React 19 Migration (detection script, phased approach)
+- PR #1708: MiniApp SDK Deployment (Mermaid diagrams, lifecycle policies)
+- PR #1238: Monorepo Migration (2347 lines, git strategies)
+- PR #1868: SQL Query Endpoint (NDJSON streaming, factory pattern)
+
+See full guide at: `~/.claude/context/data-pipelines/standards/spec-pr-workflow.md`
+
+## After Spec Approval
+
+Once merged:
+1. Reference spec in implementation PR descriptions
+2. Follow spec's implementation checklist
+3. Update spec if implementation reveals issues
+4. Create follow-up PRs for remaining gaps
+
+{{FILE_READING_REMINDER}}
+
+{{CATEGORY_RULES}}
+
+{{REVIEW_AND_UPDATE_DOCS}}
+
+Additional context: {{CONTEXT}}

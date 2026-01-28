@@ -42,6 +42,50 @@ Code Quality Fundamentals
 - Don't instantiate dependencies inside classes
 - Follow existing DI patterns in the codebase
 
+## Simplicity Principle
+
+**Prefer built-in tools and simple solutions over custom implementations.**
+
+When solving a problem:
+1. Check if shell commands or existing tools can do it
+2. Use one-liners (sleep + command) over custom scripts when possible
+3. Don't create abstractions for one-time operations
+4. If it's doable via CLI, use CLI
+
+**Examples:**
+
+✅ **Simple:**
+```bash
+# Wait 5 minutes, then check status
+sleep 300 && curl http://api/status
+```
+
+❌ **Overcomplicated:**
+```python
+# Custom polling script with retries, exponential backoff, etc.
+# for a one-time status check
+```
+
+✅ **Simple:**
+```bash
+# Filter JSON with jq
+cat data.json | jq '.results[] | select(.status == "success")'
+```
+
+❌ **Overcomplicated:**
+```python
+# Custom Python script to parse and filter JSON
+# when jq does it in one line
+```
+
+**When custom tools ARE appropriate:**
+- Reusable across multiple workflows
+- Complex business logic that can't be expressed simply
+- Type safety and validation are critical
+- Integration with existing systems requires structure
+
+**Guideline:** Start simple. Only add complexity when you've proven the simple solution won't work.
+
 ## Review Checklist
 - No magic numbers/strings
 - Configurable values in config files, not hardcoded
@@ -49,3 +93,4 @@ Code Quality Fundamentals
 - Error handling uses specific exception types
 - Functions are focused and well-named
 - Resources are properly cleaned up
+- Solution is as simple as possible (prefer built-in tools)

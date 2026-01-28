@@ -516,6 +516,32 @@ cursor.execute(
 
 This applies to both raw SQL and query builders.
 
+## Django Unmanaged Models and Database Migrations
+
+**CRITICAL:** When SQL migrations modify schema for tables with Django unmanaged models (`managed = False`), the Django model definitions must be manually updated to match.
+
+Django only auto-detects changes to *managed* models. Unmanaged models are your responsibility.
+
+```python
+# When you see this in a Django model:
+class ChannelTaggingRuleSet(models.Model):
+    class Meta:
+        managed = False  # ← No auto-migrations!
+        db_table = "channel_tagging_rule_sets"
+```
+
+**During migration development:**
+1. Identify if table has Django model: `grep -r 'db_table = "your_table"' python-src/apps/`
+2. If model exists and is unmanaged, update model to match migration
+3. Update fields, indexes, and constraints in model's Meta class
+4. Verify serializers, views, and tests don't reference removed fields
+
+**During code review:**
+- Ask: "Does this table have an unmanaged Django model?"
+- If yes: "Has the model been updated to match?"
+
+**See:** `~/.claude/context/data-pipelines/testing/django-model-migration-sync.md` for complete verification checklist and real-world examples.
+
 ## Avoid Generic File Names
 
 Never use generic names like `utils.py`, `helpers.py`, `common.py`, `misc.py`.
@@ -1057,6 +1083,81 @@ Use Linear "magic branch names" for automatic ticket linking:
 Common types: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`
 
 **Reference:** Notion - Git SDLC & Best Practices
+
+## Naming Conventions (Updated 2026-01-27)
+
+Follow consistent naming patterns across the codebase:
+
+**Directories:** Use kebab-case
+```
+# Correct
+python-src/apps/miniapp-serving/
+charts/customer-dashboard-api/
+
+# Incorrect
+python-src/apps/miniapp_serving/
+charts/customerDashboardApi/
+```
+
+**Python modules:** Use snake_case (PEP 8)
+```python
+# Correct
+from upside.data_processing.datasets import user_dataset
+
+# Incorrect
+from upside.dataProcessing.datasets import userDataset
+```
+
+**README placement:** At pyproject.toml level
+```
+python-src/libs/core/
+├── pyproject.toml
+├── README.md        # Documentation here
+└── src/
+    └── upside/
+        └── core/    # NOT here
+```
+
+See `~/.claude/context/data-pipelines/standards/naming-conventions.md` for complete reference.
+
+## Documentation Strategy (Updated 2026-01-27)
+
+Split documentation by audience:
+
+**Notion:** Product and business documentation
+- Product specifications and requirements
+- Feature proposals and RFCs
+- Meeting notes and decisions
+- Stakeholder communications
+
+**GitHub:** Engineering documentation
+- Technical specifications
+- API documentation
+- Setup and development guides
+- Package READMEs (at pyproject.toml level)
+- Runbooks and operational guides
+
+**Key principle:** Code-adjacent docs live with code; product-adjacent docs live in Notion.
+
+See `~/.claude/context/data-pipelines/standards/documentation-strategy.md` for complete reference.
+
+## PR Workflow Standards (Updated 2026-01-27)
+
+**Follow-up tracking:** When a PR is approved with follow-up work identified:
+1. Create Linear ticket before merging
+2. Link ticket in PR comment: "Follow-up tracked in LIN-XXX"
+3. Add `has-follow-up` label to original PR
+
+**Stale PR policy (under discussion):**
+- 7 days inactive: Bot pings author
+- 14 days inactive: Consider auto-close
+- Draft/WIP PRs exempted
+
+**Merge strategy:**
+- Feature branches → main: Squash merge
+- main → prod: Regular merge
+
+See `~/.claude/context/data-pipelines/standards/pr-workflow.md` for complete reference.
 
 ## LLM Agent Documentation Requirements
 

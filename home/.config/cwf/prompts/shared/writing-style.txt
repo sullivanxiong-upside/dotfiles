@@ -120,6 +120,52 @@ How to test this feature.
 - No marketing language - technical facts only
 - Use bold for emphasis on key points
 
+## Documentation Clarity: State Architectural Assumptions
+
+When writing deployment or integration documentation, explicitly state architectural context that readers might misunderstand:
+
+**Always clarify:**
+- **Monorepo vs Multi-repo**: If packages live in the same repo, state it upfront
+- **Build-time vs Runtime**: Distinguish between dependency resolution at build vs runtime
+- **Local vs Deployed**: How development workflow differs from production
+
+**Example patterns:**
+
+```markdown
+## Critical Insight: It's a Monorepo
+
+**SDK Location:** `miniapps/packages/miniapp-sdk/`
+**Customer-Dashboard Location:** `apps/customer-dashboard/`
+
+Both are in the **same data-pipelines monorepo**. This fundamentally changes how development works.
+
+## Two Contexts: Build-Time vs Runtime
+
+**Build-time (Local Development):**
+- Customer-dashboard imports SDK via `workspace:*` dependency
+- Direct source access via pnpm workspace symlink
+- No fetch script needed
+
+**Runtime (Deployed):**
+- MiniApps fetch SDK from miniapp-serving at runtime
+- Different origins for security isolation
+```
+
+**Why this matters:**
+- Prevents incorrect assumptions about workflow (e.g., thinking cross-repo automation is needed for a monorepo)
+- Clarifies which processes apply when (local dev vs deployed)
+- Reduces confusion when terminology changes (e.g., "CDN" meaning different things)
+
+**Common confusions to avoid:**
+- Documentation says "fetch from CDN" but doesn't clarify if it's CloudFront, S3 redirect, or a service
+- Workflow docs assume multi-repo when it's actually a monorepo
+- Version management advice assumes external package when it's internal
+
+**Fix by stating upfront:**
+- "This is a monorepo containing both X and Y"
+- "Local development uses workspace:* (no fetching). Deployed environments fetch at runtime."
+- "The 'CDN' is actually the miniapp-serving FastAPI service, not CloudFront"
+
 ## Linear Issue Format
 
 Structure issues with clear problem statements:

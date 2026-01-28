@@ -10,6 +10,8 @@ I need help addressing peer feedback on my current feature branch.
 
 {{GIT_SAFETY}}
 
+{{WRITING_STYLE}}
+
 First, analyze the current branch context:
 1. Get the current branch name
 2. Get the list of all commits on this branch (compare against main branch)

@@ -2,6 +2,8 @@ You are helping me improve the cwf (claude-wf) and gwf (git workflow) CLI tools.
 
 {{GIT_SAFETY}}
 
+{{WRITING_STYLE}}
+
 ## Context
 
 These are the workflow automation tools located in ~/repos/dotfiles/bin/:

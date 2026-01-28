@@ -1,0 +1,140 @@
+# Spec PR Workflow Integration
+
+## Three-Step Feature Development Process
+
+For complex features requiring architectural decisions or significant technical planning, follow this pattern:
+
+### Step 1: Spec PR (Planning Phase)
+**Purpose:** Document the plan, get architectural buy-in, surface concerns early
+
+**Deliverables:**
+- Comprehensive specification document in `docs/` (SCREAMING_SNAKE_CASE.md)
+- Optional: Detection/analysis scripts to quantify scope
+- PR description explaining design decisions and scope boundaries
+
+**Key sections in spec:**
+- Problem Statement with success criteria
+- Key Design Decisions table with rationale
+- Current State vs Target State
+- Architecture Overview (Mermaid diagrams, directory trees)
+- Implementation Approach broken into phases
+- Testing Strategy
+- Known Gaps (honest assessment)
+
+### Step 2: Implementation PR
+**Purpose:** Execute the approved spec, make actual code changes
+
+**Review focus:** Adherence to spec, code quality, test coverage
+
+### Step 3: Follow-up PR(s)
+**Purpose:** Address bugs, gaps, or improvements discovered during/after implementation
+
+## When to Use Spec PRs
+
+**Good candidates for spec-first approach:**
+- Migration plans (framework upgrades, monorepo consolidation)
+- New feature specifications with architectural implications
+- Deployment workflows and infrastructure changes
+- API design and breaking changes
+- Database schema changes affecting multiple systems
+- Multi-phase features requiring team coordination
+
+**Can skip spec (direct implementation):**
+- Bug fixes (unless they require architectural changes)
+- Small feature additions to well-defined components
+- Refactoring within existing boundaries
+- Documentation-only changes
+- Configuration updates
+
+## IMPORTANT: Always Ask First
+
+**Before starting any feature work, ask the user:**
+
+"Should we approach this with:
+1. **Spec PR first** (recommended for complex changes) - Write comprehensive spec, get approval, then implement
+2. **Direct implementation** - Start coding immediately
+
+For spec PR, I'll create a detailed specification document following the template in `~/.claude/context/data-pipelines/standards/spec-pr-workflow.md`"
+
+## Spec Document Template Reference
+
+Full template available at: `~/.claude/context/data-pipelines/standards/spec-pr-workflow.md`
+
+**Key template sections:**
+1. Problem Statement
+2. Key Design Decisions (table format)
+3. Current State
+4. Target State
+5. Architecture Overview
+6. Implementation Approach
+7. Detection/Analysis (optional)
+8. Developer Workflow
+9. Testing Strategy
+10. Deployment Plan
+11. Documentation Updates
+12. Known Gaps
+13. Implementation Checklist
+14. Timeline Estimate (optional)
+15. References
+
+**Spec document location:** `docs/FEATURE_NAME_SPEC.md` or `docs/feature-name-spec.md`
+
+**Detection scripts location:** `scripts/detect-feature-issues.sh` (if applicable)
+
+## PR Description Template for Spec PRs
+
+```markdown
+## Summary
+
+[One paragraph describing what this spec covers]
+
+This is a **specification-only PR**. Implementation work will follow in subsequent PRs tracked under [Linear tickets].
+
+## Context
+
+- **Related Linear issues**: [Links]
+- **Stakeholder approval**: [Who approved]
+- **Implementation plan**: [Estimated scope]
+
+## Key Design Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| [Aspect] | [Option] | [Why this over alternatives] |
+
+## What This Spec Covers
+
+- **[Component 1]**: [Description]
+- **[Component 2]**: [Description]
+
+## What's NOT in This PR
+
+Implementation work to be completed in follow-up PRs:
+- [ ] Actual code implementation
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] Documentation updates
+
+## Known Gaps
+
+1. **[Gap]**: [Description and plan to address]
+
+## Test Plan
+
+**For this PR (spec review):**
+- [ ] Technical accuracy and completeness
+- [ ] Alignment with existing patterns
+- [ ] Feasibility of implementation
+
+**For implementation PRs:**
+- [ ] Unit tests: [Coverage requirements]
+- [ ] Integration tests: [Scenarios]
+```
+
+## Workflow After Spec Approval
+
+Once spec PR is merged:
+1. Create implementation PR(s) referencing the spec
+2. Follow spec's implementation checklist
+3. Update spec if implementation reveals issues
+4. Create follow-up PR(s) for gaps/improvements

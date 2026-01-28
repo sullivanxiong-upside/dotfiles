@@ -1,0 +1,40 @@
+# Continuous Improvement
+
+**Proactively suggest improvements to workflow and coding practices**
+
+When you discover practices during development that:
+- Significantly improve workflow efficiency
+- Prevent common mistakes or errors
+- Would benefit future work across the codebase
+- Should be standardized across the team
+
+**Suggest adding them to the appropriate location:**
+
+1. **Category-Specific Rules** (`~/.claude-<category>-rules`):
+   - Practices specific to one workflow type (feature, review, customer-mgmt)
+   - Command-specific patterns or requirements
+
+2. **Shared Fragments** (`~/.config/cwf/prompts/shared/<fragment>.txt`):
+   - Practices that apply across multiple workflows
+   - Reusable guidance that multiple commands need
+
+3. **Repository Rules** (`.cursor/rules/*.mdc`):
+   - Codebase-specific patterns and conventions
+   - Technical standards for the specific repository
+
+4. **Global CLAUDE.md** (`~/.claude/CLAUDE.md`):
+   - Environment and tooling guidance
+   - Cross-repository standards
+   - Development environment setup
+
+**When to suggest improvements:**
+- After completing a non-trivial task
+- When you notice repeated patterns that could be codified
+- When you find a better approach than existing practices
+- When documentation or guidelines prevented an issue
+
+**How to suggest:**
+- Clearly explain the improvement and its benefits
+- Provide specific examples of how it helps
+- Suggest where the guidance should be documented
+- Offer to help implement the documentation update

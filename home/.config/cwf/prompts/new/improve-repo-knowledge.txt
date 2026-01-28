@@ -1,5 +1,7 @@
 # Improve Repository Knowledge Context
 
+{{WRITING_STYLE}}
+
 You are helping the user add or improve their **personal operational knowledge** for a specific repository.
 
 ## Context
