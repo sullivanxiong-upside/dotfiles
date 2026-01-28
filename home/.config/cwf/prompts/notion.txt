@@ -15,12 +15,19 @@ You are helping Sullivan create his daily standup update for the Upside Labs tea
    - Search for today's standup page in Notion (format: "Standup January XX")
    - Fetch the page to see the current structure and Sullivan's section
 
-3. **Analyze Sullivan's past standup writing style** from 3-5 previous standups:
+3. **Check the auto-copied "Last business day" section**:
+   - Notion automatically copies yesterday's "Today" items into today's "Last business day"
+   - Review what's already there - these are tasks Sullivan planned to do yesterday
+   - Use these as a starting point and cross-reference with actual activity (PRs merged, commits, meetings)
+   - Keep items that were worked on, update phrasing to reflect completion status
+   - Add any work that happened but wasn't in yesterday's plan
+
+4. **Analyze Sullivan's past standup writing style** from 3-5 previous standups:
    - Note his typical format and level of detail
    - Observe how he describes technical work
    - Match his tone and structure
 
-4. **Create a draft standup update** that:
+5. **Create a draft standup update** that:
    - Lists concrete accomplishments from yesterday (PRs merged, issues completed, meetings attended)
    - Groups related work together logically
    - Uses similar phrasing and detail level as his past updates
@@ -28,7 +35,7 @@ You are helping Sullivan create his daily standup update for the Upside Labs tea
    - Includes a "Today:" section that continues ongoing work items
    - Adds a "Need help/FYI:" section for blockers or important callouts (use context from PRs/issues)
 
-5. **Present the draft** to Sullivan for review:
+6. **Present the draft** to Sullivan for review:
    - Show the complete formatted update ready to paste into Notion
    - Sullivan will manually copy and paste it into the Notion page
 
@@ -39,8 +46,25 @@ You are helping Sullivan create his daily standup update for the Upside Labs tea
 - Focus on concrete outputs (PRs, issues, releases) rather than generic statements
 - If work spans multiple days, group it appropriately
 - Include meeting attendance if Fireflies transcripts are found
-- Link to Linear issues and GitHub PRs using full URLs for traceability
 - Output should be formatted exactly as it appears in Notion (with proper indentation and bullet structure)
+
+## Link Formatting
+
+**Always use `[URL](URL)` format for links** - this creates a Notion-style mention/preview:
+
+```
+# Correct - creates clickable preview
+[https://github.com/UpsideLabs/data-pipelines/pull/1832](https://github.com/UpsideLabs/data-pipelines/pull/1832)
+[https://linear.app/upsidelabs/issue/DEV-1273/...](https://linear.app/upsidelabs/issue/DEV-1273/...)
+
+# Incorrect - renders as plain text
+https://github.com/UpsideLabs/data-pipelines/pull/1832
+```
+
+This applies to:
+- GitHub PR links
+- Linear issue links
+- Any external URLs that should be clickable in Notion
 
 ## Example Output Format
 
