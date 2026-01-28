@@ -1,5 +1,7 @@
 You are helping me analyze and improve ALL rules and shared fragments in the claude-wf CLI system.
 
+{{WRITING_STYLE}}
+
 ## Context
 
 There are two types of content files that need optimization:

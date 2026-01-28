@@ -10,6 +10,8 @@ I need to understand the current state of this feature branch and create a plan 
 
 {{WRITING_STYLE}}
 
+{{SPEC_PR_GUIDELINES}}
+
 ## Analysis Phase
 
 First, analyze the current branch thoroughly:
@@ -22,10 +24,12 @@ First, analyze the current branch thoroughly:
 
 2. **Feature Understanding:**
    - What is the overall purpose and goal of this feature branch?
+   - **Check for Spec:** Is there a specification document in `docs/` for this feature? If so, read it to understand the approved plan.
    - What has been implemented so far?
    - What are the key components, files, and changes?
    - What patterns or approaches are being used?
    - Are there any tests, documentation, or configuration changes?
+   - **If spec exists:** Does the implementation follow the spec's approach?
 
 3. **Progress Assessment:**
    - How complete does the implementation appear to be?

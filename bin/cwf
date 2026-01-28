@@ -41,6 +41,7 @@ declare -A COMMAND_REGISTRY=(
   ["new:add-skill"]="new/add-skill.txt"
   ["new:improve-tmux"]="new/improve-tmux.txt"
   ["new:improve-nvim"]="new/improve-nvim.txt"
+  ["new:write-spec"]="new/write-spec.txt"
 )
 
 # Category descriptions
@@ -322,6 +323,10 @@ function load_all_shared_fragments() {
     ["GITHUB_CONTEXT"]="github-context.txt"
     ["UPSIDE_STANDARDS"]="upside.txt"
     ["WRITING_STYLE"]="writing-style.txt"
+    ["SPEC_PR_GUIDELINES"]="spec-pr-guidelines.txt"
+    ["FILE_READING_REMINDER"]="file-reading-reminder.txt"
+    ["DOCS_INSTRUCTIONS"]="docs-instructions.txt"
+    ["CONTINUOUS_IMPROVEMENT"]="continuous-improvement.txt"
   )
 
   # Load each fragment that's referenced in the prompt
@@ -386,6 +391,10 @@ function replace_templates() {
   local project_rules=$(load_fragment_if_needed "$prompt" "PROJECT_RULES" "project-rules.txt")
   local worktree_workflow=$(load_fragment_if_needed "$prompt" "WORKTREE_WORKFLOW" "worktree-workflow.txt")
   local github_context=$(load_fragment_if_needed "$prompt" "GITHUB_CONTEXT" "github-context.txt")
+  local spec_pr_guidelines=$(load_fragment_if_needed "$prompt" "SPEC_PR_GUIDELINES" "spec-pr-guidelines.txt")
+  local file_reading=$(load_fragment_if_needed "$prompt" "FILE_READING_REMINDER" "file-reading-reminder.txt")
+  local docs_instr=$(load_fragment_if_needed "$prompt" "DOCS_INSTRUCTIONS" "docs-instructions.txt")
+  local cont_improve=$(load_fragment_if_needed "$prompt" "CONTINUOUS_IMPROVEMENT" "continuous-improvement.txt")
 
   # Build repo context index (special handling - not a shared fragment)
   local repo_context_index=""
@@ -413,6 +422,10 @@ function replace_templates() {
   prompt="${prompt//\{\{PROJECT_RULES\}\}/$project_rules}"
   prompt="${prompt//\{\{WORKTREE_WORKFLOW\}\}/$worktree_workflow}"
   prompt="${prompt//\{\{GITHUB_CONTEXT\}\}/$github_context}"
+  prompt="${prompt//\{\{SPEC_PR_GUIDELINES\}\}/$spec_pr_guidelines}"
+  prompt="${prompt//\{\{FILE_READING_REMINDER\}\}/$file_reading}"
+  prompt="${prompt//\{\{DOCS_INSTRUCTIONS\}\}/$docs_instr}"
+  prompt="${prompt//\{\{CONTINUOUS_IMPROVEMENT\}\}/$cont_improve}"
   prompt="${prompt//\{\{REPO_CONTEXT_INDEX\}\}/$repo_context_index}"
   prompt="${prompt//\{\{REPO_CONTEXT_FILE_INFO\}\}/$repo_context_file_info}"
 
@@ -430,31 +443,15 @@ function replace_templates() {
 }
 
 # Remove template variable placeholders from prompt (for optimization)
+# This function removes any remaining template variables that weren't replaced.
+# All variables in fragment_map and those with special handling should NOT be here!
 function remove_template_placeholders() {
   local prompt="$1"
 
-  # Remove all template variable placeholders
-  prompt="${prompt//\{\{DOCS_INSTRUCTIONS\}\}/}"
-  prompt="${prompt//\{\{DESIGN_PATTERNS\}\}/}"
-  prompt="${prompt//\{\{API_PROTO_CHECK\}\}/}"
-  prompt="${prompt//\{\{FILE_READING_REMINDER\}\}/}"
-  prompt="${prompt//\{\{REVIEW_AND_UPDATE_DOCS\}\}/}"
-  prompt="${prompt//\{\{WORKFLOW_COMMANDS\}\}/}"
-  prompt="${prompt//\{\{PLANNING_GUIDELINES\}\}/}"
-  prompt="${prompt//\{\{CODE_QUALITY_FUNDAMENTALS\}\}/}"
-  prompt="${prompt//\{\{RUNTIME_SAFETY\}\}/}"
-  prompt="${prompt//\{\{SECURITY_CHECKS\}\}/}"
-  prompt="${prompt//\{\{PERFORMANCE_DATABASE\}\}/}"
-  prompt="${prompt//\{\{TESTING_DOCUMENTATION\}\}/}"
-  prompt="${prompt//\{\{EXTRACT_REUSABLE_CODE\}\}/}"
-  prompt="${prompt//\{\{GIT_SAFETY\}\}/}"
-  prompt="${prompt//\{\{PROJECT_RULES\}\}/}"
-  prompt="${prompt//\{\{WORKTREE_WORKFLOW\}\}/}"
-  prompt="${prompt//\{\{GITHUB_CONTEXT\}\}/}"
-  prompt="${prompt//\{\{REPO_CONTEXT_INDEX\}\}/}"
-  prompt="${prompt//\{\{REPO_CONTEXT_FILE_INFO\}\}/}"
-  prompt="${prompt//\{\{CUSTOM_RULES\}\}/}"
-  prompt="${prompt//\{\{CATEGORY_RULES\}\}/}"
+  # If we ever find template variables that need removal, add them here
+  # Currently all template variables are properly handled via:
+  # - fragment_map (for shared fragments)
+  # - Special handling (CUSTOM_RULES, CATEGORY_RULES, CONTEXT, REPO_CONTEXT_*, etc.)
 
   echo "$prompt"
 }

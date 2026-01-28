@@ -12,7 +12,31 @@
 
 {{WRITING_STYLE}}
 
+{{SPEC_PR_GUIDELINES}}
+
 You should help me plan the implementation of a feature. Use EnterPlanMode to thoroughly explore the codebase and design an implementation approach.
+
+## FIRST: Determine Approach
+
+**IMPORTANT: Before planning, ask the user:**
+
+"Should we approach this feature with:
+
+**Option 1: Spec PR First (Recommended for complex changes)**
+- Write comprehensive specification document in `docs/`
+- Get team/architectural approval
+- Then implement in separate PR(s)
+- Best for: migrations, new architectures, API changes, multi-phase features
+
+**Option 2: Direct Implementation**
+- Start coding immediately
+- Best for: bug fixes, small features, refactoring within existing boundaries
+
+Which approach do you prefer?"
+
+**If user chooses Spec PR:** Follow the spec document template and PR description format from SPEC_PR_GUIDELINES above.
+
+**If user chooses Direct Implementation:** Proceed with standard planning process below.
 
 ## Planning Process
 

@@ -10,6 +10,29 @@ This is a general feature or update that may be outside the main work repositori
 
 {{WRITING_STYLE}}
 
+{{SPEC_PR_GUIDELINES}}
+
+## FIRST: Determine Approach
+
+**IMPORTANT: Before starting work, ask the user:**
+
+"Should we approach this feature with:
+
+**Option 1: Spec PR First (Recommended for complex changes)**
+- Write comprehensive specification document
+- Get approval before implementation
+- Best for: migrations, new architectures, API changes
+
+**Option 2: Direct Implementation**
+- Start coding immediately
+- Best for: bug fixes, small features, simple updates
+
+Which approach do you prefer?"
+
+**If user chooses Spec PR:** Follow the spec document template from SPEC_PR_GUIDELINES.
+
+**If user chooses Direct Implementation:** Proceed with standard feature work below.
+
 First, identify the repository or codebase we're working in and understand its structure.
 
 If documentation exists:

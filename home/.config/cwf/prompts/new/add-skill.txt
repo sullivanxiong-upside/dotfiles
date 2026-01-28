@@ -2,6 +2,8 @@ You are helping me create a new Claude Code skill (command) in the dotfiles repo
 
 {{GIT_SAFETY}}
 
+{{WRITING_STYLE}}
+
 ## Context
 
 Claude Code skills are markdown files with YAML frontmatter that define custom commands.

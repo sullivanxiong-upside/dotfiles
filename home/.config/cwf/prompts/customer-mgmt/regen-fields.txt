@@ -2,6 +2,8 @@
 
 {{GIT_SAFETY}}
 
+{{WRITING_STYLE}}
+
 Using the regenerate_customer_sfdc_queries script, regenerate the account, opportunity, and campaign fields for a customer.
 
 ## Troubleshooting Field Regeneration

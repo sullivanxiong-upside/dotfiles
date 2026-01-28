@@ -1,0 +1,15 @@
+# File Reading Reminder
+
+**CRITICAL: Always read files before modifying them**
+
+- Never modify a file without reading it first using the Read tool
+- Never assume file contents - always verify before making changes
+- When editing multiple related files, read all of them first to understand the full context
+- Check existing patterns and conventions in the file before adding new code
+- Verify imports, dependencies, and references in the file
+
+This prevents:
+- Breaking existing functionality
+- Introducing inconsistencies with existing code style
+- Duplicating code that already exists
+- Missing important context or edge cases
