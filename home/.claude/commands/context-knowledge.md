@@ -12,8 +12,8 @@ allowed-tools:
 
 ## Context
 
-- Current repository: !`git rev-parse --show-toplevel 2>/dev/null`
-- Current branch: !`git branch --show-current 2>/dev/null`
+- Current repository: !`git rev-parse --show-toplevel 2>/dev/null || echo "(not in a git repo)"`
+- Current branch: !`git branch --show-current 2>/dev/null || echo "(no branch)"`
 
 ## Arguments
 
