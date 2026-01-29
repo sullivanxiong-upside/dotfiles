@@ -1,5 +1,5 @@
 ---
-description: Extract and preserve operational knowledge from conversation into context files and cwf prompts
+description: Extract and preserve operational knowledge from conversation into context files, cwf prompts, and memory MCP
 allowed-tools:
   - Read
   - Write
@@ -9,6 +9,11 @@ allowed-tools:
   - Bash(mkdir:*)
   - Bash(git rev-parse:*)
   - Bash(git branch:*)
+  - mcp__memory__create_entities
+  - mcp__memory__create_relations
+  - mcp__memory__add_observations
+  - mcp__memory__search_nodes
+  - mcp__memory__read_graph
 ---
 
 ## Context
@@ -112,12 +117,67 @@ These define workflow-specific behaviors:
 4. Preserve the existing structure and format
 5. Update `~/.claude/context/cwf-prompts-library.md` if you added new prompts
 
-### 4. Provide a comprehensive summary
+### 4. Memory MCP Knowledge Graph
+
+For **relational knowledge** about people, teams, projects, and their connections, use the memory MCP. This complements context files by capturing structured relationships that are hard to express in markdown.
+
+**When to use Memory MCP (vs context files):**
+
+| Use Memory MCP for... | Use Context Files for... |
+|----------------------|-------------------------|
+| People and relationships | Technical procedures |
+| Org structure / reporting chains | Deployment workflows |
+| Project ownership | Service architectures |
+| Customer contacts | Debugging approaches |
+| Personal preferences learned | Configuration patterns |
+| Meeting patterns / communication styles | Code conventions |
+
+**Entity types to create:**
+- `Person` - Team members, stakeholders, customers
+- `Team` - Engineering, Product, GTM, etc.
+- `Project` - Major initiatives or products
+- `Customer` - Customer companies and contacts
+- `Tool` - Internal tools and their purposes
+
+**Relation types to use:**
+- `reports to` - Org hierarchy
+- `works on` - Project assignments
+- `owns` - Ownership/responsibility
+- `works at` - Employment
+- `leads` - Leadership roles
+- `collaborates with` - Working relationships
+- `prefers` - Communication/work preferences
+
+**Process:**
+1. Search existing entities: `mcp__memory__search_nodes` to avoid duplicates
+2. Create new entities with observations: `mcp__memory__create_entities`
+3. Create relations between entities: `mcp__memory__create_relations`
+4. Add observations to existing entities: `mcp__memory__add_observations`
+
+**Example - Capturing team structure:**
+```json
+// Entities
+{"name": "Bob Jones", "entityType": "Person", "observations": ["Engineering Manager", "Owns backend infrastructure", "Prefers async communication"]}
+{"name": "Project Alpha", "entityType": "Project", "observations": ["Core product codebase", "Python/TypeScript stack"]}
+
+// Relations
+{"from": "Bob Jones", "to": "Project Alpha", "relationType": "owns"}
+{"from": "Alice Smith", "to": "Bob Jones", "relationType": "reports to"}
+```
+
+**Example - Capturing communication preferences:**
+```json
+// Add to existing person
+{"entityName": "Alice Smith", "contents": ["Prefers reading over being walked through things", "Values being challenged and debated with"]}
+```
+
+### 5. Provide a comprehensive summary
 
 List what was captured:
 - Repository context files created/updated
 - CWF shared prompts updated (with what improvement)
 - CWF workflow prompts updated (with what improvement)
+- Memory MCP entities/relations created or updated
 - Full paths for future reading
 
 ## Guidelines

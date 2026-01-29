@@ -1,10 +1,13 @@
 ---
-description: Discover available context files and shared prompt rules
+description: Discover available context files, shared prompt rules, and memory MCP knowledge
 allowed-tools:
   - Read
   - Bash(ls:*)
   - Bash(find:*)
   - Bash(tree:*)
+  - mcp__memory__read_graph
+  - mcp__memory__search_nodes
+  - mcp__memory__open_nodes
 ---
 
 ## Context
@@ -50,9 +53,25 @@ Examples:
 - `data-pipelines/deployment/argocd-setup.md`
 - `dotfiles/claude-code-skills.md`
 
+**Memory MCP Knowledge Graph:**
+
+The memory MCP stores relational knowledge about people, teams, projects, and their connections:
+
+```
+mcp__memory__read_graph     # Read entire knowledge graph
+mcp__memory__search_nodes   # Search for specific entities
+mcp__memory__open_nodes     # Get details for specific named entities
+```
+
+Examples of stored knowledge:
+- Org structure and reporting chains
+- Project ownership and team assignments
+- Customer contacts and relationships
+- Communication preferences and working styles
+
 ## Step 1: Discover Available Context
 
-Run commands to list available context:
+**Context files:**
 
 ```bash
 # List general context files
@@ -63,6 +82,21 @@ ls -d ~/.claude/context/*/ | xargs -n 1 basename
 
 # Show structure for specific repo
 tree -L 2 ~/.claude/context/{repo-name}/ 2>/dev/null || find ~/.claude/context/{repo-name} -name "*.md" -type f
+```
+
+**Memory MCP knowledge graph:**
+
+Use MCP tools to discover relational knowledge:
+
+```
+# Read entire knowledge graph (entities + relations)
+mcp__memory__read_graph
+
+# Search for specific topics (e.g., people, projects)
+mcp__memory__search_nodes with query: "Alice" or "project-alpha"
+
+# Get details for known entity names
+mcp__memory__open_nodes with names: ["Alice Smith", "Bob Jones"]
 ```
 
 ## Step 2: Identify Relevant Context
@@ -79,6 +113,13 @@ Based on the current task or user's question, determine which context files are 
 - Investigating errors? Check `{repo}/monitoring/` files
 - Deploying changes? Check `{repo}/deployment/` files
 - New features? Check `{repo}/architecture/` and `{repo}/services/` files
+
+**For people/relationship knowledge (Memory MCP):**
+
+- Need to know org structure? Read the knowledge graph for reporting chains
+- Working with someone new? Search for their entity to learn preferences
+- Customer context? Search for customer entities and relations
+- Project ownership? Search for project entities and "owns" relations
 
 **Using shared prompts from cwf-prompts-library.md:**
 
@@ -109,6 +150,11 @@ Relevant Context Files:
 
 2. ~/.config/cwf/prompts/shared/{file}.txt
    Shared prompt fragment (from cwf-prompts-library reference)
+
+Memory MCP Knowledge (if relevant):
+- Entities: [list relevant people/projects/teams found]
+- Relations: [key relationships discovered]
+- Key observations: [relevant facts about entities]
 
 Quick Read Commands:
 Read ~/.claude/context/{file}.md
@@ -144,6 +190,12 @@ Use your judgment to proactively read relevant context:
 **When working with git:**
 
 - Pull in `git-safety.txt` from shared prompts
+
+**When working with people/teams:**
+
+- Search memory MCP for person's entity to learn their preferences
+- Check reporting structure if escalating or collaborating cross-team
+- Review customer entities before customer-facing work
 
 ## Guidelines
 
@@ -208,6 +260,20 @@ User asks you to write a PR description:
 5. Apply the no-emoji, concise, factual style
 6. Generate the PR description
 
+User asks you to write feedback for a colleague:
+
+1. Search memory MCP for the person's entity: `mcp__memory__search_nodes("Alice")`
+2. Discover stored observations about their communication style and preferences
+3. Check relations to understand org context (who they report to, who reports to them)
+4. Tailor the feedback approach based on their preferences
+5. Write feedback that aligns with their communication style
+
 ## Remember
 
 The goal is to help the user acquire context quickly and help you discover relevant standards and conventions. Be selective about what you show and recommend. Use the cwf-prompts-library as your guide to available shared prompts, then pull in the specific ones you need.
+
+**Context files vs Memory MCP:**
+- Context files = technical knowledge (how to do things)
+- Memory MCP = relational knowledge (who, what, relationships)
+
+Both complement each other. For a complete picture, check both sources when relevant.
