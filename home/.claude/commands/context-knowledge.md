@@ -40,6 +40,17 @@ Examples:
 - `cwf-prompts-library.md` - Complete reference of all cwf workflow prompts and shared rules
 - `claude-code-hooks.md` - Claude Code hooks API and notification patterns
 
+**Personal context** (private personal knowledge):
+
+```
+~/.claude/context-personal/*.md
+```
+
+Examples:
+
+- `relationships.md` - People, org structure, preferences
+- `personal.md` - Personal notes and reminders
+
 **Repository-specific context**:
 
 ```
@@ -76,6 +87,9 @@ Examples of stored knowledge:
 ```bash
 # List general context files
 ls -1 ~/.claude/context/*.md
+
+# List personal context files
+ls -1 ~/.claude/context-personal/*.md 2>/dev/null
 
 # List all repositories with context
 ls -d ~/.claude/context/*/ | xargs -n 1 basename
